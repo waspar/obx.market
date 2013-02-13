@@ -1,0 +1,186 @@
+/***************************************
+ ** @product OBX:Market Bitrix Module **
+ ** @authors                          **
+ **         Maksim S. Makarov         **
+ **         Morozov P. Artem          **
+ ** @License GPLv3                    **
+ ** @mailto rootfavell@gmail.com      **
+ ** @mailto tashiro@yandex.ru         **
+ ***************************************/
+
+/********* MENU ***********/
+#button_obx_market {
+	background: url(obx.market/big_menu_button.png) left center no-repeat;
+}
+
+#obx_market_menu_icon_orders {
+	background: url(obx.market/menu_market_orders.png) center center no-repeat;
+}
+#obx_market_page_icon_orders {
+	background: url(obx.market/page_market_orders.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_order_props {
+	background: url(obx.market/menu_market_order_props.png) center center no-repeat;
+}
+#obx_market_page_icon_order_props {
+	background: url(obx.market/page_market_order_props.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_order_status {
+	background: url(obx.market/menu_market_order_status.png) center center no-repeat;
+}
+#obx_market_page_icon_order_status {
+	background: url(obx.market/page_market_order_status.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_market_options {
+	background: url(obx.market/menu_market_options.png) center center no-repeat;
+}
+#obx_market_page_icon_market_options {
+	background: url(obx.market/page_market_options.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_places {
+	background: url(obx.market/menu_market_places.png) center center no-repeat;
+}
+#obx_market_page_icon_places {
+	background: url(obx.market/page_market_places.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_statistics {
+	background: url(obx.market/menu_market_statistics.png) center center no-repeat;
+}
+#obx_market_page_icon_statistics {
+	background: url(obx.market/page_market_statistics.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_pay_systems {
+	background: url(obx.market/menu_market_pay_systems.png) center center no-repeat;
+}
+#obx_market_page_icon_pay_systems {
+	background: url(obx.market/page_market_pay_systems.png) center center no-repeat;
+}
+
+#obx_market_menu_icon_delivery_systems {
+	background: url(obx.market/menu_market_delivery_systems.png) center center no-repeat;
+}
+#obx_market_page_icon_delivery_systems {
+	background: url(obx.market/page_market_delivery_systems.png) center center no-repeat;
+}
+
+.obx-order-status-icon {
+	display: block;
+	width: 100%;
+	height: 14px;
+	overflow: hidden;
+}
+
+/****** ORDERS LIST ******/
+.obx-order-is-active {
+	background: url(obx.market/item_is_active.gif) center center no-repeat;
+}
+.obx-order-is-not-active {
+	background: url(obx.market/item_is_not_active.gif) center center no-repeat;
+}
+.icon.obx-order-list-edit {
+	background: url(obx.market/item_edit.gif) center center no-repeat;
+}
+
+
+/****** MARKET SETTINGS *******/
+#obx_market_settings span.require {
+	color: red;
+	display: inline;
+}
+#obx_market_settings td.field-name {
+	display: none;
+}
+#obx_market_settings td {
+	vertical-align: middle !important;
+}
+#obx_market_settings td.delimiter {
+	padding: 0;
+	height: 2px;
+	background: url(images/edit/title_dot.gif) left top repeat-x;
+}
+#obx_market_settings td.delimiter.hard {
+	border-bottom: 1px solid #ABB6D7;
+	padding: 0;
+	height: 2px;
+	background: none;
+}
+#obx_market_settings .center{
+	text-align: center !important;
+}
+
+#obx_market_settings tr.replace {
+	display: none;
+}
+#obx_market_settings input[type=text].thous_sep {
+	width: 20px;
+}
+
+#obx_market_settings td.remove_new_item {
+	width: 90px;
+}
+
+#obx_market_settings_currency {
+
+}
+	#obx_market_settings_currency input[type=text] {
+		width: 110px;
+	}
+	#obx_market_settings_currency_edit_table td {
+		vertical-align: middle;
+	}
+
+#obx_market_settings_catalog .iblock-is-not-ecom{
+	color: gray;
+}
+
+#obx_market_settings_price .group_container .group_select select {
+	max-width: 150px;
+}
+
+/*  Редактирование заказа  */
+#obx_order_items_edit{
+
+}
+	#obx_order_items_edit #items_list .not {
+		width: 80%;
+		border: 0px;
+		background: white;
+	}
+	#obx_order_items_edit #items_list .noedit{
+		display: inline-block;
+	}
+	#obx_order_items_edit #items_list input[type="text"],
+	#items_list select{
+		width: 80%;
+	}
+		#obx_order_items_edit #items_list tr.deleted td,
+		#obx_order_items_edit #items_list tr.deleted td input[type="text"],
+		#obx_order_items_edit #items_list tr.deleted td select,
+		#obx_order_items_edit #items_list tr.deleted .noedit{
+			background: #FFB3B3;
+		}
+
+	#obx_order_items_edit #items_list td {
+		vertical-align: middle !important;
+	}
+	#obx_order_items_edit #items_list .item-name {
+		white-space: nowrap;
+	}
+		#obx_order_items_edit #items_list .item-name .change_button {
+
+		}
+		#obx_order_items_edit #items_list .item-name span {
+			width: 250px;
+			white-space: normal;
+			display: inline-block;
+			vertical-align: middle !important;
+		}
+	#obx_order_items_edit_edit_table #add_item {
+		margin-top: 10px;
+ 	}

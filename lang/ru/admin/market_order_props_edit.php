@@ -1,0 +1,29 @@
+<?php
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_TAB'] = 'Cвойство заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_TAB_TITLE'] = 'Редактирование свойства заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_TAB_TITLE_NEW'] = 'Создание нового свойства заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_CODE'] = 'Код';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_NAME'] = 'Имя';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_ACTIVE'] = 'Активность';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_SORT'] = 'Сортировка';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_DESCRIPTION'] = 'Описание';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_PROPERTY_TYPE'] = 'Тип свойства';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_ACCESS'] = 'Доступ';
+$MESS['OBX_MARKET_ORDER_PROP_TYPE_S'] = 'Строка';
+$MESS['OBX_MARKET_ORDER_PROP_TYPE_N'] = 'Число';
+$MESS['OBX_MARKET_ORDER_PROP_TYPE_T'] = 'Многострочный текст';
+$MESS['OBX_MARKET_ORDER_PROP_TYPE_L'] = 'Список';
+$MESS['OBX_MARKET_ORDER_PROP_TYPE_C'] = 'Флажок';
+$MESS['OBX_MARKET_ORDER_PROP_ACCESS_W'] = 'свойство редактируется пользователем на этапе оформления заказа';
+$MESS['OBX_MARKET_ORDER_PROP_ACCESS_R'] = 'свойство выводится, но редактируется только менеджером';
+$MESS['OBX_MARKET_ORDER_PROP_ACCESS_S'] = 'системное свойство. не выводится пользователю';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_LIST_VALUES'] = 'Списочные значения';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_VALUE'] = 'Значение';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_LST_VAL_SORT'] = 'Сорт.';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_F_LST_VAL_DEL'] = 'Удалить';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_ERROR_1'] = 'Ошибка создания нового свойства заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_ERROR_2'] = 'Ошибка обновления свойства заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_ERROR_3'] = 'Ошибка создания нового списочного значения свойства заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_ERROR_4'] = 'Ошибка обновления списочного значения свойства заказа';
+$MESS['OBX_MARKET_ORDER_PROP_EDIT_ERROR_5'] = 'Ошибка удаления списочного значения свойства заказа';
+?>

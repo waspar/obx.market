@@ -1,4 +1,3 @@
-<?
 /*************************************
  ** @product OBX:Core Bitrix Module **
  ** @authors                        **
@@ -9,4 +8,3 @@
  ** @mailto tashiro@yandex.ru       **
  *************************************/
 
-?>

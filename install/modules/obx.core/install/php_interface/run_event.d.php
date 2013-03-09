@@ -1,6 +1,15 @@
 <?php
+/*************************************
+ ** @product OBX:Core Bitrix Module **
+ ** @authors                        **
+ **         Maksim S. Makarov       **
+ **         Morozov P. Artem        **
+ ** @License GPLv3                  **
+ ** @mailto rootfavell@gmail.com    **
+ ** @mailto tashiro@yandex.ru       **
+ *************************************/
 
-class EventD {
+class OBX_EventD {
 	const PATH_TO_USRINC_DIR = "/bitrix/php_interface/";
 	const PATH_TO_EVENT_D = "/bitrix/php_interface/event.d";
 
@@ -29,6 +38,6 @@ class EventD {
 		}
 	}
 }
-EventD::connectAllEvents();
+OBX_EventD::connectAllEvents();
 
 ?>

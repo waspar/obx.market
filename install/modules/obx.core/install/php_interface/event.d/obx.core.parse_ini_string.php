@@ -1,4 +1,14 @@
 <?php
+/*************************************
+ ** @product OBX:Core Bitrix Module **
+ ** @authors                        **
+ **         Maksim S. Makarov       **
+ **         Morozov P. Artem        **
+ ** @License GPLv3                  **
+ ** @mailto rootfavell@gmail.com    **
+ ** @mailto tashiro@yandex.ru       **
+ *************************************/
+
 if( !function_exists('parse_ini_string') ) {
 	//*/
 	function parse_ini_string($str, $ProcessSections=false){

@@ -1,8 +1,12 @@
 <?php
 /*************************************
- ** @product A68:Core Bitrix Module **
- ** @vendor A68 Studio              **
- ** @mailto info@a-68.ru            **
+ ** @product OBX:Core Bitrix Module **
+ ** @authors                        **
+ **         Maksim S. Makarov       **
+ **         Morozov P. Artem        **
+ ** @License GPLv3                  **
+ ** @mailto rootfavell@gmail.com    **
+ ** @mailto tashiro@yandex.ru       **
  *************************************/
 
 interface OBX_IMessagePool

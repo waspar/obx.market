@@ -1,9 +1,13 @@
 <?
-/*****************************************
- ** @product Market-Start Bitrix Module **
- ** @vendor A68 Studio                  **
- ** @mailto info@a-68.ru                **
- *****************************************/
+/*************************************
+ ** @product OBX:Core Bitrix Module **
+ ** @authors                        **
+ **         Maksim S. Makarov       **
+ **         Morozov P. Artem        **
+ ** @License GPLv3                  **
+ ** @mailto rootfavell@gmail.com    **
+ ** @mailto tashiro@yandex.ru       **
+ *************************************/
 
 $arModuleInfo = array(
 	"VERSION" => "1.0.0",

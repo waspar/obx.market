@@ -1,4 +1,4 @@
-<?
+<?php
 /*************************************
  ** @product OBX:Core Bitrix Module **
  ** @authors                        **
@@ -8,5 +8,7 @@
  ** @mailto rootfavell@gmail.com    **
  ** @mailto tashiro@yandex.ru       **
  *************************************/
+
+OBX_Tools::addComponentLess(__FILE__);
 
 ?>

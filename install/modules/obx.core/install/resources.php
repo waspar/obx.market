@@ -1,4 +1,14 @@
 <?php
+/*************************************
+ ** @product OBX:Core Bitrix Module **
+ ** @authors                        **
+ **         Maksim S. Makarov       **
+ **         Morozov P. Artem        **
+ ** @License GPLv3                  **
+ ** @mailto rootfavell@gmail.com    **
+ ** @mailto tashiro@yandex.ru       **
+ *************************************/
+
 /*
 
 [RESOURCES]
@@ -6,6 +16,7 @@
 NOT_UNINSTALL ! %INSTALL_FOLDER%/php_interface/ :: run_event.d.php :: %BX_ROOT%/php_interface/
 %INSTALL_FOLDER%/js/ :: obx.core :: %BX_ROOT%/js/
 %INSTALL_FOLDER%/components/obx/ :: layout :: %BX_ROOT%/components/obx/
+%INSTALL_FOLDER%/components/obx/ :: breadcrumb.get :: %BX_ROOT%/components/obx/
 
 [END]
 */?>

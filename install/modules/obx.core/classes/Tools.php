@@ -1,8 +1,12 @@
 <?php
 /*************************************
- ** @product A68:Core Bitrix Module **
- ** @vendor A68 Studio              **
- ** @mailto info@a-68.ru            **
+ ** @product OBX:Core Bitrix Module **
+ ** @authors                        **
+ **         Maksim S. Makarov       **
+ **         Morozov P. Artem        **
+ ** @License GPLv3                  **
+ ** @mailto rootfavell@gmail.com    **
+ ** @mailto tashiro@yandex.ru       **
  *************************************/
 
 IncludeModuleLangFile(__FILE__);
@@ -342,10 +346,42 @@ class OBX_Tools
 		return include $templateFile;
 	}
 
+
+	static private $_bViewContentDispatcherActive = false;
+	static private $_arContentViewTargets = array();
+	static public function showViewContent($view) {
+		if(preg_match('~^[a-zA-Z\_\-]{1,30}$~', $view)) {
+			$contentFile = $_SERVER['DOCUMENT_ROOT'].SITE_TEMPLATE_PATH.'/view_target.'.$view.'.php';
+			if( file_exists($contentFile) ) {
+				global $APPLICATION;
+				$APPLICATION->ShowViewContent($view);
+				self::$_arContentViewTargets[$view] = array(
+					'CONTENT_FILE' => $contentFile
+				);
+				if(!self::$_bViewContentDispatcherActive) {
+					AddEventHandler('main', 'OnEpilog', 'OBX_Tools::dispatchViewTargetContents');
+					self::$_bViewContentDispatcherActive = true;
+				}
+			}
+		}
+
+	}
+
+	static public function dispatchViewTargetContents() {
+		global $APPLICATION, $USER, $DB;
+		foreach(self::$_arContentViewTargets as $view => &$arViewTarget) {
+			ob_start();
+			include $arViewTarget['CONTENT_FILE'];
+			$content = ob_get_clean();
+			$APPLICATION->AddViewContent($view, $content);
+		}
+	}
+
 	/////////////////////////////
 	/// CONNECTING LESS FILES ///
 	static private $_arLessFiles = array();
 	static private $_bLessProduction = false;
+	static private $_lessCompiledExt = '.css';
 	static private $_lessJSPath = null;
 	static private $_bLessFilesConnected = false;
 	static private $_bLessJSHeadConnected = false;
@@ -353,11 +389,12 @@ class OBX_Tools
 	static public function getLessHead() {
 		$returnString = '';
 		foreach(self::$_arLessFiles as $lessFilePath) {
+			$compiledLessFilePath = substr($lessFilePath, 0, -5).self::$_lessCompiledExt;
 			if(!self::$_bLessProduction) {
 				$returnString .= '<link rel="stylesheet/less" type="text/css" href="'.$lessFilePath.'">'."\n";
 			}
 			else {
-				$returnString .= '<link rel="stylesheet" type="text/css" href="'.$lessFilePath.'.css">'."\n";
+				$returnString .= '<link rel="stylesheet" type="text/css" href="'.$compiledLessFilePath.'">'."\n";
 			}
 		}
 		return $returnString;
@@ -367,7 +404,7 @@ class OBX_Tools
 		if( self::$_lessJSPath ) {
 			$returnString .= '<script type="text/javascript"> less = { env: \'development\' }; </script>'."\n";
 			$returnString .= '<script type="text/javascript" src="'.self::$_lessJSPath.'"></script>'."\n";
-			$returnString .= '<script type="text/javascript">less.watch();</script>'."\n";
+			//$returnString .= '<script type="text/javascript">less.watch();</script>'."\n";
 		}
 		return $returnString;
 	}
@@ -418,13 +455,19 @@ class OBX_Tools
 	static public function getLessJSPath() {
 		return self::$_lessJSPath;
 	}
+	static public function setLessCompiledExt($ext) {
+		if( preg_match('~^\.[a-zA-Z0-9\_\-]*\.css$~', $ext)) {
+			self::$_lessCompiledExt = $ext;
+		}
+	}
 	static public function addLess($lessFilePath) {
 		if( !in_array($lessFilePath, self::$_arLessFiles) ) {
 			if( substr($lessFilePath, -5) == ".less" ) {
+				$compiledLessFilePath = substr($lessFilePath, 0, -5).self::$_lessCompiledExt;
 				if( is_file($_SERVER["DOCUMENT_ROOT"].$lessFilePath)
 					|| (
-						is_file($_SERVER["DOCUMENT_ROOT"].$lessFilePath.".css")
-							&& self::$_bLessProduction)
+						is_file($_SERVER["DOCUMENT_ROOT"].$compiledLessFilePath)
+						&& self::$_bLessProduction)
 				) {
 					self::$_arLessFiles[] = $lessFilePath;
 					return true;
@@ -432,9 +475,15 @@ class OBX_Tools
 				elseif(
 					is_file($_SERVER["DOCUMENT_ROOT"].SITE_TEMPLATE_PATH."/".$lessFilePath)
 					|| (
-						is_file($_SERVER["DOCUMENT_ROOT"].SITE_TEMPLATE_PATH."/".$lessFilePath.".css")
+						is_file($_SERVER["DOCUMENT_ROOT"].SITE_TEMPLATE_PATH."/".$compiledLessFilePath)
 						&& self::$_bLessProduction
 					)
+//					// На случай если мы будем комипировать less в папку css
+//					|| (
+//						substr($compiledLessFilePath, 0, 5) == 'less/'
+//						&& self::$_bLessProduction
+//						&& is_file($_SERVER["DOCUMENT_ROOT"].SITE_TEMPLATE_PATH."/css/".substr($compiledLessFilePath, 5))
+//					)
 				) {
 					self::$_arLessFiles[] = SITE_TEMPLATE_PATH."/".$lessFilePath;
 					return true;
@@ -443,7 +492,10 @@ class OBX_Tools
 		}
 		return false;
 	}
-	static public function getLessFilesList() {
+	static public function getLessFilesList($lessCompiledFileExt = null) {
+		if($lessCompiledFileExt === null) {
+			self::setLessCompiledExt($lessCompiledFileExt);
+		}
 		return self::$_arLessFiles;
 	}
 	/**

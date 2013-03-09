@@ -94,7 +94,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 
 	// constructor
-	function A68Basket(root, conf) {
+	function OBX_Basket(root, conf) {
 		// current instance
 		var self = this;
 		self.$ = $(self);
@@ -520,7 +520,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 							url: conf.ajaxUrl
 							,context : root
 							,method : 'POST'
-							,headers: { 'X-A68BASKET': true }
+							,headers: { 'X-OBX_Basket': true }
 							,dataType : 'json'
 							,data : qdata
 							,timeout : 3000
@@ -818,7 +818,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 
 	// jQuery prototype implementation
-	$.fn.obxbasket = function(conf){
+	$.fn.OBX_Basket = function(conf){
 		// jq namespace
 		if(!$.hasOwnProperty('obx')){
 			console.log('Needs main script obx!');
@@ -839,7 +839,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		includeDepMousewheel();
 		this.each(function() {
 			var $this = $(this);
-			el = new A68Basket($this, conf);
+			el = new OBX_Basket($this, conf);
 			el.activateJScrollPane();
 			el.setBasketItemsFromServer();
 			$this.data("obxbasket", el);

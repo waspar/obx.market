@@ -25,5 +25,6 @@ DeleteDirFilesEx("/bitrix/themes/.default/obx.market");
 DeleteDirFilesEx("/bitrix/themes/.default/obx.market.css");
 DeleteDirFilesEx("/bitrix/components/obx.market");
 DeleteDirFilesEx("/bitrix/js/obx.market");
+DeleteDirFilesEx("/bitrix/tools/obx.market");
 if($bConnectEpilog) require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 ?>

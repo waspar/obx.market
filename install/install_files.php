@@ -43,5 +43,6 @@ OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/themes/.default/obx.market.css", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/components/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/js/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/", true, true);
+OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/tools/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/", true, true);
 if($bConnectEpilog) require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 ?>

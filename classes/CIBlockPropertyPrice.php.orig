@@ -53,8 +53,8 @@ class OBX_CIBlockPropertyPriceDBS extends OBX_DBSimple
 		"obx_price_ibpr" => array("IBLOCK_ID", "PRICE_ID"),
 		"obx_price_ibpp" => array("IBLOCK_ID", "IBLOCK_PROP_ID")
 	);
-	protected $_mainTablePrimaryKey = null;
-	protected $_mainTableAutoIncrement = null;
+//	protected $_mainTablePrimaryKey = "ID";
+//	protected $_mainTableAutoIncrement = "ID";
 //	protected $_arSelectDefault = array(
 //		"ID",
 //		"PRICE_ID",

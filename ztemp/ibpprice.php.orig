@@ -1,7 +1,7 @@
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetPageProperty("__hide_footer", "Y");
 if( CModule::IncludeModule("obx.market") && $USER->IsAdmin() ):
-class OBX_Test_CIBlockPropertyPrice_
+class OBX_Test_CIBlockPropertyPrice
 {
 	static public function main()
 	{
@@ -75,6 +75,6 @@ class OBX_Test_CIBlockPropertyPrice_
 //		}
 	}
 }
-OBX_Test_CIBlockPropertyPrice_::main();
+OBX_Test_CIBlockPropertyPrice::main();
 endif;
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

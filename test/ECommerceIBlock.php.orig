@@ -13,22 +13,28 @@ OBX_Market_TestCase::includeLang(__FILE__);
 
 final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
 {
-	static protected  $_arEComIBlockList = array();
+	private $_arEComIBlockType = array();
+	static private $_arEComIBlockList = array();
 
 	public function setUp() {
-
+		$this->_arEComIBlockType = array(
+			'ID' => 'obx_market_test',
+			'NAME' => 'obx_market_test',
+			'SECTIONS' => 'Y',
+			'IN_RSS' => 'N',
+		);
 	}
 
 	public function testCreatingTestIBlock() {
 		$arSitesList = $this->getBXSitesList();
 		$this->assertGreaterThan(0, count($arSitesList));
 
-		$this->createTestIBlockTypes(array(self::$_arEComIBlockType));
+		$this->createTestIBlockTypes(array($this->_arEComIBlockType));
 
 		$ibLiquidID = $this->importIBlockFromXML(
 			__DIR__.'/data/'.LANGUAGE_ID.'/liq.xml',
-			self::OBX_TEST_IB_1,
-			self::$_arEComIBlockType['ID'],
+			'fluid_test',
+			$this->_arEComIBlockType['ID'],
 			$arSitesList
 		);
 		$this->assertGreaterThan(0, $ibLiquidID);
@@ -36,7 +42,7 @@ final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
 		if( $arIBLiquid = $rsIBLiquid->GetNext() ) {
 			$this->assertTrue(is_array($arIBLiquid));
 			$this->assertGreaterThan(0, count($arIBLiquid));
-			self::$_arEComIBlockList[OBX_TEST_IB_1] = $arIBLiquid;
+			self::$_arEComIBlockList[] = $arIBLiquid;
 		}
 
 		$this->assertGreaterThan(0, count(self::$_arEComIBlockList));

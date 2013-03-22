@@ -9,7 +9,7 @@
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
-class TestDeleteData
+class DeleteTestData extends OBX_Market_TestCase
 {
 
 }

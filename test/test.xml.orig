@@ -6,10 +6,11 @@
 			<file>Price.php</file>
 			<file>ECommerceIBlock.php</file>
 			<file>CIBlockPropertyPrice.php</file>
-			<!--<file>OrderList.php</file>
-			<file>OrderStatus.php</file>
-			<file>OrderProperty.php</file>
-			<file>OrderItems.php</file>
+			<!--
+				<file>OrderList.php</file>
+				<file>OrderStatus.php</file>
+				<file>OrderProperty.php</file>
+				<file>OrderItems.php</file>
 			-->
 		</testsuite>
 	</testsuites>

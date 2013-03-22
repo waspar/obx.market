@@ -19,7 +19,7 @@ class OBX_Test_Price extends OBX_Market_TestCase
 
 	public function testAddNewPrice() {
 		$newPriceID = OBX_Price::add(array(
-			'CODE' => self::OBX_TEST_PRICE_CODE,
+			'CODE' => 'TEST_PRICE',
 			'NAME' => GetMessage('OBX_MARKET_TEST_PRICE_1'),
 			'CURRENCY' => 'RUB',
 			''

@@ -109,7 +109,22 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 		$this->assertEquals(4, $arError['CODE'], 'Error: error-code must be equal 4, but it not');
 	}
 
+	/**
+	 * @depends testAddPricePropLink
+	 */
 	public function testRemovePricePropLink() {
+		$bSuccess = OBX_CIBlockPropertyPrice::delete(13);
+		$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+		$this->assertFalse($bSuccess);
+		$this->assertEquals(OBX_CIBlockPropertyPriceDBS::ERR_CANT_DEL_WITHOUT_PK, $arError['CODE']);
 
+		$bSuccess = OBX_CIBlockPropertyPrice::deleteByFilter(array(
+			'IBLOCK_ID' => self::$_arTestIB['ID'],
+			'IBLOCK_PROP_ID' => self::$_arIBPriceProp['ID']
+		));
+		if(!$bSuccess) {
+			$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+			$this->assertTrue($bSuccess, 'Error: code: '.$arError['CODE'].'; text: '.$arError['TEXT'].'.');
+		}
 	}
 }

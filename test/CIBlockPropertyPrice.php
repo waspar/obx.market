@@ -3,10 +3,8 @@
  ** @product OBX:Market Bitrix Module **
  ** @authors                          **
  **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
 final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase

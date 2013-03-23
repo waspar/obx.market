@@ -6,7 +6,6 @@
  **         Morozov P. Artem          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
 $MESS['OBX_MARKET_TEST_PRICE_1'] = 'Тестовая цена';

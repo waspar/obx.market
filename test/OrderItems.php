@@ -6,7 +6,6 @@
  **         Morozov P. Artem          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
 OBX_Market_TestCase::includeLang(__FILE__);

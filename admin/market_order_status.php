@@ -120,7 +120,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage('OBX_MARKET_ORDER_STATUS_LIST_N
 // Заголовки
 $aHeaders = array(
 	array('id'=>'ID', 'content'=>'ID', 'sort'=>'ID', 'default'=>true),
-	array('id'=>'CODE', 'content'=>GetMessage('OBX_ORDER_STATUS_F_CODE'), 'sort'=>'CODE', 'default'=>false),
+	array('id'=>'CODE', 'content'=>GetMessage('OBX_ORDER_STATUS_F_CODE'), 'sort'=>'CODE', 'default'=>true),
 	array('id'=>'NAME', 'content'=>GetMessage('OBX_ORDER_STATUS_F_NAME'), 'sort'=>'NAME', 'default'=>true),
 	array('id'=>'SORT', 'content'=> GetMessage('OBX_ORDER_STATUS_F_SORT'), 'sort'=>'SORT', 'default'=>true),
 	array('id'=>'COLOR', 'content'=> GetMessage('OBX_ORDER_STATUS_F_COLOR'), 'default'=>true),

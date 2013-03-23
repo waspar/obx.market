@@ -3,7 +3,6 @@
  ** @product OBX:Market Bitrix Module **
  ** @authors                          **
  **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
  ***************************************/
@@ -14,4 +13,3 @@ $MESS['testUpdateCurrency_1'] = 'Обновление завершилось с 
 $MESS['testCreateCurrencyFormat_1'] = 'Не удалось создать формат валюты';
 $MESS['testDeleteCurrencyFormat_1'] = 'Ошибка удаления формата валюты';
 $MESS['testDeleteCurrency_1'] = 'Ошибка удаления валюты';
-?>

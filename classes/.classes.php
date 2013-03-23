@@ -3,10 +3,8 @@
  ** @product OBX:Market Bitrix Module **
  ** @authors                          **
  **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
 define("OBX_MAGIC_WORD", "I_KNOW_WHAT_I_DO");

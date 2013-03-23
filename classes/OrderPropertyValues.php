@@ -3,7 +3,7 @@
  ** @product OBX:Market Bitrix Module **
  ** @authors                          **
  **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
+ **         Artem P. Morozov          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
  ** @mailto tashiro@yandex.ru         **
@@ -269,8 +269,5 @@ class OBX_OrderPropertyValuesDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_OrderPropertyValues extends OBX_DBSimpleStatic {
-}
-
+class OBX_OrderPropertyValues extends OBX_DBSimpleStatic {}
 OBX_OrderPropertyValues::__initDBSimple(OBX_OrderPropertyValuesDBS::getInstance());
-?>

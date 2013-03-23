@@ -9,10 +9,10 @@
 
 OBX_Market_TestCase::includeLang(__FILE__);
 
-class OBX_Test_OrderStatus extends OBX_Market_TestCase
+final class OBX_Test_OrderStatus extends OBX_Market_TestCase
 {
 
-	static $_arStatusList = array();
+	static private $_arStatusList = array();
 
 	public function testPrepareTests() {
 		OBX_OrderStatus::deleteByFilter(array('CODE' => 'TT_ACCEPTED'));

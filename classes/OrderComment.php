@@ -3,7 +3,7 @@
  ** @product OBX:Market Bitrix Module **
  ** @authors                          **
  **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
+ **         Artem P. Morozov          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
  ** @mailto tashiro@yandex.ru         **

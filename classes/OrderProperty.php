@@ -3,11 +3,12 @@
  ** @product OBX:Market Bitrix Module **
  ** @authors                          **
  **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
+ **         Artem P. Morozov          **
  ** @License GPLv3                    **
  ** @mailto rootfavell@gmail.com      **
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
+
 /**
  *
  */
@@ -50,6 +51,10 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 
 	protected $_arSortDefault = array('SORT' => 'ASC', 'ID' => 'ASC');
 
+	protected $_arTableUnique = array(
+		'udx_obx_order_property' => array('CODE')
+	);
+
 	function __construct() {
 		$this->_arTableFieldsCheck = array(
 			'ID' => self::FLD_T_INT | self::FLD_NOT_NULL,
@@ -61,6 +66,33 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 			'ACTIVE' => self::FLD_T_BCHAR | self::FLD_NOT_NULL | self::FLD_DEFAULT,
 			'IS_SYS' => self::FLD_T_BCHAR | self::FLD_NOT_NULL | self::FLD_DEFAULT,
 			'ACCESS' => self::FLD_T_CHAR | self::FLD_NOT_NULL | self::FLD_DEFAULT,
+		);
+		$this->_arDBSimpleLangMessages = array(
+			'REQ_FLD_NAME' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_ORDER_PROP_ERROR_1'),
+				'CODE' => 1
+			),
+			'REQ_FLD_CODE' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_ORDER_PROP_ERROR_2'),
+				'CODE' => 2
+			),
+			'REQ_FLD_PROPERTY_TYPE' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_ORDER_PROP_ERROR_3'),
+				'CODE' => 3
+			),
+			'DUP_ADD_udx_obx_order_property' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_ORDER_PROP_ERROR_4'),
+				'CODE' => 4
+			),
+			'DUP_UPD_udx_obx_order_property' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_ORDER_PROP_ERROR_5'),
+				'CODE' => 5
+			)
 		);
 	}
 
@@ -128,4 +160,3 @@ class OBX_OrderProperty extends OBX_DBSimpleStatic {
 }
 
 OBX_OrderProperty::__initDBSimple(OBX_OrderPropertyDBS::getInstance());
-?>

@@ -9,9 +9,6 @@
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
-/**
- *
- */
 IncludeModuleLangFile(__FILE__);
 class OBX_OrderPropertyDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
@@ -94,6 +91,16 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 				'CODE' => 5
 			)
 		);
+		$this->_arFieldsDescription = array(
+			'CODE' => array(
+				'NAME' => GetMessage('OBX_MARKET_ORDER_PROP_CODE_NAME'),
+				'DESCR' => GetMessage('OBX_MARKET_ORDER_PROP_CODE_DESCR')
+			),
+			'PROPERTY_TYPE' => array(
+				'NAME' => GetMessage('OBX_MARKET_ORDER_PROP_PROPERTY_TYPE_NAME'),
+				'DESCR' => GetMessage('OBX_MARKET_ORDER_PROP_PROPERTY_TYPE_DESCR')
+			)
+		);
 	}
 
 	protected function _onStartAdd(&$arFields) {
@@ -112,10 +119,14 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 	protected function _onBeforeExecUpdate(&$arFields, &$arCheckResult) {
 		$arProp = &$arCheckResult['__EXIST_ROW'];
 		if (array_key_exists('CODE', $arFields)) {
-			if ($arProp['IS_SYS'] == 'Y' && !array_key_exists('IS_SYS', $arFields) && $arFields['IS_SYS']!='N' ) {
+			if( $arProp['IS_SYS'] == 'Y'
+				&& !array_key_exists('IS_SYS', $arFields)
+				&& $arFields['IS_SYS']!='N'
+				&& !array_key_exists(OBX_MAGIC_WORD, $arCheckResult)
+			) {
 				if ($arFields['CODE'] != $arProp['CODE']) {
 					$arFields['CODE'] = $arProp['CODE'];
-					$this->addError(GetMessage('OBX_PROPERTY_ERROR_1'), 1);
+					$this->addError(GetMessage('OBX_MARKET_ORDER_PROP_ERROR_5'), 5);
 					return false;
 				}
 			}
@@ -123,17 +134,17 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 		return true;
 	}
 
-	protected function _onBeforeDelete(&$arItem) {
-		if ($arItem['IS_SYS'] == 'Y') {
-			$this->addError(GetMessage('OBX_PROPERTY_ERROR_1'), 1);
+	protected function _onBeforeDelete(&$arFields) {
+		if ($arFields['IS_SYS'] == 'Y') {
+			$this->addError(GetMessage('OBX_MARKET_ORDER_PROP_ERROR_6'), 6);
 			return false;
 		}
 		OBX_OrderPropertyValuesDBS::getInstance()->deleteByFilter(array(
-			'PROPERTY_ID' => $arItem['ID']
+			'PROPERTY_ID' => $arFields['ID']
 		));
-		if ($arItem['PROPERTY_TYPE'] == 'L') {
+		if ($arFields['PROPERTY_TYPE'] == 'L') {
 			OBX_OrderPropertyEnumDBS::getInstance()->deleteByFilter(array(
-				'PROPERTY_ID' => $arItem['ID']
+				'PROPERTY_ID' => $arFields['ID']
 			));
 		}
 		return true;

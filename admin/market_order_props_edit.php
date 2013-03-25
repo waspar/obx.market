@@ -81,7 +81,7 @@ if( $REQUEST_METHOD == "POST" // проверка метода вызова ст
 			$arProperty = $OrderPropertyDBS->getByID($newID);
 		}
 		else {
-			$arErrors[] = GetMessage('OBX_MARKET_ORDER_PROP_EDIT_ERROR_1').': '.$OrderPropertyDBS->popLastError();
+			$arErrors[] = GetMessage('OBX_MARKET_ORDER_PROP_EDIT_ERROR_1').":\n".$OrderPropertyDBS->popLastError();
 		}
 	}
 	else {
@@ -89,7 +89,7 @@ if( $REQUEST_METHOD == "POST" // проверка метода вызова ст
 			$arProperty = $OrderPropertyDBS->getByID($arProperty['ID']);
 		}
 		else {
-			$arErrors[] = GetMessage('OBX_MARKET_ORDER_PROP_EDIT_ERROR_2').': '.$OrderPropertyDBS->popLastError();
+			$arErrors[] = GetMessage('OBX_MARKET_ORDER_PROP_EDIT_ERROR_2').":\n".$OrderPropertyDBS->popLastError();
 		}
 	}
 	if(count($arErrors)<1 && $arProperty['PROPERTY_TYPE'] == 'L') {

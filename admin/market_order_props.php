@@ -74,7 +74,7 @@ if($lAdmin->EditAction()){
 		}
 		if( count($arUpdateFields)>0 ) {
 			if( !$OrderPropertyDBS->update($arUpdateFields) ) {
-				$lAdmin->AddUpdateError($OrderPropertyDBS->popLastError(), $ID);
+				$lAdmin->AddUpdateError("\n".$OrderPropertyDBS->popLastError(), $ID);
 			}
 		}
 	}
@@ -124,7 +124,7 @@ $aHeaders = array(
 	array('id'=>'PROPERTY_TYPE', 'content'=> GetMessage('OBX_ORDER_PROP_F_PROPERTY_TYPE'), 'sort'=>'PROPERTY_TYPE', 'default'=>true),
 	array('id'=>'NAME', 'content'=>GetMessage('OBX_ORDER_PROP_F_NAME'), 'sort'=>'NAME', 'default'=>true),
 	array('id'=>'DESCRIPTION', 'content'=>GetMessage('OBX_ORDER_PROP_F_DESCRIPTION'), 'sort'=>'DESCRIPTION', 'default'=>true),
-
+	array('id'=>'IS_SYS', 'content'=>GetMessage('OBX_ORDER_PROP_F_IS_SYS'), 'sort'=>'IS_SYS', 'default'=>false),
 );
 $lAdmin->AddHeaders($aHeaders);
 // Обработка строк
@@ -172,6 +172,8 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 
 	$row->AddViewField('SORT',$f_SORT);
 	$row->AddInputField('SORT', array('size'=>20));
+
+	$row->AddViewField('SORT',$f_IS_SYS);
 	
 	// Меню строки
 	$arActions = Array();
@@ -224,4 +226,3 @@ require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_adm
 
 $lAdmin->DisplayList();
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
-?>

@@ -11,6 +11,7 @@ $MESS['OBX_ORDER_PROP_F_NAME'] = 'Наименование';
 $MESS['OBX_ORDER_PROP_F_DESCRIPTION'] = 'Описание';
 $MESS['OBX_ORDER_PROP_F_PROPERTY_TYPE'] = 'Тип';
 $MESS['OBX_ORDER_PROP_F_SORT'] = 'Сортировка';
+$MESS['OBX_ORDER_PROP_F_IS_SYS'] = 'Системное';
 $MESS['OBX_MARKET_FLD_EDIT_PROP_TYPE_S'] = 'Простая строка';
 $MESS['OBX_MARKET_FLD_EDIT_PROP_TYPE_N'] = 'Число';
 $MESS['OBX_MARKET_FLD_EDIT_PROP_TYPE_T'] = 'Многострочный текст';

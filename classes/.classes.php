@@ -7,8 +7,6 @@
  ** @mailto rootfavell@gmail.com      **
  ***************************************/
 
-define("OBX_MAGIC_WORD", "I_KNOW_WHAT_I_DO");
-define("I_KNOW_WHAT_I_DO", "I_KNOW_WHAT_I_DO");
 $arModuleClasses = array(
 	'OBX_ECommerceIBlock'				=> 'classes/ECommerceIBlock.php'
    ,'OBX_ECommerceIBlockDBS'			=> 'classes/ECommerceIBlock.php'

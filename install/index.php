@@ -1,14 +1,9 @@
 <?
-/***************************************
- ** @product OBX:Market Bitrix Module **
- ** @authors                          **
- **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
- ** @License GPLv3                    **
- ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
- ***************************************/
-
+/*************************************************
+ ** @product OBX:Market Bitrix Module Installer **
+ ** @License EULA                               **
+ ** @copyright 2013 DevTop                      **
+ *************************************************/
 class obx_market extends CModule {
 	var $MODULE_ID = "obx.market";
 	var $MODULE_VERSION;

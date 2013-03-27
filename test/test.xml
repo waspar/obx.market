@@ -1,7 +1,7 @@
 <!--
 	@product OBX:Market Bitrix Module
 	@authors
-		Maksim S. Makarov
+		Maksim S. Makarov aka pr0n1x
 	@License GPLv3
 	@mailto rootfavell@gmail.com
 -->
@@ -16,7 +16,7 @@
 			<file>OrderStatus.php</file>
 			<file>OrderProperty.php</file>
 			<file>OrderList.php</file>
-			<!--<file>OrderPropertyValues</file>
+			<file>OrderPropertyValues</file>
 			<file>OrderItems.php</file>
 			-->
 		</testsuite>

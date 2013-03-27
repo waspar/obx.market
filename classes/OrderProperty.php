@@ -1,13 +1,14 @@
 <?php
-/***************************************
- ** @product OBX:Market Bitrix Module **
- ** @authors                          **
- **         Maksim S. Makarov         **
- **         Artem P. Morozov          **
- ** @License GPLv3                    **
- ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
- ***************************************/
+/***********************************************
+ ** @product OBX:Market Bitrix Module         **
+ ** @authors                                  **
+ **         Maksim S. Makarov aka pr0n1x      **
+ **         Artem P. Morozov  aka tashiro     **
+ ** @License GPLv3                            **
+ ** @mailto rootfavell@gmail.com              **
+ ** @mailto tashiro@yandex.ru                 **
+ ** @copyright 2013 DevTop                    **
+ ***********************************************/
 
 IncludeModuleLangFile(__FILE__);
 class OBX_OrderPropertyDBS extends OBX_DBSimple {

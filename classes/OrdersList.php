@@ -1,13 +1,15 @@
 <?php
-/***************************************
- ** @product OBX:Market Bitrix Module **
- ** @authors                          **
- **         Maksim S. Makarov         **
- **         Artem P. Morozov          **
- ** @License GPLv3                    **
- ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
- ***************************************/
+/***********************************************
+ ** @product OBX:Market Bitrix Module         **
+ ** @authors                                  **
+ **         Maksim S. Makarov aka pr0n1x      **
+ **         Artem P. Morozov  aka tashiro     **
+ ** @License GPLv3                            **
+ ** @mailto rootfavell@gmail.com              **
+ ** @mailto tashiro@yandex.ru                 **
+ ** @copyright 2013 DevTop                    **
+ ***********************************************/
+
 IncludeModuleLangFile(__FILE__);
 
 class OBX_OrdersDBS extends OBX_DBSimple {
@@ -42,13 +44,24 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 		'ITEMS_COST' => array('I' => 'SUM(I.PRICE_VALUE * I.QUANTITY)'),
 //		'PROPERTIES_JSON' => array(
 //			'OP' => '(SELECT
-//						OP.ID as PROPERTY_ID,
-//						OP.PROPERTY_TYPE as PROPERTY_TYPE,
-//						OP.NAME as PROPERTY_NAME,
-//						OP.CODE as PROPERTY_CODE,
+//						concat(
+//							\'[\',
+//							group_concat(
+//								concat(\'{ PROPERTY_ID: "\', OP.ID, \'"\'),
+//								concat(\', PROPERTY_TYPE: "\', OP.PROPERTY_TYPE, \'"\'),
+//								concat(\', PROPERTY_NAME: "\', ,OP.NAME, \'"\'),
+//								concat(\', PROPERTY_CODE: "\', OP.CODE, \'" }\')
+//							),
+//							\']\'
+//						)
 //					FROM
-//						obx_order_property as P,
-//						obx_order_property_values as OP
+//						obx_order_property as OP,
+//					LEFT JOIN
+//						obx_order_property_values as OPV ON (OPV.PROPERTY_ID = OP.ID)
+//					WHERE
+//						OP.ORDER_ID = O.ID
+//					GROUP BY
+//						OP.ORDER_ID
 //					)'
 //		),
 	);
@@ -78,6 +91,7 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 		'DATE_CREATED',
 		'TIMESTAMP_X',
 		'USER_ID',
+		'MODIFIED_BY',
 		'USER_NAME',
 		'STATUS_ID',
 		'STATUS_CODE',
@@ -95,6 +109,7 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 			'STATUS_ID' => '1',
 			'CURRENCY' => OBX_Currency::getDefault(),
 			'USER_ID' => $USER->GetID(),
+			'MODIFIED_BY' => $USER->GetID(),
 		);
 
 		$this->_arTableFieldsCheck = array(
@@ -201,16 +216,14 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 		return true;
 	}
 
-	public function add($arFields = null, &$arErrors = array()) {
-		if (!is_array($arFields)) {
-			$arFields = array();
-		}
+	public function add($arFields = array()) {
 		return parent::add($arFields);
 	}
 }
 
 class OBX_OrdersList extends OBX_DBSimpleStatic {
+	static public function add($arFields = array()) {
+		return parent::add($arFields);
+	}
 }
-
 OBX_OrdersList::__initDBSimple(OBX_OrdersDBS::getInstance());
-?>

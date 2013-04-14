@@ -122,11 +122,11 @@ create table if not exists obx_user_basket (
 	DATE_CREATE timestamp not null,
 	DATE_UPDATE timestamp not null,
 	USER_ID int(11) NULL,
-	SESSION_ID int(11)
+	VISITOR_ID int(11) NULL,
 );
 
 -- Таблица товаров в заказе
-create table if not exists obx_order_items (
+create table if not exists obx_basket_items (
 	ID int(11) not null auto_increment,
 	ORDER_ID int(11) not null,
 	PRODUCT_ID int(11) NULL,
@@ -138,7 +138,7 @@ create table if not exists obx_order_items (
 	DISCOUNT_VALUE decimal(18,2) not null default 0,
 	VAT_ID int(11) null,
 	VAT_VALUE decimal(18,2) not null default 0,
-	unique udx_obx_order_items(ORDER_ID,PRODUCT_ID),
+	unique udx_obx_basket_items(ORDER_ID,PRODUCT_ID),
 	primary key(ID)
 );
 -- Таблица статусов заказов
@@ -153,12 +153,13 @@ create table if not exists obx_order_status (
 	SORT int(11) not null default '100',
 	ACTIVE char(1) not null default 'Y',
 	PERMISSION SMALLINT not null default 3,
-	-- ALLOW_CHANGE_ITEMS 			1
-	-- ALLOW_CHANGE_STATUS			2
+	-- ALLOW_CHANGE_STATUS				1 - обратить внимание сюда. Это для финального статуса заказа
+	-- ALLOW_CHANGE_ITEMS 				2
 	-- ALLOW_CHANGE_DELIVERY_ID		4
-	-- ALLOW_CHANGE_PAY_ID			8
-	-- ALLOW_CHANGE_VAT				16
-	-- ALLOW_CHANGE_DISCOUNT		32
+	-- ALLOW_CHANGE_PAY_ID				8
+	-- ALLOW_CHANGE_VAT						16
+	-- ALLOW_CHANGE_DISCOUNT			32
+	-- ALLOW_CHANGE_ALL						63
 	IS_SYS char(1) not null default 'N',
 	-- Системный стутус, нельзя удалить и сменить CODE
 	primary key (ID),

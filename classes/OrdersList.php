@@ -17,7 +17,7 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
 		'O' => 'obx_orders',
 		'S' => 'obx_order_status',
-		'I' => 'obx_order_items',
+		'I' => 'obx_basket_items',
 		'U' => 'b_user',
 		//'OP' => 'obx_order_property',
 		//'OPV' => 'obx_order_property_values'

@@ -15,7 +15,7 @@ IncludeModuleLangFile(__FILE__);
 class OBX_OrderItemsDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
 		'O'		=> 'obx_orders',
-		'I'		=> 'obx_order_items',
+		'I'		=> 'obx_basket_items',
 		'P'		=> 'obx_price',
 		'IBE'	=> 'b_iblock_element',
 		'IB'	=> 'b_iblock',
@@ -91,7 +91,7 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 	protected $_mainTablePrimaryKey = 'ID';
 	protected $_mainTableAutoIncrement = 'ID';
 	protected $_arTableUnique = array(
-		'udx_obx_order_items' => array('ORDER_ID', 'PRODUCT_ID')
+		'udx_obx_basket_items' => array('ORDER_ID', 'PRODUCT_ID')
 	);
 	protected $_arSortDefault = array('ID' => 'ASC');
 	protected $_arTableFieldsDefault = array(
@@ -133,7 +133,7 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_4'),
 				'CODE' => 4
 			),
-			'DUP_ADD_udx_obx_order_items' => array(
+			'DUP_ADD_udx_obx_basket_items' => array(
 				'TYPE' => 'E',
 				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_5'),
 				'CODE' => 6

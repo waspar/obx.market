@@ -18,7 +18,6 @@
 			<file>OrderList.php</file>
 			<file>OrderPropertyValues</file>
 			<file>OrderItems.php</file>
-			-->
 		</testsuite>
 	</testsuites>
 </phpunit>

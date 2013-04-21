@@ -102,7 +102,7 @@ create table if not exists obx_orders (
 	TIMESTAMP_X timestamp on update current_timestamp not null default current_timestamp,
 	DATE_CREATED timestamp not null,
 	USER_ID int(11) not null,
-	MODIFIED_BY int(11), not null default 0,
+	MODIFIED_BY int(11) not null default 0,
 	MANAGER_ID int(11) NULL,
 	STATUS_ID int(11) not null default 1,
 	CURRENCY char(3) not null,
@@ -116,7 +116,7 @@ create table if not exists obx_orders (
 	key USER_ID (USER_ID)
 );
 
--- Таблица каорзин пользователей
+-- Таблица корзин пользователей
 create table if not exists obx_user_basket (
 	ID int(11) not null auto_increment,
 	DATE_CREATE timestamp not null,

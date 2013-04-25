@@ -1,13 +1,14 @@
 <?php
-/*************************************
- ** @product OBX:Core Bitrix Module **
- ** @authors                        **
- **         Maksim S. Makarov       **
- **         Morozov P. Artem        **
- ** @License GPLv3                  **
- ** @mailto rootfavell@gmail.com    **
- ** @mailto tashiro@yandex.ru       **
- *************************************/
+/***********************************************
+ ** @product OBX:Core Bitrix Module           **
+ ** @authors                                  **
+ **         Maksim S. Makarov aka pr0n1x      **
+ **         Artem P. Morozov  aka tashiro     **
+ ** @License GPLv3                            **
+ ** @mailto rootfavell@gmail.com              **
+ ** @mailto tashiro@yandex.ru                 **
+ ** @copyright 2013 DevTop                    **
+ ***********************************************/
 
 IncludeModuleLangFile(__FILE__);
 
@@ -137,6 +138,43 @@ class OBX_Tools
 						break;
 					default:
 						return "часов";
+				}
+		}
+	}
+
+	/**
+	 * Отдает наименование единицы в форме соотвествующей числу
+	 * @param integer $quantity число
+	 * @param string $nominative именительный подеж ед. число (час)
+	 * @param string $genetive родительный подеж ед. число  (часа)
+	 * @param string $genplural родительный подеж множ. число (часов)
+	 * @return string
+	 */
+	static public function rusQuantity($quantity, $nominative, $genetive = NULL, $genplural = NULL){
+		$oneState = false;
+		if($genetive == NULL || $genplural = NULL) {
+			$oneState = true;
+		}
+		$quantity = abs(intval($quantity));
+		switch($quantity%100) {
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+				return ($oneState)?$nominative."ов":$genplural;
+				break;
+			default:
+				switch($quantity%10) {
+					case 1:
+						return $nominative;
+						break;
+					case 2:
+					case 3:
+					case 4:
+						return ($oneState)?$nominative."а":$genetive;
+						break;
+					default:
+						return ($oneState)?$nominative."ов":$genplural;
 				}
 		}
 	}
@@ -612,13 +650,13 @@ class OBX_Tools
 	}
 	/**
 	 * @static
-	 * @param CBitrixComponent $component
+	 * @param CBitrixComponent|string $component
 	 * @param null $jsFilePath
+	 * @return bool
 	 */
 	static public function addComponentDeferredJS($component, $jsFilePath = null) {
 		/**
 		 * @var CMain $APPLICATION
-		 * @var CBitrixComponent $component
 		 */
 		$templateFolder = null;
 		if($component instanceof CBitrixComponent) {

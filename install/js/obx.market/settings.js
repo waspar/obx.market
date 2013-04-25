@@ -32,9 +32,10 @@ if(typeof(OBX.Market) == 'undefined') {
 		 currency: ''
 		,name: ''
 		,sort: 100
-		,format: '#.%'
+		,format: '#'
 		,thousSep: ' '
 		,decPrecision: 2
+		,decPoint: '.'
 	};
 
 	$(function(){

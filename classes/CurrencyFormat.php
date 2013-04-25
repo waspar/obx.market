@@ -81,7 +81,8 @@ class OBX_CurrencyFormatDBS extends OBX_DBSimple
 			'NAME'						=> self::FLD_T_STRING | self::FLD_NOT_NULL | self::FLD_REQUIRED,
 			'FORMAT'					=> self::FLD_T_STRING | self::FLD_DEFAULT,
 			'THOUSANDS_SEP'				=> self::FLD_T_CHAR | self::FLD_DEFAULT,
-			'DEC_PRECISION'				=> self::FLD_T_INT | self::FLD_DEFAULT
+			'DEC_PRECISION'				=> self::FLD_T_INT | self::FLD_DEFAULT,
+			'DEC_POINT'					=> self::FLD_T_STRING | self::FLD_DEFAULT
 		);
 		$this->_arDBSimpleLangMessages = array(
 			// Не заполнено обязательное поле Валюта

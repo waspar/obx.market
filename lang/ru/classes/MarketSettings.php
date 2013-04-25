@@ -7,6 +7,7 @@ $MESS["OBX_SETT_CURRENCY_F_SORT"] = "Сортировка";
 $MESS["OBX_SETT_CURRENCY_F_LANG"] = "Язык";
 $MESS["OBX_SETT_CURRENCY_F_FORMAT"] = "Формат";
 $MESS["OBX_SETT_CURRENCY_F_THOUS_SEP"] = "Разделитель тысяч";
+$MESS["OBX_SETT_CURRENCY_F_DEC_POINT"] = "Десятичная точка при выводе";
 $MESS["OBX_SETT_CURRENCY_F_PRECISION"] = "Точность";
 $MESS["OBX_SETT_CURRENCY_F_IS_DEFAULT"] = "По умолчанию";
 $MESS["OBX_SETT_CURRENCY_BTN_DELETE"] = "Удалить";
@@ -54,4 +55,3 @@ $MESS["OBX_SETT_CATALOG_B_CANCEL"] = "Отменить изм. инфблоко�
 
 $MESS["OBX_SETT_CATALOG_ERROR_1"] = "Для инфоблока «#IBLOCK_ID#» не может быть заданое две цены одного типа";
 $MESS["OBX_SETT_CATALOG_ERROR_2"] = "Для свойства инфоблока «#IBLOCK_PROP_ID#» не может быть заданое две цены одного типа";
-?>

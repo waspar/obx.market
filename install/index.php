@@ -209,7 +209,7 @@ class obx_market extends CModule {
 			'CURRENCY' => 'RUB',
 			'NAME' => 'Roubles',
 			'LANGUAGE_ID' => 'en',
-			'FORMAT' => '#.% Rub.',
+			'FORMAT' => '# Rub.',
 			'THOUSANDS_SEP' => '\'',
 		));
 		OBX_CurrencyFormat::add(array(
@@ -223,7 +223,7 @@ class obx_market extends CModule {
 			'CURRENCY' => 'USD',
 			'NAME' => 'US Dollars',
 			'LANGUAGE_ID' => 'en',
-			'FORMAT' => '$#.%',
+			'FORMAT' => '$#',
 			'THOUSANDS_SEP' => '\'',
 		));
 

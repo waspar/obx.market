@@ -1,20 +1,15 @@
 <?php
-/***********************************************
- ** @product OBX:Market Bitrix Module         **
- ** @authors                                  **
- **         Maksim S. Makarov aka pr0n1x      **
- ** @License GPLv3                            **
- ** @mailto rootfavell@gmail.com              **
- ** @copyright 2013 DevTop                    **
- ***********************************************/
-
-OBX_Market_TestCase::includeLang(__FILE__);
-
-final class OBX_Test_Currency extends OBX_Market_TestCase
+class OBX_Test_Currency2 extends OBX_Market_TestCase
 {
+	/**
+	 * @var OBX_Currency
+	 */
 	private $_CurrencyDBS = null;
+
 	private $_arResult = array();
 	private $_arTestCurrencies = array();
+	static private $_defaultCurrencyBeforeTest = null;
+
 	public function setUp() {
 		$this->_CurrencyDBS = OBX_CurrencyDBS::getInstance();
 		$this->_arTestCurrencies = array(
@@ -95,7 +90,7 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 				'COURSE' => $arCurrency['COURSE'],
 				'RATE' => $arCurrency['RATE']
 			));
-			$this->assertFalse($this->_arResult['CREATE_CURRENCY'][$currency]['SUCCESS'], GetMessage('testCreateCurrencyDuplicate_1'));
+			$this->assertLessThan(1, $this->_arResult['CREATE_CURRENCY'][$currency]['SUCCESS'], GetMessage('testCreateCurrencyDuplicate_1'));
 			if( ! $this->_arResult['CREATE_CURRENCY'][$currency]['SUCCESS'] ) {
 				$this->_arResult['CREATE_CURRENCY'][$currency]['ERROR'] = OBX_Currency::popLastError('ARRAY');
 				$this->assertEquals(
@@ -115,8 +110,8 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 	 */
 	public function testCurrencyGetList() {
 		$arCurrencyList = OBX_Currency::getListArray();
-		$countCurrencyList = count($arCurrencyList);
-		$this->assertNotNull($countCurrencyList, 'Currency list is empty');
+		$this->assertTrue(is_array($arCurrencyList), 'Error: getListArray() returned not an array');
+		$this->assertNotNull(count($arCurrencyList), 'Error: Currency list is empty');
 	}
 
 	public function testUpdateCurrency() {
@@ -124,7 +119,6 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 			'CURRENCY' => 'TUK',
 			'COURSE' => '2',
 			'RATE' => '2',
-			'IS_DEFAULT' => 'Y'
 		));
 		if($bSuccess) {
 			$arError = OBX_Currency::popLastError('ARRAY');
@@ -142,7 +136,6 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 		$this->assertArrayHasKey('IS_DEFAULT', $arUpdatedCurrency);
 		$this->assertEquals(2, $arUpdatedCurrency['COURSE']);
 		$this->assertEquals(2, $arUpdatedCurrency['RATE']);
-		$this->assertEquals('Y', $arUpdatedCurrency['IS_DEFAULT']);
 	}
 
 	public function testUpdateNonexistentCurrency() {
@@ -159,6 +152,13 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 		$this->assertEquals(3, $arError['CODE']);
 	}
 
+	public function testGetDefaultCurrencyBeforeTest() {
+		self::$_defaultCurrencyBeforeTest = $this->_CurrencyDBS->getDefault();
+	}
+
+	/**
+	 * @depends testGetDefaultCurrencyBeforeTest
+	 */
 	public function testSetDefaultCurrency() {
 		$bSuccess = OBX_Currency::setDefault('TUG');
 		$this->assertTrue($bSuccess);
@@ -180,9 +180,12 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 		$this->assertEquals('N', $arTUK['IS_DEFAULT']);
 	}
 
+	/**
+	 * @depends testSetDefaultCurrency
+	 */
 	public function testGetDefaultCurrency() {
-		$defaultCurrency = OBX_Currency::getDefault();
-		$arDefaultCurrency = OBX_Currency::getDefaultArray();
+		$defaultCurrency = $this->_CurrencyDBS->getDefault();
+		$arDefaultCurrency = $this->_CurrencyDBS->getDefaultArray();
 		$this->assertNotEmpty($defaultCurrency);
 		$this->assertEquals('TUG', $defaultCurrency);
 		$this->assertArrayHasKey('CURRENCY', $arDefaultCurrency);
@@ -215,6 +218,18 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 		$arTUK = OBX_Currency::getByID('TUK');
 		$this->assertEquals('Y', $arTUG['IS_DEFAULT']);
 		$this->assertEquals('N', $arTUK['IS_DEFAULT']);
+	}
+
+	public function testCreateAlreadyDefaultCurrency() {
+		$this->_CurrencyDBS->delete('_DF');
+		$this->_CurrencyDBS->add(array(
+			'CURRENCY' => '_DF',
+			'IS_DEFAULT' => 'Y'
+		));
+		$defaultCurrency = $this->_CurrencyDBS->getDefault();
+		$this->assertEquals('_DF', $defaultCurrency);
+		$this->_CurrencyDBS->delete('_DF');
+		$this->_CurrencyDBS->setDefault($defaultCurrency);
 	}
 
 	/**
@@ -257,6 +272,9 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 		$this->assertGreaterThan(0, $countFormatList);
 	}
 
+	/**
+	 * TODO: Написать тест CurrencyFormat getListGroupedByLang
+	 */
 	public function getListGroupedByLang() {
 
 	}
@@ -350,5 +368,10 @@ final class OBX_Test_Currency extends OBX_Market_TestCase
 			}
 		}
 	}
-}
 
+	public function testSetDefaultCurrensyBeforeTest() {
+		if(self::$_defaultCurrencyBeforeTest != null) {
+			$this->_CurrencyDBS->setDefault(self::$_defaultCurrencyBeforeTest);
+		}
+	}
+}

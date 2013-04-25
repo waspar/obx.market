@@ -156,6 +156,7 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 																									  class="help-inline">?</a>
 		</td>
 		<td><?=GetMessage("OBX_SETT_CURRENCY_F_THOUS_SEP")?>&nbsp;<a href="#" class="help-inline">?</a></td>
+		<td><?=GetMessage("OBX_SETT_CURRENCY_F_DEC_POINT")?>&nbsp;<a href="#" class="help-inline">?</a></td>
 		<td><?=GetMessage("OBX_SETT_CURRENCY_F_PRECISION")?>&nbsp;<a href="#" class="help-inline">?</a></td>
 		<td><?=GetMessage("OBX_SETT_CURRENCY_BTN_DELETE")?></label></td>
 	</tr>
@@ -204,6 +205,11 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 						</label>
 					</td>
 					<td>
+						<input type="text" class="dec_point"
+							   name="obx_currency_update[<?=$currency?>][<?=$languageID?>][dec_point]"
+							   value="<?=$arFormat["DEC_POINT"]?>"/>
+					</td>
+					<td>
 						<select name="obx_currency_update[<?=$currency?>][<?=$languageID?>][dec_precision]">
 							<?for ($precision = 0; $precision <= 5; $precision++): ?>
 							<option value="<?=$precision?>"<?if ($precision == $arFormat["DEC_PRECISION"]): ?>
@@ -229,7 +235,7 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 		</tr>
 		<tr>
 			<td class="field-name"></td>
-			<td colspan="9"><input class="add_new_item" type="button"
+			<td colspan="10"><input class="add_new_item" type="button"
 								   value="<?=GetMessage("OBX_SETT_CURRENCY_BTN_ADD_ITEM")?>"/></td>
 		</tr>
 		<tr>
@@ -285,10 +291,14 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 						   name="obx_currency_new[$index][<?=$arLang["ID"]?>][thousand_sep]" value="$thousSep"/>
 					<label>
 						<input type="checkbox" class="thous_sep_space"
-							   name="obx_currency_new[$index][<?=$arLang["ID"]?>][thousands_sep_space]"
-																								$thousSpaceSepChecked />
+							   name="obx_currency_new[$index][<?=$arLang["ID"]?>][thousands_sep_space]" $thousSpaceSepChecked />
 						<?=GetMessage("OBX_SETT_SPACE")?>
 					</label>
+				</td>
+				<td>
+					<input type="text" class="dec_point"
+						   name="obx_currency_new[$index][<?=$arLang["ID"]?>][dec_point]"
+						   value="$decPoint"/>
 				</td>
 				<td>
 					<select name="obx_currency_new[$index][<?=$arLang["ID"]?>][dec_precision]">
@@ -414,10 +424,13 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 						$arUpdateFormatFields["FORMAT"] = $arFormatRaw["format"];
 					}
 					if (isset($arFormatRaw["thousand_sep"]) && $arFormatRaw["thousand_sep"] != $arExistsFormat["THOUSANDS_SEP"]) {
-						$arUpdateFormatFields["THOUSANDS_SEP"] = $arFormatRaw["thousand_sep"];
+						$arUpdateFormatFields["THOUSANDS_SEP"] = trim($arFormatRaw["thousand_sep"]);
 					}
 					if (isset($arFormatRaw["dec_precision"]) && $arFormatRaw["dec_precision"] != $arExistsFormat["DEC_PRECISION"]) {
 						$arUpdateFormatFields["DEC_PRECISION"] = intval($arFormatRaw["dec_precision"]);
+					}
+					if (isset($arFormatRaw["dec_point"]) && $arFormatRaw["dec_point"] != $arExistsFormat["DEC_POINT"]) {
+						$arUpdateFormatFields["DEC_POINT"] = trim($arFormatRaw["dec_point"]);
 					}
 					if (count($arUpdateFormatFields) > 1) {
 						if (empty($arUpdateFormatFields["ID"])) {
@@ -428,13 +441,16 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 								$arNewCurrencyFormatOnUpdate["NAME"] = '';
 							}
 							if (!isset($arUpdateFormatFields["FORMAT"])) {
-								$arNewCurrencyFormatOnUpdate["FORMAT"] = '#.%';
+								$arNewCurrencyFormatOnUpdate["FORMAT"] = '#';
 							}
 							if (!isset($arUpdateFormatFields["THOUSANDS_SEP"])) {
 								$arNewCurrencyFormatOnUpdate["THOUSANDS_SEP"] = " ";
 							}
 							if (!isset($arUpdateFormatFields["DEC_PRECISION"])) {
 								$arNewCurrencyFormatOnUpdate["DEC_PRECISION"] = 2;
+							}
+							if (!isset($arUpdateFormatFields["DEC_POINT"])) {
+								$arNewCurrencyFormatOnUpdate["DEC_POINT"] = '.';
 							}
 							$bFormatAddOnCurrencyUpdateSuccess = OBX_CurrencyFormat::add($arNewCurrencyFormatOnUpdate);
 							if (!$bFormatAddOnCurrencyUpdateSuccess) {

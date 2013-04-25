@@ -42,28 +42,28 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 //		'DISCOUNT_VALUE' => array('O' => 'DISCOUNT_VALUE'),
 		'ITEMS' => array('I' => 'GROUP_CONCAT(CONCAT("[",I.ID,"]"," ",I.PRODUCT_NAME," - ",I.QUANTITY) SEPARATOR "\n")'),
 		'ITEMS_COST' => array('I' => 'SUM(I.PRICE_VALUE * I.QUANTITY)'),
-//		'PROPERTIES_JSON' => array(
-//			'OP' => '(SELECT
-//						concat(
-//							\'[\',
-//							group_concat(
-//								concat(\'{ PROPERTY_ID: "\', OP.ID, \'"\'),
-//								concat(\', PROPERTY_TYPE: "\', OP.PROPERTY_TYPE, \'"\'),
-//								concat(\', PROPERTY_NAME: "\', ,OP.NAME, \'"\'),
-//								concat(\', PROPERTY_CODE: "\', OP.CODE, \'" }\')
-//							),
-//							\']\'
-//						)
-//					FROM
-//						obx_order_property as OP,
-//					LEFT JOIN
-//						obx_order_property_values as OPV ON (OPV.PROPERTY_ID = OP.ID)
-//					WHERE
-//						OP.ORDER_ID = O.ID
-//					GROUP BY
-//						OP.ORDER_ID
-//					)'
-//		),
+		'PROPERTIES_JSON' => array(
+			'O' => '(SELECT
+						concat(
+							\'[\',
+							group_concat(
+								concat(\'{ "PROPERTY_ID": "\', OP.ID, \'"\'),
+								concat(\', "PROPERTY_TYPE": "\', OP.PROPERTY_TYPE, \'"\'),
+								concat(\', "PROPERTY_NAME": "\',OP.NAME, \'"\'),
+								concat(\', "PROPERTY_CODE": "\', OP.CODE, \'" }\')
+							),
+							\']\'
+						)
+					FROM
+						obx_order_property as OP
+					LEFT JOIN
+						obx_order_property_values as OPV ON (OPV.PROPERTY_ID = OP.ID)
+					WHERE
+						OPV.ORDER_ID = O.ID
+					GROUP BY
+						OPV.ORDER_ID
+					)'
+		),
 	);
 	protected $_arTableLeftJoin = array(
 		'S' => 'O.STATUS_ID = S.ID',

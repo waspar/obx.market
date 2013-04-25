@@ -12,10 +12,6 @@ OBX_Market_TestCase::includeLang(__FILE__);
 
 final class OBX_Test_Currency extends OBX_Market_TestCase
 {
-	protected $backupGlobals = false;
-	//$this->setBackupGlobals(false);
-	//$this->setPreserveGlobalState(false);
-
 	private $_CurrencyDBS = null;
 	private $_arResult = array();
 	private $_arTestCurrencies = array();

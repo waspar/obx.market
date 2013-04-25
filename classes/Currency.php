@@ -12,6 +12,51 @@
 
 IncludeModuleLangFile(__FILE__);
 
+
+
+
+class OBX_CurrencyDBS_NEW extends OBX_DBSimple {
+	protected $_arTableList = array(
+		"C" => "obx_currency"
+	);
+	protected $_mainTable = 'C';
+	protected $_arTableLinks = array();
+	protected $_arTableFields = array(
+		"CURRENCY"		=> array("C" => "CURRENCY"),
+		"SORT"			=> array("C" => "SORT"),
+		"COURSE"		=> array("C" => "COURSE"),
+		"RATE"			=> array("C" => "RATE"),
+		"IS_DEFAULT"	=> array("C" => "IS_DEFAULT")
+	);
+	protected $_mainTablePrimaryKey = "CURRENCY";
+	protected $_mainTableAutoIncrement = null;
+	protected $_arTableFieldsDefault = array(
+		"SORT" => "100",
+		"COURSE" => "1",
+		"RATE" => "1"
+	);
+	protected $_arDBSimpleLangMessages = array();
+	protected $_arTableFieldsCheck = array();
+	public function __construct() {
+		$this->_arTableFieldsCheck = array(
+			"CURRENCY"		=> self::FLD_T_CODE | self::FLD_NOT_NULL,
+			"SORT"			=> self::FLD_T_INT | self::FLD_DEFAULT,
+			"COURSE"		=> self::FLD_T_FLOAT,
+			"RATE"			=> self::FLD_T_FLOAT,
+			"IS_DEFAULT"	=> self::FLD_T_BCHAR,
+		);
+		$this->_arDBSimpleLangMessages = array(
+			"DUP_PK" => array(
+				"TYPE" => "E",
+				"TEXT" => GetMessage("OBX_MARKET_CURRENCY_ERROR_2"),
+				"CODE" => 2
+			)
+		);
+	}
+}
+
+
+
 class OBX_CurrencyDBS extends OBX_DBSimple
 {
 	protected $_arTableList = array(
@@ -252,5 +297,3 @@ class OBX_Currency extends OBX_DBSimpleStatic {
 	}
 }
 OBX_Currency::__initDBSimple(OBX_CurrencyDBS::getInstance());
-
-?>

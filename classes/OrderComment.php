@@ -45,4 +45,3 @@ class OBX_OrderCommentDBS extends OBX_DBSimple{
 }
 class OBX_OrderComment extends OBX_DBSimpleStatic {}
 OBX_OrderComment::__initDBSimple(OBX_OrderCommentDBS::getInstance());
-?>

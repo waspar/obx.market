@@ -45,4 +45,3 @@ $arModuleClasses = array(
    ,'OBX_OrdersList'					=> 'classes/OrdersList.php'
 );
 return $arModuleClasses;
-?>

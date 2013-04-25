@@ -49,12 +49,12 @@ create table if not exists obx_ecom_iblock (
 
 -- Хранение цен в свойствах ИБ PRICE_VERSION=1
 create table if not exists obx_price_ibp (
-	--ID int(11) not null auto_increment,
+	-- ID int(11) not null auto_increment,
 	IBLOCK_ID int(11) not null,
 	IBLOCK_PROP_ID int(11) not null,
 	PRICE_ID int(11) not null,
 
-	--primary key(ID),
+	-- primary key(ID),
 	unique obx_price_ibpr(IBLOCK_ID, PRICE_ID),
 	unique obx_price_ibprp(PRICE_ID, IBLOCK_PROP_ID),
 	-- ниже почти невозможная ситуация (одно св-во не может быть в 2х иб сразу), тем не менее стоит обработать на уровне БД
@@ -123,6 +123,7 @@ create table if not exists obx_user_basket (
 	DATE_UPDATE timestamp not null,
 	USER_ID int(11) NULL,
 	VISITOR_ID int(11) NULL,
+	primary key(ID)
 );
 
 -- Таблица товаров в заказе
@@ -225,3 +226,4 @@ create table if not exists obx_order_comments (
 	MESSAGE text not null,
 	primary key (ID)
 );
+

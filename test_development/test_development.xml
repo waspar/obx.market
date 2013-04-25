@@ -8,10 +8,7 @@
 <phpunit bootstrap="../test/bootstrap_tests.php">
 	<testsuites>
 		<testsuite name="OBX Market API Development Tests">
-			<!-- <directory></directory> -->
-			<!--<file>OrderPropertyValues</file>
-			<file>...php</file>
-			-->
+			<file>Currency2.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

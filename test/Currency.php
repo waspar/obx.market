@@ -1,5 +1,5 @@
 <?php
-class OBX_Test_Currency2 extends OBX_Market_TestCase
+class OBX_Test_Currency extends OBX_Market_TestCase
 {
 	/**
 	 * @var OBX_Currency
@@ -120,7 +120,7 @@ class OBX_Test_Currency2 extends OBX_Market_TestCase
 			'COURSE' => '2',
 			'RATE' => '2',
 		));
-		if($bSuccess) {
+		if(!$bSuccess) {
 			$arError = OBX_Currency::popLastError('ARRAY');
 		}
 		$this->assertTrue(

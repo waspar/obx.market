@@ -3,10 +3,8 @@
  ** @product OBX:Market Bitrix Module         **
  ** @authors                                  **
  **         Maksim S. Makarov aka pr0n1x      **
- **         Artem P. Morozov  aka tashiro     **
- ** @License GPLv3                            **
+ ** @license GPLv3                            **
  ** @mailto rootfavell@gmail.com              **
- ** @mailto tashiro@yandex.ru                 **
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
@@ -165,47 +163,39 @@ class OBX_CurrencyFormatDBS extends OBX_DBSimple
 		return $arCurrencyLangList;
 	}
 
-	public function formatPrice($priceValue, $currencyCode = null, $langID = null, $arFormat = null) {
+
+	public function formatPrice($priceValue, $currencyCode = null, $langID = LANGUAGE_ID, $arFormat = null) {
 		if( !is_numeric($priceValue) ) {
 			$this->addWarning(GetMessage('OBX_MARKET_CURRENCY_WARNING_2'), 2);
 			return $priceValue;
 		}
 
 		if( is_array($arFormat) ) {
-			foreach($this->_arTableDefaultFields as $formatKey => &$fmtUnitVal)
+			foreach($this->_arTableFieldsDefault as $formatKey => &$fmtUnitVal) {
 				if( empty($arFormat[$formatKey]) ) {
 					$arFormat[$formatKey] = $fmtUnitVal;
 				}
+			}
 		}
 		else {
-			if(false) {
-				// TODO: Дописать для самостоятельного использования Пока подходит только для работы через класс OBX_Price
+			if( $currencyCode == null ) {
+				$currencyCode = OBX_Currency::getDefault();
 			}
-			else {
-				$arFormat = $this->_arTableDefaultFields;
+			$CurrencyInfo = OBX_CurrencyInfo::getInstance($currencyCode);
+			if($CurrencyInfo == null) {
+				$this->addWarning('Currency set incorrect');
+				return $priceValue;
 			}
+			$arCurrency = $CurrencyInfo->getFields();
+			$arFormat = $arCurrency['FORMAT'][$langID];
 		}
 
-		$priceValue = floatval($priceValue);
-		$valueInt = round($priceValue, 0);
-		$valueDec = round($priceValue*pow(10, $arFormat['DEC_PRECISION']) - $valueInt*pow(10, $arFormat['DEC_PRECISION']), 0);
-		if(!$valueInt) {
-			$valueInt = '0';
-		}
-		$cent = '%';
-		if(!$valueDec) {
-			//$valueDec = '00';
-			$valueDec = '';
-			if( strpos($arFormat['FORMAT'], ',%')!==false ) {
-				$valueDec = '';
-				$cent = ',%';
-			}
-			elseif( strpos($arFormat['FORMAT'], '.%')!==false ) {
-				$valueDec = '';
-				$cent = '.%';
-			}
-		}
-		return str_replace(array('#', $cent), array($valueInt, $valueDec), $arFormat['FORMAT']);
+		return str_repace('#', $arFormat['FORMAT'], number_format(
+			$priceValue,
+			$arFormat['DEC_PRECISION'],
+			$arFormat['DEC_POINT'],
+			$arFormat['THOUSANDS_SEP']
+		));
 	}
 }
 class OBX_CurrencyFormat extends OBX_DBSimpleStatic {
@@ -217,4 +207,3 @@ class OBX_CurrencyFormat extends OBX_DBSimpleStatic {
 	}
 }
 OBX_CurrencyFormat::__initDBSimple(OBX_CurrencyFormatDBS::getInstance());
-?>

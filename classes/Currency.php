@@ -3,10 +3,8 @@
  ** @product OBX:Market Bitrix Module         **
  ** @authors                                  **
  **         Maksim S. Makarov aka pr0n1x      **
- **         Artem P. Morozov  aka tashiro     **
  ** @License GPLv3                            **
  ** @mailto rootfavell@gmail.com              **
- ** @mailto tashiro@yandex.ru                 **
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
@@ -69,10 +67,11 @@ class OBX_CurrencyDBS extends OBX_DBSimple {
 		);
 	}
 
-	public function __check_CURRENCY(&$value, &$arCheckResult) {
+	public function __check_CURRENCY(&$value, &$arCheckResult = null) {
 		if( !preg_match('~^[a-zA-Z\_][a-z0-9A-Z\_]{0,2}$~', $value) ) {
 			return false;
 		}
+		return true;
 	}
 
 	protected function _onBeforeAdd(&$arFields) {
@@ -118,6 +117,8 @@ class OBX_CurrencyDBS extends OBX_DBSimple {
 		if($this->_bSetJustUpdatedCurrencyDefault != null) {
 			$this->setDefault($this->_bSetJustUpdatedCurrencyDefault);
 		}
+			// Clear currency info cache
+			OBX_CurrencyInfo::clearInstance($this->_bSetJustUpdatedCurrencyDefault);
 		$this->_bSetJustUpdatedCurrencyDefault = null;
 		// ^^^ automatic setDefault() in update()
 		return true;
@@ -174,6 +175,7 @@ class OBX_CurrencyDBS extends OBX_DBSimple {
 	}
 }
 class OBX_Currency extends OBX_DBSimpleStatic {
+
 	static public function setDefault($currency, &$bIsAlreadyDefault = false) {
 		return self::getInstance()->setDefault($currency, $bIsAlreadyDefault);
 	}
@@ -185,7 +187,6 @@ class OBX_Currency extends OBX_DBSimpleStatic {
 	}
 }
 OBX_Currency::__initDBSimple(OBX_CurrencyDBS::getInstance());
-
 
 
 //class OBX_CurrencyDBS_BAK extends OBX_DBSimple

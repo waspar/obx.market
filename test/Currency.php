@@ -369,7 +369,7 @@ class OBX_Test_Currency2 extends OBX_Market_TestCase
 		}
 	}
 
-	public function testSetDefaultCurrensyBeforeTest() {
+	public function testSetDefaultCurrencyBeforeTest() {
 		if(self::$_defaultCurrencyBeforeTest != null) {
 			$this->_CurrencyDBS->setDefault(self::$_defaultCurrencyBeforeTest);
 		}

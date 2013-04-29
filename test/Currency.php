@@ -8,6 +8,8 @@ class OBX_Test_Currency extends OBX_Market_TestCase
 
 	private $_arResult = array();
 	private $_arTestCurrencies = array();
+	private $_arPrices = array();
+	private $_arInvalidPrices = array();
 	static private $_defaultCurrencyBeforeTest = null;
 
 	public function setUp() {
@@ -22,13 +24,15 @@ class OBX_Test_Currency extends OBX_Market_TestCase
 						'NAME' => 'Тугрики',
 						'FORMAT' => '# туг.',
 						'THOUSANDS_SEP' => ' ',
-						'DEC_POINT' => ','
+						'DEC_POINT' => ',',
+						'DEC_PRECISION' => 2
 					),
 					'en' => array(
 						'NAME' => 'Tugriki',
 						'FORMAT' => '# tug.',
 						'THOUSANDS_SEP' => '\'',
-						'DEC_POINT' => '.'
+						'DEC_POINT' => '.',
+						'DEC_PRECISION' => 2
 					)
 				)
 			),
@@ -39,17 +43,106 @@ class OBX_Test_Currency extends OBX_Market_TestCase
 				'FORMAT' => array(
 					'ru' => array(
 						'NAME' => 'Тукрики',
-						'FORMAT' => '# туг.',
+						'FORMAT' => '# тук.',
 						'THOUSANDS_SEP' => ' ',
-						'DEC_POINT' => ','
+						'DEC_POINT' => ',',
+						'DEC_PRECISION' => 2
 					),
 					'en' => array(
 						'NAME' => 'Tukriki',
-						'FORMAT' => '# tug.',
+						'FORMAT' => '# tuk.',
 						'THOUSANDS_SEP' => '\'',
-						'DEC_POINT' => '.'
+						'DEC_POINT' => '.',
+						'DEC_PRECISION' => 2
 					)
 				)
+			),
+		);
+
+		$this->_arPrices = array(
+			array(
+				'VALUE' => '32123.36',
+				'CURRENCY' => 'TUK',
+				'VALUE_EXPECTED_ru' => '32 123,36 тук.',
+				'VALUE_EXPECTED_en' => '32\'123.36 tuk.',
+				'CUSTOM_FORMAT' => array(
+					'FORMAT' => '# т.',
+					'DEC_POINT' => ':',
+					'DEC_PRECISION' => 3,
+					'THOUSANDS_SEP' => '`'
+				),
+				'VALUE_EXPECTED_CUSTOM' => '32`123:360 т.'
+			),
+			array(
+				'VALUE' => '1233232.00',
+				'CURRENCY' => 'TUK',
+				'VALUE_EXPECTED_ru' => '1 233 232,00 тук.',
+				'VALUE_EXPECTED_en' => '1\'233\'232.00 tuk.',
+				'CUSTOM_FORMAT' => array(
+					'FORMAT' => '# т.',
+					'DEC_POINT' => ':',
+					'DEC_PRECISION' => 3,
+					'THOUSANDS_SEP' => '`'
+				),
+				'VALUE_EXPECTED_CUSTOM' => '1`233`232:000 т.'
+			),
+			array(
+				'VALUE' => '6888',
+				'CURRENCY' => 'TUG',
+				'VALUE_EXPECTED_ru' => '6 888,00 туг.',
+				'VALUE_EXPECTED_en' => '6\'888.00 tug.',
+				'CUSTOM_FORMAT' => array(
+					'FORMAT' => '# т.',
+					'DEC_POINT' => ':',
+					'DEC_PRECISION' => 3,
+					'THOUSANDS_SEP' => '`'
+				),
+				'VALUE_EXPECTED_CUSTOM' => '6`888:000 т.'
+			),
+			array(
+				'VALUE' => 3.3669,
+				'CURRENCY' => 'TUG',
+				'VALUE_EXPECTED_ru' => '3,37 туг.',
+				'VALUE_EXPECTED_en' => '3.37 tug.',
+				'CUSTOM_FORMAT' => array(
+					'FORMAT' => '# т.',
+					'DEC_POINT' => ':',
+					'DEC_PRECISION' => 3,
+					'THOUSANDS_SEP' => '`'
+				),
+				'VALUE_EXPECTED_CUSTOM' => '3:367 т.'
+			),
+			array(
+				'VALUE' => 343,
+				'CURRENCY' => 'TUK',
+				'VALUE_EXPECTED_ru' => '343,00 тук.',
+				'VALUE_EXPECTED_en' => '343.00 tuk.',
+				'CUSTOM_FORMAT' => array(
+					'FORMAT' => '# т.',
+					'DEC_POINT' => ':',
+					'DEC_PRECISION' => 3,
+					'THOUSANDS_SEP' => '`'
+				),
+				'VALUE_EXPECTED_CUSTOM' => '343:000 т.'
+			),
+		);
+
+		$this->_arInvalidPrices = array(
+			array(
+				'VALUE' => '-432.75',
+				'CURRENCY' => 'TUG'
+			),
+			array(
+				'VALUE' => -432.75,
+				'CURRENCY' => 'TUG'
+			),
+			array(
+				'VALUE' => '-432',
+				'CURRENCY' => 'TUK'
+			),
+			array(
+				'VALUE' => -432,
+				'CURRENCY' => 'TUK'
 			),
 		);
 	}
@@ -238,11 +331,15 @@ class OBX_Test_Currency extends OBX_Market_TestCase
 	public function testCreateCurrencyFormat() {
 		$arLangList = $this->getBXLangList();
 		foreach($arLangList as &$arLang) {
-			foreach($this->_arTestCurrencies as $arTestCurrency) {
+			foreach($this->_arTestCurrencies as $currency => $arTestCurrency) {
 				$newFormatID = OBX_CurrencyFormat::add(array(
 					'LANGUAGE_ID' => $arLang['LID'],
-					'CURRENCY' => 'TUG',
-					'NAME' => $arTestCurrency['FORMAT'][$arLang['LID']]['NAME']
+					'CURRENCY' => $currency,
+					'NAME' => $arTestCurrency['FORMAT'][$arLang['LID']]['NAME'],
+					'FORMAT' => $arTestCurrency['FORMAT'][$arLang['LANGUAGE_ID']]['FORMAT'],
+					'THOUSANDS_SEP' => $arTestCurrency['FORMAT'][$arLang['LANGUAGE_ID']]['THOUSANDS_SEP'],
+					'DEC_POINT' => $arTestCurrency['FORMAT'][$arLang['LANGUAGE_ID']]['DEC_POINT'],
+					'DEC_PRECISION' => $arTestCurrency['FORMAT'][$arLang['LANGUAGE_ID']]['DEC_PRECISION'],
 				));
 				if($newFormatID == 0) {
 					$arError = OBX_CurrencyFormat::popLastError('ARRAY');
@@ -270,6 +367,18 @@ class OBX_Test_Currency extends OBX_Market_TestCase
 		$this->assertTrue(is_array($arFormatList));
 		$countFormatList = count($arFormatList);
 		$this->assertGreaterThan(0, $countFormatList);
+		foreach($arFormatList as $currency => &$arFormat) {
+
+			$this->assertArrayHasKey(
+				$arFormat['CURRENCY'],
+				$this->_arTestCurrencies,
+				'Error: CurrencyFormat::getListArray() returns item does not match the filter');
+
+			$this->assertEquals(
+				$this->_arTestCurrencies[$arFormat['CURRENCY']]['FORMAT'][$arFormat['LANGUAGE_ID']]['FORMAT'],
+				$arFormat['FORMAT'],
+				'Error: Currency format string in database not equals added before');
+		} unset($arFormat);
 	}
 
 	/**
@@ -277,6 +386,39 @@ class OBX_Test_Currency extends OBX_Market_TestCase
 	 */
 	public function getListGroupedByLang() {
 
+	}
+
+	public function testFormatPrice() {
+		$arLangList = $this->getBXLangList();
+		foreach($arLangList as &$arLang) {
+			foreach($this->_arPrices as &$arTestPriceValue) {
+				if( array_key_exists('VALUE_EXPECTED_'.$arLang['LANGUAGE_ID'], $arTestPriceValue) ) {
+					$valueFormatted = OBX_CurrencyFormat::formatPrice(
+						$arTestPriceValue['VALUE'],
+						$arTestPriceValue['CURRENCY'],
+						$arLang['LANGUAGE_ID']
+					);
+					$this->assertEquals(
+						$arTestPriceValue['VALUE_EXPECTED_'.$arLang['LANGUAGE_ID']],
+						$valueFormatted, 'Error: price formatting by currency return wrong result');
+				}
+				if(
+					array_key_exists('CUSTOM_FORMAT', $arTestPriceValue)
+					&& is_array($arTestPriceValue['CUSTOM_FORMAT'])
+					&& array_key_exists('VALUE_EXPECTED_CUSTOM', $arTestPriceValue)
+				) {
+					$valueFormatted = OBX_CurrencyFormat::formatPrice(
+						$arTestPriceValue['VALUE'],
+						$arTestPriceValue['CURRENCY'],
+						LANGUAGE_ID,
+						$arTestPriceValue['CUSTOM_FORMAT']
+					);
+					$this->assertEquals(
+						$arTestPriceValue['VALUE_EXPECTED_CUSTOM'],
+						$valueFormatted, 'Error: price formatting by custom format return wrong result');
+				}
+			}
+		} unset($arLang, $arPrice);
 	}
 
 	/**

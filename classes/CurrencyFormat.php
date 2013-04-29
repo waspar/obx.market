@@ -190,12 +190,13 @@ class OBX_CurrencyFormatDBS extends OBX_DBSimple
 			$arFormat = $arCurrency['FORMAT'][$langID];
 		}
 
-		return str_repace('#', $arFormat['FORMAT'], number_format(
-			$priceValue,
-			$arFormat['DEC_PRECISION'],
-			$arFormat['DEC_POINT'],
-			$arFormat['THOUSANDS_SEP']
-		));
+		return str_replace('#', number_format(
+				$priceValue,
+				$arFormat['DEC_PRECISION'],
+				$arFormat['DEC_POINT'],
+				$arFormat['THOUSANDS_SEP']
+			),
+			$arFormat['FORMAT']);
 	}
 }
 class OBX_CurrencyFormat extends OBX_DBSimpleStatic {

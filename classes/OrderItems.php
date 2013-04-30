@@ -74,8 +74,8 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 		'IB_ELT_LIST_PAGE_URL'		=> array('IB'	=> 'DETAIL_PAGE_URL'),
 		'IB_ELT_SECTION_PAGE_URL'	=> array('IB'	=> 'DETAIL_PAGE_URL'),
 		'IB_ELT_DETAIL_PAGE_URL'	=> array('IB'	=> 'DETAIL_PAGE_URL'),
-		'IB_ELT_SITE_ID'				=> array('SI'	=> 'LID'),
-		'IB_ELT_SITE_DIR'				=> array('SI'	=> 'DIR')
+		'IB_ELT_SITE_ID'			=> array('SI'	=> 'LID'),
+		'IB_ELT_SITE_DIR'			=> array('SI'	=> 'DIR')
 	);
 	protected $_arSelectDefault = array(
 		'ID',

@@ -10,7 +10,7 @@
 
 OBX_Market_TestCase::includeLang(__FILE__);
 
-class OBX_Test_OrderItems extends OBX_Market_TestCase
+class OBX_Test_BasketItems extends OBX_Market_TestCase
 {
 	public function testAddItems() {
 

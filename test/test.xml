@@ -17,7 +17,7 @@
 			<file>OrderProperty.php</file>
 			<file>OrderList.php</file>
 			<file>OrderPropertyValues</file>
-			<file>OrderItems.php</file>
+			<file>BasketItems.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

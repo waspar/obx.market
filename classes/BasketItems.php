@@ -12,9 +12,10 @@
 
 IncludeModuleLangFile(__FILE__);
 
-class OBX_OrderItemsDBS extends OBX_DBSimple {
+class OBX_BasketItemsDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
 		'O'		=> 'obx_orders',
+		'V'		=> 'obx_',
 		'I'		=> 'obx_basket_items',
 		'P'		=> 'obx_price',
 		'IBE'	=> 'b_iblock_element',
@@ -47,6 +48,7 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 		'ID'						=> array('I'	=> 'ID'),
 		'ORDER_ID'					=> array('I'	=> 'ORDER_ID'),
 		'ORDER_USER_ID'				=> array('O'	=> 'USER_ID'),
+		'VISITOR_ID'				=> array('V'	=> 'ID'),
 		'PRODUCT_ID'				=> array('I'	=> 'PRODUCT_ID'),
 		'PRODUCT_NAME'				=> array('I'	=> 'PRODUCT_NAME'),
 		'QUANTITY'					=> array('I'	=> 'QUANTITY'),
@@ -91,7 +93,7 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 	protected $_mainTablePrimaryKey = 'ID';
 	protected $_mainTableAutoIncrement = 'ID';
 	protected $_arTableUnique = array(
-		'udx_obx_basket_items' => array('ORDER_ID', 'PRODUCT_ID')
+		'udx_obx_basket_items' => array('ORDER_ID', 'VISITOR_ID', 'PRODUCT_ID')
 	);
 	protected $_arSortDefault = array('ID' => 'ASC');
 	protected $_arTableFieldsDefault = array(
@@ -101,7 +103,8 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 	function __construct() {
 		$this->_arTableFieldsCheck = array(
 			'ID'				=> self::FLD_T_INT | self::FLD_NOT_NULL,
-			'ORDER_ID'			=> self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_REQUIRED | self::FLD_CUSTOM_CK,
+			'ORDER_ID'			=> self::FLD_T_INT | self::FLD_CUSTOM_CK,
+			'VISITOR_ID'		=> self::FLD_T_INT | self::FLD_CUSTOM_CK,
 			'PRODUCT_ID'		=> self::FLD_T_IBLOCK_ELEMENT_ID | self::FLD_NOT_NULL | self::FLD_REQUIRED,
 			'PRODUCT_NAME'		=> self::FLD_T_STRING | self::FLD_NOT_NULL | self::FLD_REQUIRED,
 			'QUANTITY'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
@@ -113,11 +116,11 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 			'VAT_VALUE'			=> self::FLD_T_FLOAT | self::FLD_NOT_NULL
 		);
 		$this->_arDBSimpleLangMessages = array(
-			'REQ_FLD_ORDER_ID' => array(
-				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_1'),
-				'CODE' => 1
-			),
+//			'REQ_FLD_ORDER_ID' => array(
+//				'TYPE' => 'E',
+//				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_1'),
+//				'CODE' => 1
+//			),
 			'REQ_FLD_IBLOCK_ID' => array(
 				'TYPE' => 'E',
 				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_2'),
@@ -206,8 +209,15 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 		$arCheckData = $arEComIBlock;
 		return true;
 	}
+	public function __check_VISITOR_ID(&$fieldValue, &$arCheckData) {
+		return true;
+	}
 
 	protected function _onBeforeAdd(&$arFields, &$arCheckData) {
+		if( empty($arFields['ORDER_ID']) && empty($arFields['VISITOR_ID']) ) {
+			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_1'));
+			return false;
+		}
 		if(
 			empty($arFields['PRODUCT_NAME'])
 			&& isset($arCheckData['PRODUCT_ID']['IS_CORRECT'])
@@ -255,7 +265,7 @@ class OBX_OrderItemsDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_OrderItems extends OBX_DBSimpleStatic {
+class OBX_BasketItems extends OBX_DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}
@@ -265,4 +275,4 @@ class OBX_OrderItems extends OBX_DBSimpleStatic {
 	}
 }
 
-OBX_OrderItems::__initDBSimple(OBX_OrderItemsDBS::getInstance());
+OBX_BasketItems::__initDBSimple(OBX_BasketItemsDBS::getInstance());

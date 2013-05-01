@@ -14,10 +14,6 @@ final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
 {
 	static protected  $_arEComIBlockList = array();
 
-	public function setUp() {
-
-	}
-
 	public function testCreatingTestIBlock() {
 		$arSitesList = $this->getBXSitesList();
 		$this->assertGreaterThan(0, count($arSitesList));

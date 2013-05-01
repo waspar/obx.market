@@ -12,7 +12,7 @@
 
 IncludeModuleLangFile(__FILE__);
 
-abstract class OBX_MarketSettings extends OBX_CMessagePool {
+abstract class OBX_MarketSettings extends OBX_CMessagePoolDecorator {
 
 	final protected function __construct() {
 	}

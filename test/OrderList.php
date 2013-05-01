@@ -12,9 +12,9 @@ OBX_Market_TestCase::includeLang(__FILE__);
 
 class OBX_Test_OrderList extends OBX_Market_TestCase
 {
-	static protected $_arOrdersList = array();
-	public function testPrepareTests() {
-		self::$_arOrdersList = array(
+	static protected $_arOrderList = array();
+	static public function setUpBeforeClass() {
+		self::$_arOrderList = array(
 			0 => array(),
 			1 => array(),
 			2 => array(),
@@ -23,14 +23,24 @@ class OBX_Test_OrderList extends OBX_Market_TestCase
 	}
 
 	public function testCreateOrder() {
-		$orderID = OBX_OrdersList::add();
+		$orderID = OBX_OrderList::add();
 		if($orderID<1) {
-			$arError = OBX_OrdersList::popLastError('ARRAY');
+			$arError = OBX_OrderList::popLastError('ARRAY');
 			$this->assertGreaterThan(0, $orderID, 'Error: code: "'.$arError['CODE'].'"; test: "'.$arError['TEXT'].'"');
 		}
-		self::$_arOrdersList[] = array(
+		self::$_arOrderList[] = array(
 			'ID' => $orderID
 		);
+	}
+
+	public function testGetOrderList() {
+		$arFilter = array('ID' => array());
+		foreach(self::$_arOrderList as &$arOrderDesc) {
+			$arFilter[] = $arOrderDesc['ID'];
+		} unset($arOrderDesc);
+		print_r($arFilter);
+		$arOrderList = OBX_OrderList::getListArray(null, $arFilter);
+		print_r($arOrderList);
 	}
 
 	public function testUpdateOrder() {
@@ -38,6 +48,8 @@ class OBX_Test_OrderList extends OBX_Market_TestCase
 	}
 
 	public function testDeleteOrder() {
-
+		foreach(self::$_arOrderList as &$arOrderDesc) {
+			OBX_OrderList::delete($arOrderDesc['ID']);
+		} unset($arOrderDesc);
 	}
 }

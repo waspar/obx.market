@@ -31,7 +31,7 @@ IncludeModuleLangFile(__FILE__);
 <?
 
 $tableID = 'tbl_obx_orders';
-$OrdersDBS = OBX_OrdersDBS::getInstance();
+$OrderDBS = OBX_OrderDBS::getInstance();
 $OrderStatusDBS = OBX_OrderStatusDBS::getInstance();
 $OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
 $OrderPropertyValuesDBS = OBX_OrderPropertyValuesDBS::getInstance();
@@ -112,8 +112,8 @@ if($lAdmin->EditAction()){
 			}
 		}
 		if( count($arUpdateFields)>1 ) {
-			if( !$OrdersDBS->update($arUpdateFields) ) {
-				$lAdmin->AddUpdateError($OrdersDBS->popLastError(), $ID);
+			if( !$OrderDBS->update($arUpdateFields) ) {
+				$lAdmin->AddUpdateError($OrderDBS->popLastError(), $ID);
 			}
 		}
 	}
@@ -177,7 +177,7 @@ if($lAdmin->EditAction()){
 }
 if( ($arID = $lAdmin->GroupAction()) ) {
 	if(false && $_REQUEST['action_target']=='selected'){
-		$rsData = $OrdersDBS->getList(array($by=>$objOrder), $arFilter);
+		$rsData = $OrderDBS->getList(array($by=>$objOrder), $arFilter);
 		while($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
@@ -191,7 +191,7 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 			case 'delete':
 				@set_time_limit(0);
 				$DB->StartTransaction();
-				if (!$OrdersDBS->delete($ID)){
+				if (!$OrderDBS->delete($ID)){
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage('OBX_STATUS_DEL_ERROR_1'), $ID);
 				}
@@ -220,7 +220,7 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 /**
  * Выборка
  */
-$rsData = $OrdersDBS->getList(array($by=>$order), $arFilter);
+$rsData = $OrderDBS->getList(array($by=>$order), $arFilter);
 $rsData = new CAdminResult($rsData, $tableID);
 
 $rsData->NavStart();

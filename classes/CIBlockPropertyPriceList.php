@@ -61,4 +61,3 @@ class OBX_CIBlockPropertyPriceList extends CDBResult implements Iterator
 class OBX_CIBEPrice {
 	// TODO: Дописать механизм получения дополнительных данных о цене
 }
-?>

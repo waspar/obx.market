@@ -14,7 +14,7 @@ final class OBX_Test_OrderProperty extends OBX_Market_TestCase
 {
 	static private $_arPropertyList = array();
 
-	public function testPrepareTests() {
+	static public function setUpBeforeClass() {
 		self::$_arPropertyList = array(
 			'TT_NUMBER' => array(
 				'NAME' => GetMessage('OBX_MARKET_TT_NUMBER_NAME'),

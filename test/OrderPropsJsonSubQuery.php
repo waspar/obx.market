@@ -103,7 +103,7 @@ SQL
 	}
 
 	public function testGetList() {
-		$OrderList = OBX_OrdersDBS::getInstance();
+		$OrderList = OBX_OrderDBS::getInstance();
 		$arResult = $OrderList->getListArray(null, array('ID' => 1), null, null, array(
 			'ID',
 			'DATE_CREATED',
@@ -136,7 +136,7 @@ SQL
 	}
 
 	public function testGetByID() {
-		$OrderList = OBX_OrdersDBS::getInstance();
+		$OrderList = OBX_OrderDBS::getInstance();
 		$arResult = $OrderList->getByID(1, array(
 			'ID',
 			'DATE_CREATED',

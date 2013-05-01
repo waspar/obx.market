@@ -74,7 +74,7 @@ $arStatusList = OBX_OrderStatusDBS::getInstance()->getListArray();
 $arCurrencyFormatList = OBX_CurrencyFormatDBS::getInstance()->getListGroupedByLang();
 $currencyDefault = OBX_CurrencyDBS::getInstance()->getDefault();
 
-$OrdersDBS = OBX_OrdersDBS::getInstance();
+$OrderDBS = OBX_OrderDBS::getInstance();
 $OrderPropertyEnumDBS = OBX_OrderPropertyEnumDBS::getInstance();
 
 $arOrder = array();
@@ -114,7 +114,7 @@ if ($REQUEST_METHOD == "POST" // проверка метода вызова ст
 
 	} else {
 
-		$newID = $OrdersDBS->add($_REQUEST['FIELDS']);
+		$newID = $OrderDBS->add($_REQUEST['FIELDS']);
 		$bSuccess = ($newID > 0) ? true : false;
 		if ($bSuccess) {
 			$ID = $newID;

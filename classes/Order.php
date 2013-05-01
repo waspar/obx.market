@@ -15,7 +15,7 @@ IncludeModuleLangFile(__FILE__);
 
 class OBX_Order extends OBX_CMessagePoolDecorator {
 	protected $_OrderDBS = null;
-	protected $_BasketItemsDBS = null;
+	protected $_BasketItemDBS = null;
 	protected $_OrderStatusDBS = null;
 	protected $_OrderPropertyDBS = null;
 	protected $_OrderCommentDBS = null;
@@ -29,12 +29,12 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 
 	// Кострутор объекта из БД или из ID заказа
 	protected function __construct() {
-		$this->_OrderDBS = OBX_OrdersDBS::getInstance();
+		$this->_OrderDBS = OBX_OrderDBS::getInstance();
 		$this->_OrderStatusDBS = OBX_OrderStatusDBS::getInstance();
 		$this->_OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
 		$this->_OrderPropertyValuesDBS = OBX_OrderPropertyValuesDBS::getInstance();
 		$this->_OrderCommentDBS = OBX_OrderCommentDBS::getInstance();
-		$this->_BasketItemsDBS = OBX_BasketItemsDBS::getInstance();
+		$this->_BasketItemDBS = OBX_BasketItemDBS::getInstance();
 		$this->_EComIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
 		$this->_PriceDBS = OBX_PriceDBS::getInstance();
 		$this->_CIBlockPropertyPriceDBS = OBX_CIBlockPropertyPriceDBS::getInstance();
@@ -45,8 +45,8 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public static function getList($arSort = null, $arFilter = null, $arGroupBy = null, $arPagination = null, $arSelect = null, $bShowNullFields = true) {
-		$OrdersList = OBX_OrdersDBS::getInstance();
-		$res = $OrdersList->getList($arSort, $arFilter, $arGroupBy, $arPagination, $arSelect, $bShowNullFields);
+		$OrderList = OBX_OrderDBS::getInstance();
+		$res = $OrderList->getList($arSort, $arFilter, $arGroupBy, $arPagination, $arSelect, $bShowNullFields);
 		$OrderDBResult = new OBX_OrderDBResult($res, $arSelect);
 
 		return $OrderDBResult;
@@ -62,7 +62,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public static function getByID($orderID, $arSelect = null) {
-		$OrderDBS = OBX_OrdersDBS::getInstance();
+		$OrderDBS = OBX_OrderDBS::getInstance();
 		$rsOrder = $OrderDBS->getList(null, array('ID' => $orderID), null, null, $arSelect, false);
 		$arOrder = $rsOrder->Fetch();
 		if (empty($arOrder)) {
@@ -89,7 +89,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public static function delete($orderID) {
-		$OrderDBS = OBX_OrdersDBS::getInstance();
+		$OrderDBS = OBX_OrderDBS::getInstance();
 		$OrderDBS->delete($orderID);
 	}
 
@@ -288,7 +288,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public function getItems() {
-		return $this->_BasketItemsDBS->getListArray(array('ID' => 'ASC'), array('ORDER_ID' => $this->_arOrder['ID']));
+		return $this->_BasketItemDBS->getListArray(array('ID' => 'ASC'), array('ORDER_ID' => $this->_arOrder['ID']));
 	}
 
 	public function setItems($arItems, $bHardListSet = false, $bQuantityAdd = false) {
@@ -313,7 +313,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 		//$arEComIBlockList = $this->_EComIBlockDBS->getListArray();
 
 		$arExistsOrderItems = array();
-		$arExistsOrderItemsList = $this->_BasketItemsDBS->getListArray(
+		$arExistsOrderItemsList = $this->_BasketItemDBS->getListArray(
 			null,
 			array('ORDER_ID' => $this->_arOrder['ID']),
 			null, null
@@ -336,7 +336,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 		foreach ($arItems as $keyItem => $arFields) {
 			if (isset($arFields['QUANTITY']) && $arFields['QUANTITY'] <= 0) {
 				if (array_key_exists($arFields['PRODUCT_ID'], $arExistsOrderItems)) {
-					$this->_BasketItemsDBS->delete($arExistsOrderItems[$arFields['PRODUCT_ID']]['ID']);
+					$this->_BasketItemDBS->delete($arExistsOrderItems[$arFields['PRODUCT_ID']]['ID']);
 				}
 				continue;
 			}
@@ -355,7 +355,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 					$arFields['QUANTITY'] = $arFields['QUANTITY'] + $arExistsOrderItems[$arFields['PRODUCT_ID']]['QUANTITY'];
 					unset($arFields['QUANTITY_ADD']);
 				}
-				$bSuccess = $this->_BasketItemsDBS->update($arFields);
+				$bSuccess = $this->_BasketItemDBS->update($arFields);
 				$arExistsOrderItems[$arFields['PRODUCT_ID']]['EXISTS_IN_ARGUMENT'] = true;
 			} else {
 				$bCorrect = false;
@@ -371,7 +371,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 				}
 				// ^^^
 				if ($bCorrect){
-					$newOrderItemID = $this->_BasketItemsDBS->add($arFields);
+					$newOrderItemID = $this->_BasketItemDBS->add($arFields);
 					$bSuccess = ($newOrderItemID > 0) ? true : false;
 				}else{
 					$bSuccess = false;
@@ -379,15 +379,15 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 				}
 			}
 			if (!$bSuccess) {
-				$arErrorsList = $this->_BasketItemsDBS->getErrors();
-				$this->_BasketItemsDBS->getMessagePool()->addError(GetMessage('OBX_ORDER_CLASS_ERROR_2') . ': ' . implode("<br />\n", $arErrorsList), 2);
+				$arErrorsList = $this->_BasketItemDBS->getErrors();
+				$this->_BasketItemDBS->getMessagePool()->addError(GetMessage('OBX_ORDER_CLASS_ERROR_2') . ': ' . implode("<br />\n", $arErrorsList), 2);
 			}
 		}
 
 		if ($bHardListSet) {
 			foreach ($arExistsOrderItems as &$arExistsItem) {
 				if ($arExistsItem['EXISTS_IN_ARGUMENT'] == false) {
-					$this->_BasketItemsDBS->delete($arExistsItem['ID']);
+					$this->_BasketItemDBS->delete($arExistsItem['ID']);
 				}
 			}
 		}

@@ -12,7 +12,7 @@
 
 IncludeModuleLangFile(__FILE__);
 
-class OBX_OrdersDBS extends OBX_DBSimple {
+class OBX_OrderDBS extends OBX_DBSimple {
 
 	protected $_arTableList = array(
 		'O' => 'obx_orders',
@@ -40,7 +40,18 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 //		'PAY_TAX_VALUE' => array('O' => 'PAY_TAX_VALUE'),
 //		'DISCOUNT_ID' => array('O' => 'DISCOUNT_ID'),
 //		'DISCOUNT_VALUE' => array('O' => 'DISCOUNT_VALUE'),
-		'ITEMS' => array('I' => 'GROUP_CONCAT(CONCAT("[",I.ID,"]"," ",I.PRODUCT_NAME," - ",I.QUANTITY) SEPARATOR "\n")'),
+		'ITEMS' => array(
+			'I' => 'concat(
+						\'[\',
+						group_concat(
+							concat(\'{ "PRODUCT_ID": "\',	I.ID,			\'"\'),
+							concat(\'  "PRODUCT_NAME": "\',	I.PRODUCT_NAME,	\'"\'),
+							concat(\'  "QUANTITY": "\',		I.QUANTITY,		\'"\'),
+							concat(\'  "PRODUCT_ID": "\',	I.ID,			\'" }\')
+						),
+						\']\'
+					)'
+		),
 		'ITEMS_COST' => array('I' => 'SUM(I.PRICE_VALUE * I.QUANTITY)'),
 		'PROPERTIES_JSON' => array(
 			'O' => '(SELECT
@@ -211,7 +222,7 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 	protected function _onAfterDelete(&$arOrder) {
 		$arFilter = array("ORDER_ID" => $arOrder["ID"]);
 		OBX_OrderPropertyValuesDBS::getInstance()->deleteByFilter($arFilter);
-		OBX_OrderItemsDBS::getInstance()->deleteByFilter($arFilter);
+		OBX_BasketItemDBS::getInstance()->deleteByFilter($arFilter);
 
 		return true;
 	}
@@ -221,9 +232,9 @@ class OBX_OrdersDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_OrdersList extends OBX_DBSimpleStatic {
+class OBX_OrderList extends OBX_DBSimpleStatic {
 	static public function add($arFields = array()) {
 		return parent::add($arFields);
 	}
 }
-OBX_OrdersList::__initDBSimple(OBX_OrdersDBS::getInstance());
+OBX_OrderList::__initDBSimple(OBX_OrderDBS::getInstance());

@@ -8,7 +8,7 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_CurrencyInfo extends OBX_CMessagePool
+class OBX_CurrencyInfo extends OBX_CMessagePoolDecorator
 {
 	/**
 	 * @var array

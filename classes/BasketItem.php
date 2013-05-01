@@ -12,11 +12,11 @@
 
 IncludeModuleLangFile(__FILE__);
 
-class OBX_BasketItemsDBS extends OBX_DBSimple {
+class OBX_BasketItemDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
-		'O'		=> 'obx_orders',
-		'V'		=> 'obx_',
 		'I'		=> 'obx_basket_items',
+		'O'		=> 'obx_orders',
+		'V'		=> 'obx_visitors',
 		'P'		=> 'obx_price',
 		'IBE'	=> 'b_iblock_element',
 		'IB'	=> 'b_iblock',
@@ -38,6 +38,8 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 		)
 	);
 	protected $_arTableLeftJoin = array(
+		'O'		=> 'O.ID = I.ORDER_ID',
+		'V'		=> 'V.ID = I.VISITOR_ID',
 		'P'		=> 'P.ID = I.PRICE_ID',
 		'IBE'	=> 'I.PRODUCT_ID = IBE.ID',
 		'IBS'	=> 'IBE.IBLOCK_SECTION_ID = IBS.ID',
@@ -49,6 +51,7 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 		'ORDER_ID'					=> array('I'	=> 'ORDER_ID'),
 		'ORDER_USER_ID'				=> array('O'	=> 'USER_ID'),
 		'VISITOR_ID'				=> array('V'	=> 'ID'),
+		'VISITOR_USER_ID'			=> array('V'	=> 'USER_ID'),
 		'PRODUCT_ID'				=> array('I'	=> 'PRODUCT_ID'),
 		'PRODUCT_NAME'				=> array('I'	=> 'PRODUCT_NAME'),
 		'QUANTITY'					=> array('I'	=> 'QUANTITY'),
@@ -97,7 +100,8 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 	);
 	protected $_arSortDefault = array('ID' => 'ASC');
 	protected $_arTableFieldsDefault = array(
-		'QUANTITY' => '1'
+		'QUANTITY' => '1',
+		'DELAYED' => 'N'
 	);
 
 	function __construct() {
@@ -108,6 +112,7 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 			'PRODUCT_ID'		=> self::FLD_T_IBLOCK_ELEMENT_ID | self::FLD_NOT_NULL | self::FLD_REQUIRED,
 			'PRODUCT_NAME'		=> self::FLD_T_STRING | self::FLD_NOT_NULL | self::FLD_REQUIRED,
 			'QUANTITY'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
+			'DELAYED'			=> self::FLD_T_BCHAR | self::FLD_NOT_NULL,
 			'WEIGHT'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
 			'PRICE_ID'			=> self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_REQUIRED | self::FLD_CUSTOM_CK | self::FLD_BRK_INCORR,
 			'PRICE_VALUE'		=> self::FLD_T_FLOAT | self::FLD_NOT_NULL | self::FLD_REQUIRED,
@@ -167,7 +172,11 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 			),
 			'QUANTITY' => array(
 				"NAME" => GetMessage("OBX_ORDERITEM_QUANTITY_NAME"),
-				"DESCRIPTION" => GetMessage("OBX_ORDERITEM_USER_ID_DESCR"),
+				"DESCRIPTION" => GetMessage("OBX_ORDERITEM_QUANTITY_DESCR"),
+			),
+			'DELAYED' => array(
+				'NAME' => GetMessage('OBX_ORDERITEM_DELAYED_NAME'),
+				'DESCRIPTION' => GetMessage('OBX_ORDERITEM_DELAYED_DESCR')
 			),
 			'WEIGHT' => array(
 				"NAME" => GetMessage("OBX_ORDERITEM_WEIGHT_NAME"),
@@ -189,27 +198,36 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 		);
 	}
 
-	public function __check_PRICE_ID(&$fieldValue, &$arCheckData) {
+	public function __check_PRICE_ID(&$fieldValue, &$arCheckData = null) {
 		$DBPrice = OBX_PriceDBS::getInstance();
 		$arPrice = $DBPrice->getByID($fieldValue);
 		if( empty($arPrice) || !is_array($arPrice) ) {
-			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_8'), 8);
+			if($arCheckData !== null) {
+				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_8'), 8);
+			}
 			return false;
 		}
 		$arCheckData = $arPrice;
 		return true;
 	}
-	public function __check_IBLOCK_ID(&$fieldValue, &$arCheckData) {
+	public function __check_IBLOCK_ID(&$fieldValue, &$arCheckData = null) {
 		$DBEComIB = OBX_ECommerceIBlockDBS::getInstance();
 		$arEComIBlock = $DBEComIB->getByID($fieldValue);
 		if( empty($arEComIBlock) || !is_array($arEComIBlock) ) {
-			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
+			if($arCheckData !== null) {
+				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
+			}
 			return false;
 		}
 		$arCheckData = $arEComIBlock;
 		return true;
 	}
-	public function __check_VISITOR_ID(&$fieldValue, &$arCheckData) {
+	public function __check_VISITOR_ID(&$fieldValue, &$arCheckData = null) {
+		$VisitorsDBS = OBX_VisitorDBS::getInstance();
+		$arVisitor = $VisitorsDBS->getByID($fieldValue);
+		if( empty($arVisitor) ) {
+			return false;
+		}
 		return true;
 	}
 
@@ -265,7 +283,7 @@ class OBX_BasketItemsDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_BasketItems extends OBX_DBSimpleStatic {
+class OBX_BasketItem extends OBX_DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}
@@ -275,4 +293,4 @@ class OBX_BasketItems extends OBX_DBSimpleStatic {
 	}
 }
 
-OBX_BasketItems::__initDBSimple(OBX_BasketItemsDBS::getInstance());
+OBX_BasketItem::__initDBSimple(OBX_BasketItemDBS::getInstance());

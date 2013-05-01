@@ -5,7 +5,7 @@
 	@License GPLv3
 	@mailto rootfavell@gmail.com
 -->
-<phpunit bootstrap="./bootstrap_tests.php">
+<phpunit bootstrap="./_bootstrap_tests.php">
 	<testsuites>
 		<testsuite name="OBX Market API Tests">
 			<!-- <directory></directory> -->
@@ -17,7 +17,7 @@
 			<file>OrderProperty.php</file>
 			<file>OrderList.php</file>
 			<file>OrderPropertyValues</file>
-			<file>BasketItems.php</file>
+			<file>BasketItem.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

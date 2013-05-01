@@ -134,6 +134,7 @@ create table if not exists obx_basket_items (
 	PRODUCT_ID int(11) NULL,
 	PRODUCT_NAME varchar(255) not null,
 	QUANTITY int(11) not null default 1,
+	DELAYED char(1) not null default 'N',
 	WEIGHT decimal(18,2) not null default 0,
 	PRICE_ID int(11) not null,
 	PRICE_VALUE decimal(18,2) not null default 0,

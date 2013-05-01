@@ -63,7 +63,7 @@ if( $USER->IsAuthorized() ) {
 		'CURRENCY',
 		'ITEMS_COST',
 	);
-	$arResult['ORDERS_LIST'] = OBX_OrdersList::getListArray(
+	$arResult['ORDERS_LIST'] = OBX_OrderList::getListArray(
 		$arOrderListSort, $arOrderListFilter, null, null, $arOrderListSelect
 	);
 	$arOrderIDList = array();

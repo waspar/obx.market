@@ -15,10 +15,6 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 	static private $_arTestPrice = array();
 	static private $_arIBPriceProp = array();
 
-	public function setUp() {
-
-	}
-
 	public function testPriceAndPropExisting() {
 		$arPriceList = OBX_Price::getListArray(null, array('CODE' => self::OBX_TEST_IB_1_PRICE_PROP_CODE));
 		$priceNotFound = 'Error: price "'.self::OBX_TEST_IB_1_PRICE_PROP_CODE.'" not found';

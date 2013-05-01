@@ -15,7 +15,7 @@ final class OBX_Test_OrderStatus extends OBX_Market_TestCase
 
 	static private $_arStatusList = array();
 
-	public function testPrepareTests() {
+	static public function setUpBeforeClass() {
 		OBX_OrderStatus::deleteByFilter(array('CODE' => 'TT_ACCEPTED'));
 		OBX_OrderStatus::deleteByFilter(array('CODE' => 'TT_COMPLETE'));
 		OBX_OrderStatus::deleteByFilter(array('CODE' => 'TT_CANCELED'));

@@ -124,7 +124,7 @@ class OBX_OrderPropertyValuesDBS extends OBX_DBSimple {
 	}
 
 	public function __check_ORDER_ID(&$fieldValue, &$arCheckData) {
-		$arOrder = OBX_OrdersDBS::getInstance()->getByID($fieldValue);
+		$arOrder = OBX_OrderDBS::getInstance()->getByID($fieldValue);
 		if (empty($arOrder) || !is_array($arOrder)) {
 			return false;
 		}

@@ -10,6 +10,12 @@
 
 OBX_Market_TestCase::includeLang(__FILE__);
 
+/**
+ * Тест близок по структуре к OBX_BasketItemList
+ * с тем лишь отличием, что тут мы тестируем обертку над OBX\BasketItem ,
+ * которая автоматизирует работу с Visitors
+ * Class OBX_Test_BasketItem
+ */
 final class OBX_Test_BasketItem extends OBX_Market_TestCase
 {
 	static private $_cookieID = null;
@@ -81,7 +87,6 @@ final class OBX_Test_BasketItem extends OBX_Market_TestCase
 	public function testGetOrderItems() {
 
 	}
-
 
 
 	public function testUpdateItems() {

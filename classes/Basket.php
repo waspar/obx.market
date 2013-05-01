@@ -1,6 +1,6 @@
 <?php
 /***********************************************
- ** @product OBX:Core Bitrix Module           **
+ ** @product OBX:Market Bitrix Module         **
  ** @authors                                  **
  **         Maksim S. Makarov aka pr0n1x      **
  ** @License GPLv3                            **
@@ -15,6 +15,7 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 	protected $_BasketItemDBS = null;
 	protected $_OrderDBS = null;
 	protected $_PriceDBS = null;
+	protected $_arProductList = array();
 
 	static protected $_arInstances = array();
 
@@ -50,4 +51,37 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 		$this->_Visitor = &$Visitor;
 	}
 	final protected function __clone() {}
+
+	public function syncProductList() {
+		//$this->_BasketItemDBS->getListArray();
+		//$this->_arProductList
+	}
+
+	public function getProductCount() {
+
+	}
+
+	public function getProductList() {
+
+	}
+
+	public function addProduct($productID, $quantity = 1) {
+
+	}
+
+	public function removeProduct() {
+
+	}
+
+	public function getItemList() {
+
+	}
+
+	public function getBasketCost() {
+
+	}
+
+	public function clearBasket() {
+
+	}
 }

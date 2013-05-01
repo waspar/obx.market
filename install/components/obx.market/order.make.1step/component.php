@@ -21,7 +21,7 @@ if (!CModule::IncludeModule('obx.market')) {
 
 if( $_REQUEST['action'] == 'make_order' ) {
 	$Basket = OBX_Basket::getInstance();
-	$arBasketItem = $Basket->getItemsList();
+	$arBasketItems = $Basket->getItemsList();
 
 
 }

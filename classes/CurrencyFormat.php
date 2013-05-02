@@ -10,6 +10,10 @@
 
 IncludeModuleLangFile(__FILE__);
 
+/**
+ * Class OBX_CurrencyFormatDBS
+ * @method @static OBX_CurrencyFormatDBS getInstance()
+ */
 class OBX_CurrencyFormatDBS extends OBX_DBSimple
 {
 	protected $_arTableList = array(

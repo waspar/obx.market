@@ -85,6 +85,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	protected $_arSelectDefault = array(
 		'ID',
 		'ORDER_ID',
+		'VISITOR_ID',
 		'PRODUCT_ID',
 		'PRODUCT_NAME',
 		'QUANTITY',

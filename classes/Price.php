@@ -12,6 +12,10 @@
 
 IncludeModuleLangFile(__FILE__);
 
+/**
+ * Class OBX_PriceDBS
+ * @method @static OBX_PriceDBS getInstance()
+ */
 class OBX_PriceDBS extends OBX_DBSimple {
 
 	const DEFAULT_PRICE_GROUP = "2";
@@ -37,21 +41,21 @@ class OBX_PriceDBS extends OBX_DBSimple {
 		)
 	);
 	protected $_arTableFields = array(
-		"ID" => array("P" => "ID"),
-		"CODE" => array("P" => "CODE"),
-		"NAME" => array("P" => "NAME"),
-		"SORT" => array("P" => "SORT"),
-//		"USER_GROUP"				=> array("P"	=> "USER_GROUP"),
-		"CURRENCY" => array("P" => "CURRENCY"),
-		"CURRENCY_COURSE" => array("C" => "COURSE"),
-		"CURRENCY_RATE" => array("C" => "RATE"),
-		"CURRENCY_IS_DEFAULT" => array("C" => "IS_DEFAULT"),
-		"CURRENCY_SORT" => array("C" => "SORT"),
-		"CURRENCY_LANG_ID" => array("F" => "LANGUAGE_ID"),
-		"CURRENCY_NAME" => array("F" => "NAME"),
-		"CURRENCY_FORMAT" => array("F" => "FORMAT"),
-		"CURRENCY_THOUSANDS_SEP" => array("F" => "THOUSANDS_SEP"),
-		"CURRENCY_DEC_PRECISION" => array("F" => "DEC_PRECISION")
+		"ID"						=> array("P" => "ID"),
+		"CODE"						=> array("P" => "CODE"),
+		"NAME"						=> array("P" => "NAME"),
+		"SORT"						=> array("P" => "SORT"),
+		//"USER_GROUP"				=> array("P" => "USER_GROUP"),
+		"CURRENCY"					=> array("P" => "CURRENCY"),
+		"CURRENCY_COURSE"			=> array("C" => "COURSE"),
+		"CURRENCY_RATE"				=> array("C" => "RATE"),
+		"CURRENCY_IS_DEFAULT"		=> array("C" => "IS_DEFAULT"),
+		"CURRENCY_SORT"				=> array("C" => "SORT"),
+		"CURRENCY_LANG_ID"			=> array("F" => "LANGUAGE_ID"),
+		"CURRENCY_NAME"				=> array("F" => "NAME"),
+		"CURRENCY_FORMAT"			=> array("F" => "FORMAT"),
+		"CURRENCY_THOUSANDS_SEP"	=> array("F" => "THOUSANDS_SEP"),
+		"CURRENCY_DEC_PRECISION"	=> array("F" => "DEC_PRECISION")
 	);
 	protected $_mainTablePrimaryKey = "ID";
 	protected $_mainTableAutoIncrement = "ID";
@@ -139,12 +143,13 @@ class OBX_PriceDBS extends OBX_DBSimple {
 
 	public function getProductPriceList($productID, $userID = null, $langID = LANGUAGE_ID) {
 		$productID = intval($productID);
-		$prodRes = CIBlockElement::GetByID($productID);
+		$rsProd = CIBlockElement::GetByID($productID);
 
-		if (!$prodRes) {
+		if (!($arProd = $rsProd->GetNext())) {
 			$this->addError(GetMessage('OBX_MARKET_PRICE_ERROR_13'), 13);
 			return array();
 		}
+		$productID = $arProd['ID'];
 
 		global $DB;
 		$arAvailPricesForUser = $this->getAvailPriceForUser($userID);
@@ -159,6 +164,7 @@ class OBX_PriceDBS extends OBX_DBSimple {
 			f.LANGUAGE_ID AS CURRENCY_LANG_ID,
 			f.THOUSANDS_SEP AS CURRENCY_THOUSANDS_SEP,
 			f.DEC_PRECISION AS CURRENCY_DEC_PRECISION,
+			f.DEC_POINT AS CURRENCY_DEC_POINT,
 			a.IBLOCK_PROP_ID,
 			a.IBLOCK_ID
 		FROM
@@ -179,7 +185,7 @@ SQL;
 		$res = $DB->Query($sqlList, false, "File: ".__FILE__."<br />\nLine: ".__LINE__);
 		$arResult = array();
 		$i = 0;
-		$larOptimalPrice = null;
+		$refArOptimalPrice = null;
 		while ($arPrice = $res->Fetch()) {
 			$resProp = CIBlockElement::GetProperty($arPrice["IBLOCK_ID"], $productID, array(),
 				array(
@@ -203,27 +209,50 @@ SQL;
 			$arResult[$i] = $arPrice;
 
 			$arResult[$i]["VALUE"] = $arPriceProp["VALUE"];
-			// TODO : Добавить поддрежку дисконта
+			// +++ TODO : Добавить поддрежку дисконта
 			$discountValue = 0;
 			$arResult[$i]["DISCONT_VALUE"] = $discountValue;
 			$arResult[$i]["TOTAL_VALUE"] = $arPriceProp["VALUE"] - $discountValue;
 			// ^^^
 			$arResult[$i]["AVAILABLE"] = (in_array($arPrice["PRICE_ID"], $arAvailPricesForUser)) ? "Y" : "N";
+			$arResult[$i]["IS_OPTIMAL"] = 'N';
 
 			if($arResult[$i]["AVAILABLE"] == 'Y') {
-				if($larOptimalPrice === null) {
-					$larOptimalPrice = &$arResult[$i];
-					$larOptimalPrice['IS_OPTIMAL'] = "Y";
+				if($refArOptimalPrice === null) {
+					$refArOptimalPrice = &$arResult[$i];
+					$refArOptimalPrice['IS_OPTIMAL'] = "Y";
 				}
-				elseif($arResult[$i]["TOTAL_VALUE"] < $larOptimalPrice['TOTAL_VALUE']) {
-					$larOptimalPrice['IS_OPTIMAL'] = "N";
-					$larOptimalPrice = &$arResult[$i];
-					$larOptimalPrice['IS_OPTIMAL'] = "Y";
+				elseif($arResult[$i]["TOTAL_VALUE"] < $refArOptimalPrice['TOTAL_VALUE']) {
+					$refArOptimalPrice['IS_OPTIMAL'] = "N";
+					$refArOptimalPrice = &$arResult[$i];
+					$refArOptimalPrice['IS_OPTIMAL'] = "Y";
 				}
 			}
 
-			// TODO : Добавить форматирование цены
-			$arResult[$i]["VALUE_FORMATTED"] = "__VALUE FORMATTED";
+			$arResult[$i]["VALUE_FORMATTED"] = OBX_CurrencyFormatDBS::getInstance()->formatPrice(
+				$arResult[$i]['VALUE'],
+				$arResult[$i]['PRICE_CURRENCY'],	// передавая формат, тут можно и null поставить, не важно
+				$langID,							// передавая формат, тут можно и null поставить, не важно
+				// Сразу пишем формат, что бы метод OBX_CurrencyFormatDBS::formatPrice()
+				// заново не получал эти данные из БД
+				array(
+					'FORMAT' => $arResult[$i]['CURRENCY_FORMAT'],
+					'DEC_PRECISION' => $arResult[$i]['CURRENCY_DEC_PRECISION'],
+					'DEC_POINT' => $arResult[$i]['CURRENCY_DEC_POINT'],
+					'THOUSANDS_SEP' => $arResult[$i]['CURRENCY_THOUSANDS_SEP']
+				)
+			);
+			$arResult[$i]["DISCOUNT_VALUE_FORMATTED"] = OBX_CurrencyFormatDBS::getInstance()->formatPrice(
+				$arResult[$i]['DISCOUNT_VALUE'],
+				$arResult[$i]['PRICE_CURRENCY'],
+				$langID,
+				array(
+					'FORMAT' => $arResult[$i]['CURRENCY_FORMAT'],
+					'DEC_PRECISION' => $arResult[$i]['CURRENCY_DEC_PRECISION'],
+					'DEC_POINT' => $arResult[$i]['CURRENCY_DEC_POINT'],
+					'THOUSANDS_SEP' => $arResult[$i]['CURRENCY_THOUSANDS_SEP']
+				)
+			);
 			$i++;
 		}
 		return $arResult;
@@ -239,10 +268,13 @@ SQL;
 		return array();
 	}
 
-	public function _getValue(&$arElement, &$arPrice, $bApplyFormat = false) {
-
-	}
-
+	/**
+	 * TODO: Дописать метод
+	 * @param $priceValue
+	 * @param $priceCode
+	 * @param null $langID
+	 * @return mixed
+	 */
 	public function formatPrice($priceValue, $priceCode, $langID = null) {
 		$format = null;
 		if (!$langID) {
@@ -291,22 +323,29 @@ SQL;
 		$priceID = intval($priceID);
 		$groupID = intval($groupID);
 		global $DB;
-		$rsExistsPrice = $this->getByID($priceID);
-		if (!$rsExistsPrice->Fetch()) {
+		$rsExistsPrice = $this->getByID($priceID, null, true);
+		if( !($arExistsPrice = $rsExistsPrice->Fetch()) ) {
 			$this->addError(GetMessage("OBX_MARKET_PRICE_ERROR_9"), array(
 				"#PRICE_ID#" => $priceID
 			), 9);
 			return 0;
 		}
 		$rsExistsGroup = CGroup::GetByID($groupID);
-		if (!$rsExistsGroup->Fetch()) {
+		if( !($arExistsGroup = $rsExistsGroup->Fetch()) ) {
 			$this->addError(GetMessage("OBX_MARKET_PRICE_ERROR_10"), array(
 				"#GROUP_ID#" => $groupID
 			), 10);
 			return 0;
 		}
+		$rsExistsRow = $DB->Query(
+			'SELECT * FROM obx_price_group WHERE'
+			.' PRICE_ID = \''.$arExistsPrice['ID'].'\''
+			.' AND GROUP_ID = \''.$arExistsGroup['ID'].'\'');
+		if($arExistsRow = $rsExistsRow->Fetch()) {
+			return true;
+		}
 		$DB->Query("INSERT INTO obx_price_group (PRICE_ID,GROUP_ID) VALUES ('" . $priceID . "', '" . $groupID . "');");
-		return $DB->LastID();
+		return true;
 	}
 
 	/**
@@ -435,7 +474,7 @@ SQL;
 }
 
 /**
- * @method OBX_PriceDBS getInstance()
+ * @method @static OBX_PriceDBS getInstance()
  */
 class OBX_Price extends OBX_DBSimpleStatic {
 
@@ -462,4 +501,3 @@ class OBX_Price extends OBX_DBSimpleStatic {
 	}
 }
 OBX_Price::__initDBSimple(OBX_PriceDBS::getInstance());
-?>

@@ -10,6 +10,55 @@
 
 class OBX_BasketItemList extends OBX_Market_TestCase
 {
+	/**
+	 * @var string
+	 * @static
+	 * @access private
+	 */
+	static private $_cookieID = null;
+
+	/**
+	 * @var array
+	 * @static
+	 * @access private
+	 */
+	static private $_arPoductList = array();
+
+	/**
+	 * @var array
+	 * @static
+	 * @access private
+	 */
+	static private $_arTestIBlock = array();
+
+	/**
+	 * @var OBX_BasketItemDBS
+	 * @static
+	 * @access private
+	 */
+	static private $_BasketItemDBS = null;
+
+	/**
+	 * @var OBX_Visitor
+	 * @static
+	 * @access private
+	 */
+	static private $_Visitor = null;
+
+	/**
+	 * @var OBX_PriceDBS
+	 * @static
+	 * @access private
+	 */
+	static private $_PriceDBS = null;
+
+	/**
+	 * @var array
+	 * @static
+	 * @access private
+	 */
+	static private $_arPrice = 0;
+
 	static public function setUpBeforeClass() {
 		global $USER, $_COOKIE;
 		$USER->Logout();
@@ -23,12 +72,75 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 		// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
 		$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".OBX_Visitor::VISITOR_COOKIE_NAME] = self::$_cookieID;
 		// ^^^ cookie hack
+		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
+		self::$_PriceDBS = OBX_PriceDBS::getInstance();
 	}
 
+	public function testGetTestVisitor() {
+		self::$_Visitor = new OBX_Visitor(array('COOKIE_ID' => self::$_cookieID));
+		if( self::$_Visitor->getFields('ID') == null) {
+			$this->fail('Error: '.self::$_Visitor->popLastError());
+		}
+	}
+
+	public function testAddTestPrice() {
+		$newPriceID = self::$_PriceDBS->add(array(
+			'CURRENCY' => 'RUB',
+			'NAME' => '__TEST_PRICE',
+			'CODE' => '__TEST_PRICE'
+		));
+		if($newPriceID<1) {
+			$arError = self::$_PriceDBS->popLastError('ARRAY');
+			// error code = 3 - уже существует
+			if($arError['CODE'] != 3) {
+				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+			}
+		}
+		$arPriceList = self::$_PriceDBS->getListArray(null, array('CODE' => '__TEST_PRICE'));
+		if( empty($arPriceList) ) {
+			$this->fail('test price not found.');
+		}
+		self::$_arPrice = $arPriceList[0];
+
+		// Делаем цену доступной для всех пользователей
+		self::$_PriceDBS->addGroup(self::$_arPrice['ID'], 2);
+	}
+
+	/**
+	 * @depends testAddTestPrice
+	 */
 	public function testGetTestIBlockData() {
 		$rsTestIB = CIBlock::GetList(array('SORT' => 'ASC'), array('CODE' => self::OBX_TEST_IB_1));
 		if( $arTestIB = $rsTestIB->GetNext() ) {
+
+			// Делаем инфоблок торговым
+			OBX_ECommerceIBlockDBS::getInstance()->add(array(
+				'IBLOCK_ID' => $arTestIB['ID']
+			));
+			// Проверяем что инфоблок стал торговым
+			$arTestEComIB = OBX_ECommerceIBlock::getByID($arTestIB['ID']);
+			if( empty($arTestEComIB) ) {
+				$this->fail('test iblock isn\'t an e-commerce catalog');
+			}
 			self::$_arTestIBlock = $arTestIB;
+
+			// Получаем идентификор свойства являющегося содержащего цену товаров
+			$rsPricePropList = CIBlockProperty::GetList(array('ID' => 'ASC'), array('IBLOCK_ID' => $arTestIB['ID'], 'CODE' => 'PRICE'));
+			if( !($arPriceIBProp = $rsPricePropList->GetNext()) ) {
+				$this->fail('test iblock price property not found');
+			}
+
+			// Удаляем все привязки свойств инфоблока к ценам
+			OBX_CIBlockPropertyPrice::deleteByFilter(array('IBLOCK_ID' => $arTestIB['ID']));
+			// Добавляем привязку свойства инфоблока к тестовой цене
+			$bSuccess = OBX_CIBlockPropertyPrice::add(array(
+				'IBLOCK_ID' => $arTestIB['ID'],
+				'IBLOCK_PROP_ID' => $arPriceIBProp['ID'],
+				'PRICE_ID' => self::$_arPrice['ID']
+			));
+			if(!$bSuccess) {
+				$this->fail('adding price iblock property link failed');
+			}
 			$rsProducts = CIBlockElement::GetList(array('SORT' => 'ASC'), array(
 				'IBLOCK_ID' => self::$_arTestIBlock['ID']
 			), false, array('nTopCount' => '20'));
@@ -42,19 +154,49 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 		}
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 */
 	public function testAddTestOrder() {
-
+		return true;
 	}
 
 	/**
-	 * Добавления товара в корзину
+	 * Добавления товаров в корзину
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
 	 */
 	public function testAdd4Visitor() {
-
+		foreach(self::$_arPoductList as $arElement) {
+			$arOptimalPrice = self::$_PriceDBS->getOptimalProductPrice($arElement['ID']);
+			$this->assertNotEmpty($arOptimalPrice, 'Error: can\'t get optimal price of product. Check price permissions');
+			$newBasketITemID = self::$_BasketItemDBS->add(array(
+				'VISITOR_ID' => self::$_Visitor->getFields('ID'),
+				'PRODUCT_ID' => $arElement['ID'],
+				'QUANTITY' => rand(1, 9),
+				'PRICE_ID' => $arOptimalPrice['PRICE_ID'],
+				'PRICE_VALUE' => $arOptimalPrice['VALUE'],
+				'DISCOUNT_VALUE' => $arOptimalPrice['DISCONT_VALUE']
+			));
+			if($newBasketITemID < 1) {
+				$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+				// error code = 6 если товар в БД корзины уже есть данный товара. Допустимо. Обрабатываем.
+				if($arError['CODE'] != 6) {
+					$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+				}
+			}
+		}
 	}
 
 	/**
-	 * Добавление товарв к заказу
+	 * Добавление товаров к заказу
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
 	 */
 	public function testAddOrder() {
 
@@ -62,19 +204,41 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 
 	/**
 	 * Этот тест должег обработать ошибку на принадлежность инфоблока к Торговым каталогам
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
 	 */
 	public function testAddNotAProduct() {
 
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
+	 */
 	public function testGetListFromVisitor() {
 
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
+	 */
 	public function testGetListFromOrder() {
 
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
+	 */
 	public function testUpdate() {
 
 	}
@@ -82,19 +246,41 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 	/**
 	 * Этот тест должен обработать ошибку, поскуольку нельщя обновить саму позицию.
 	 * Если необходимо сменить товарв в корзине, то необходимо старый товар удалить и новый добавить
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
 	 */
 	public function testTryToUpdateProductID() {
 
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
+	 */
 	public function testDeleteFromVisitor() {
 
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
+	 */
 	public function testDeleteFromOrder() {
 
 	}
 
+	/**
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAddTestOrder
+	 */
 	public function testSimpleDeletion() {
 
 	}

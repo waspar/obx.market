@@ -12,6 +12,10 @@
 
 IncludeModuleLangFile(__FILE__);
 
+/**
+ * Class OBX_OrderDBS
+ * @method @static self getInstance()
+ */
 class OBX_OrderDBS extends OBX_DBSimple {
 
 	protected $_arTableList = array(
@@ -232,6 +236,10 @@ class OBX_OrderDBS extends OBX_DBSimple {
 	}
 }
 
+/**
+ * Class OBX_OrderList
+ * @method @static OBX_OrderDBS getInstance()
+ */
 class OBX_OrderList extends OBX_DBSimpleStatic {
 	static public function add($arFields = array()) {
 		return parent::add($arFields);

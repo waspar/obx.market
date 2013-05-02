@@ -59,6 +59,20 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 	 */
 	static private $_arPrice = 0;
 
+	/**
+	 * @var OBX_OrderDBS
+	 * @static
+	 * @access private
+	 */
+	static private $_OrderDBS = null;
+
+	/**
+	 * @var array
+	 * @static
+	 * @access private
+	 */
+	static private $_arTestOrder = array();
+
 	static public function setUpBeforeClass() {
 		global $USER, $_COOKIE;
 		$USER->Logout();
@@ -74,6 +88,7 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 		// ^^^ cookie hack
 		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
 		self::$_PriceDBS = OBX_PriceDBS::getInstance();
+		self::$_OrderDBS = OBX_OrderDBS::getInstance();
 	}
 
 	public function testGetTestVisitor() {
@@ -160,7 +175,14 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 	 * @depends testGetTestIBlockData
 	 */
 	public function testAddTestOrder() {
-		return true;
+		$newOrderID = self::$_OrderDBS->add();
+		if($newOrderID<1) {
+			$arError = self::$_OrderDBS->popLastError('ARRAY');
+			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		}
+		$arOrder = self::$_OrderDBS->getByID($newOrderID);
+		$this->assertNotEmpty($arOrder, 'test order not found.');
+		self::$_arTestOrder = $arOrder;
 	}
 
 	/**
@@ -191,16 +213,6 @@ class OBX_BasketItemList extends OBX_Market_TestCase
 		}
 	}
 
-	/**
-	 * Добавление товаров к заказу
-	 * @depends testGetTestVisitor
-	 * @depends testAddTestPrice
-	 * @depends testGetTestIBlockData
-	 * @depends testAddTestOrder
-	 */
-	public function testAddOrder() {
-
-	}
 
 	/**
 	 * Этот тест должег обработать ошибку на принадлежность инфоблока к Торговым каталогам

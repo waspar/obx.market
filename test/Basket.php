@@ -64,7 +64,7 @@ final class OBX_Test_BasketItem extends OBX_Market_TestCase
 	public function testAddItems2Basket() {
 		OBX_Basket::getInstance();
 		$Basket = OBX_Basket::getInstance(new OBX_Visitor(array('COOKIE_ID' => self::$_cookieID)));
-		print_r($Basket);
+		//print_r($Basket);
 	}
 
 	public function testAuthorizeUser() {

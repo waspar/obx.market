@@ -3,6 +3,10 @@
 $MESS['OBX_ORDER_NOT_CORRECT_FIELD_VALUE'] = 'Поле заказа «#FIELD#» имеет не корректное значение';
 $MESS['OBX_ORDER_NOT_CORRECT_FUNC_PARAM'] = 'Неверный параметр функции';
 $MESS['UNIT'] = 'шт.';
+$MESS['OBX_ORDER_LIST_ERROR_1'] = 'Не удалось создать заказ. Не задан пользователь.';
+$MESS['OBX_ORDER_LIST_ERROR_2'] = 'Не удалось создать заказ. Не задана валюта заказа.';
+$MESS['OBX_ORDER_LIST_ERROR_3'] = 'Не удалось удалить заказ. Заказ не найден.';
+$MESS['OBX_ORDER_LIST_ERROR_4'] = 'Не удалось обновить заказ. Заказ не найден.';
 
 //FIELDS
 $MESS["OBX_ORDERLIST_ID_NAME"] = "ID";

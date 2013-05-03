@@ -142,6 +142,7 @@ class OBX_PriceDBS extends OBX_DBSimple {
 	}
 
 	public function getProductPriceList($productID, $userID = null, $langID = LANGUAGE_ID) {
+		global $DB;
 		$productID = intval($productID);
 		$rsProd = CIBlockElement::GetByID($productID);
 
@@ -150,8 +151,15 @@ class OBX_PriceDBS extends OBX_DBSimple {
 			return array();
 		}
 		$productID = $arProd['ID'];
+		$rsLang = CLanguage::GetByID($langID);
+		if ( $arLang = $rsLang->Fetch() ) {
+			$langID = $arLang['LANGUAGE_ID'];
+		}
+		else {
+			$this->addWarning(GetMessage('OBX_MARKET_PRICE_WARNING_3'), 3);
+			$langID = LANGUAGE_ID;
+		}
 
-		global $DB;
 		$arAvailPricesForUser = $this->getAvailPriceForUser($userID);
 
 		$sqlList = <<<SQL

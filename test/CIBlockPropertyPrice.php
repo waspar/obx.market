@@ -28,7 +28,7 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 		$arTestIB = $rsTestIB->GetNext();
 		$this->assertNotEmpty($arTestIB, $errTestIBNotFound);
 		$this->assertArrayHasKey('IBLOCK_TYPE_ID', $arTestIB, $errTestIBNotFound);
-		$this->assertEquals(self::$_arEComIBlockType['ID'], $arTestIB['IBLOCK_TYPE_ID'], $errTestIBNotFound);
+		$this->assertEquals(self::$_arTestIBlockType['ID'], $arTestIB['IBLOCK_TYPE_ID'], $errTestIBNotFound);
 		self::$_arTestIB = $arTestIB;
 
 		$errIBPricePropNotFound = 'Error: test iblock property "'.self::OBX_TEST_IB_1_PRICE_PROP_CODE.'" not found';

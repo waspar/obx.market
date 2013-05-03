@@ -143,35 +143,25 @@ class OBX_OrderDBS extends OBX_DBSimple {
 		);
 
 		$this->_arDBSimpleLangMessages = array(
-			'REQ_FLD_CODE' => array(
+			'REQ_FLD_USER_ID' => array(
 				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_STATUS_ERROR_1'),
+				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_1'),
 				'CODE' => 1
 			),
-			'REQ_FLD_NAME' => array(
+			'REQ_FLD_CURRENCY' => array(
 				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_STATUS_ERROR_2'),
-				'CODE' => 1
-			),
-			'DUP_ADD_udx_obx_order_status' => array(
-				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_STATUS_ERROR_3'),
-				'CODE' => 3
-			),
-			'DUP_UPD_udx_obx_order_status' => array(
-				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_STATUS_ERROR_4'),
-				'CODE' => 4
+				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_2'),
+				'CODE' => 2
 			),
 			'NOTHING_TO_DELETE' => array(
 				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_STATUS_ERROR_6'),
-				'CODE' => 6
+				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_3'),
+				'CODE' => 3
 			),
 			'NOTHING_TO_UPDATE' => array(
 				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_STATUS_ERROR_7'),
-				'CODE' => 7
+				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_4'),
+				'CODE' => 4
 			)
 		);
 		$this->_arFieldsDescription = array(
@@ -216,6 +206,14 @@ class OBX_OrderDBS extends OBX_DBSimple {
 		return true;
 	}
 
+	protected function _onBeforeAdd(&$arFields, &$arCheckResult) {
+		if( !array_key_exists('USER_ID', $arFields) || $arFields['USER_ID'] == 0 ) {
+			$this->addError(GetMessage('OBX_ORDER_LIST_ERROR_1'), 1);
+			return false;
+		}
+		return true;
+	}
+
 	protected function _onStartUpdate(&$arFields) {
 		if (array_key_exists('DATE_CREATED', $arFields)) {
 			unset($arFields['DATE_CREATED']);
@@ -227,7 +225,6 @@ class OBX_OrderDBS extends OBX_DBSimple {
 		$arFilter = array("ORDER_ID" => $arOrder["ID"]);
 		OBX_OrderPropertyValuesDBS::getInstance()->deleteByFilter($arFilter);
 		OBX_BasketItemDBS::getInstance()->deleteByFilter($arFilter);
-
 		return true;
 	}
 

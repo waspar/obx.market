@@ -46,11 +46,23 @@ abstract class OBX_Market_TestCase extends PHPUnit_Framework_TestCase {
 	//protected $preserveGlobalState = false;
 
 
-	static protected  $_arEComIBlockType = array(
+	static protected  $_arTestIBlockType = array(
 		'ID' => 'obx_market_test',
 		'NAME' => 'obx_market_test',
 		'SECTIONS' => 'Y',
 		'IN_RSS' => 'N',
+		'LANG' => array(
+			'en' => array(
+				'NAME' => 'Test infoblock',
+				'SECTION_NAME'=>'Sections',
+				'ELEMENT_NAME'=>'Products'
+			),
+			'en' => array(
+				'NAME' => 'Test infoblock',
+				'SECTION_NAME'=>'Sections',
+				'ELEMENT_NAME'=>'Products'
+			)
+		)
 	);
 	const OBX_TEST_PRICE_CODE = 'TEST_PRICE';
 	const OBX_TEST_IB_1 = 'fluid_test';

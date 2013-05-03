@@ -51,6 +51,9 @@ class OBX_ECommerceIBlockDBS extends OBX_DBSimple
 		$this->addError(GetMessage("OBX_MARKET_ECOM_ERROR_2"), 2);
 		return false;
 	}
+
+	protected $_arEComIBlockListCache = null;
+
 	function __construct() {
 		$this->_arTableFieldsCheck = array(
 			"IBLOCK_ID" => self::FLD_T_IBLOCK_ID | self::FLD_REQUIRED,
@@ -77,6 +80,23 @@ class OBX_ECommerceIBlockDBS extends OBX_DBSimple
 		return true;
 	}
 
+	public function _onAfterAdd(&$arFields){
+		$this->clearCachedList();
+		return true;
+	}
+	public function _onAfterUpdate(&$arFields){
+		$this->clearCachedList();
+		return true;
+	}
+	protected function _onAfterDelete(&$arFields) {
+		$this->clearCachedList();
+		return true;
+	}
+	protected function _onAfterDeleteByFilter(&$arFields) {
+		$this->clearCachedList();
+		return true;
+	}
+
 	public function getFullList($bResultCDBResult = false) {
 		global $DB;
 		$sql = <<<SQL
@@ -89,8 +109,8 @@ class OBX_ECommerceIBlockDBS extends OBX_DBSimple
 			(SELECT IF(cb.IBLOCK_ID IS NULL, 'N', 'Y') ) as IS_ECOM,
 			cb.PRICE_VERSION as PRICE_VERSION
 		FROM
-			`b_iblock` AS b
-		LEFT JOIN `obx_ecom_iblock` AS cb ON (b.ID = cb.IBLOCK_ID)
+			b_iblock AS b
+		LEFT JOIN obx_ecom_iblock AS cb ON (b.ID = cb.IBLOCK_ID)
 		ORDER BY
 			b.SORT ASC,
 			b.ID ASC
@@ -104,6 +124,22 @@ SQL;
 			$arList[] = $arItem;
 		}
 		return $arList;
+	}
+
+	public function getCachedList() {
+		if( $this->_arEComIBlockListCache !== null ) {
+			return $this->_arEComIBlockListCache;
+		}
+		$arEComIBlockList = $this->getListArray();
+		$this->_arEComIBlockListCache = array();
+		foreach($arEComIBlockList as $arEComIBlock) {
+			$this->_arEComIBlockListCache[$arEComIBlock['IBLOCK_ID']] = $arEComIBlock;
+		}
+		return $this->_arEComIBlockListCache;
+	}
+
+	public function clearCachedList(){
+		$this->_arEComIBlockListCache = null;
 	}
 
 	static public function onIBlockDelete($ID) {
@@ -128,6 +164,12 @@ SQL;
 class OBX_ECommerceIBlock extends OBX_DBSimpleStatic {
 	static public function getFullList($bResultCDBResult = false) {
 		return self::getInstance()->getFullList($bResultCDBResult);
+	}
+	static public function clearCachedList(){
+		return self::getInstance()->clearCachedList();
+	}
+	static public function getCachedList(){
+		return self::getInstance()->getCachedList();
 	}
 	static public function onIBlockDelete($ID) {
 		return self::getInstance()->onIBlockDelete($ID);

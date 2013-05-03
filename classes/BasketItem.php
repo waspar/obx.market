@@ -211,18 +211,14 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 		$arCheckData = $arPrice;
 		return true;
 	}
-	public function __check_IBLOCK_ID(&$fieldValue, &$arCheckData = null) {
-		$DBEComIB = OBX_ECommerceIBlockDBS::getInstance();
-		$arEComIBlock = $DBEComIB->getByID($fieldValue);
-		if( empty($arEComIBlock) || !is_array($arEComIBlock) ) {
-			if($arCheckData !== null) {
-				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
-			}
-			return false;
-		}
-		$arCheckData = $arEComIBlock;
-		return true;
-	}
+//	public function __check_IBLOCK_ID(&$fieldValue, &$arCheckData = null) {
+//		$arECommerceIBlocks = OBX_ECommerceIBlock::getCachedList();
+//		if( !array_key_exists($fieldValue, $arECommerceIBlocks) ) {
+//			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
+//			return false;
+//		}
+//		return true;
+//	}
 	public function __check_VISITOR_ID(&$fieldValue, &$arCheckData = null) {
 		$VisitorsDBS = OBX_VisitorDBS::getInstance();
 		$arVisitor = $VisitorsDBS->getByID($fieldValue);
@@ -237,12 +233,14 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_1'));
 			return false;
 		}
-		if(
-			empty($arFields['PRODUCT_NAME'])
-			&& isset($arCheckData['PRODUCT_ID']['IS_CORRECT'])
-			&& $arCheckData['PRODUCT_ID']['IS_CORRECT']
-		) {
-			$arFields['PRODUCT_NAME'] = $arCheckData['PRODUCT_ID']['CHECK_DATA']['NAME'];
+		if($arCheckData['PRODUCT_ID']['IS_CORRECT']) {
+			$arECommerceIBlocks = OBX_ECommerceIBlock::getCachedList();
+			if( !array_key_exists($arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'], $arECommerceIBlocks) ) {
+				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
+			}
+			if(empty($arFields['PRODUCT_NAME'])) {
+				$arFields['PRODUCT_NAME'] = $arCheckData['PRODUCT_ID']['CHECK_DATA']['NAME'];
+			}
 		}
 		return true;
 	}

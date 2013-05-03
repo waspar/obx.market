@@ -23,7 +23,7 @@ class OBX_Test_OrderList extends OBX_Market_TestCase
 	}
 
 	public function testCreateOrder() {
-		$orderID = OBX_OrderList::add();
+		$orderID = OBX_OrderList::add(array('USER_ID' => 1));
 		if($orderID<1) {
 			$arError = OBX_OrderList::popLastError('ARRAY');
 			$this->assertGreaterThan(0, $orderID, 'Error: code: "'.$arError['CODE'].'"; test: "'.$arError['TEXT'].'"');
@@ -38,9 +38,9 @@ class OBX_Test_OrderList extends OBX_Market_TestCase
 		foreach(self::$_arOrderList as &$arOrderDesc) {
 			$arFilter[] = $arOrderDesc['ID'];
 		} unset($arOrderDesc);
-		print_r($arFilter);
+		//print_r($arFilter);
 		$arOrderList = OBX_OrderList::getListArray(null, $arFilter);
-		print_r($arOrderList);
+		//print_r($arOrderList);
 	}
 
 	public function testUpdateOrder() {

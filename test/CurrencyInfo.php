@@ -19,7 +19,7 @@ class OBX_Test_CurrencyInfo extends OBX_Market_TestCase {
 		if($CurrencyInfo != null) {
 			$arCurrency = $CurrencyInfo->getFields();
 			//$this->assert
-			print_r($arCurrency);
+			//print_r($arCurrency);
 		}
 	}
 }

@@ -5,7 +5,7 @@
 	@License GPLv3
 	@mailto rootfavell@gmail.com
 -->
-<phpunit bootstrap="../test/_bootstrap_tests.php">
+<phpunit bootstrap="../test/__bootstrap_tests.php">
 	<testsuites>
 		<testsuite name="OBX Market API Development Tests">
 			<file>___.php</file>

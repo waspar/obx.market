@@ -18,12 +18,12 @@ final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
 		$arSitesList = $this->getBXSitesList();
 		$this->assertGreaterThan(0, count($arSitesList));
 
-		$this->createTestIBlockTypes(array(self::$_arEComIBlockType));
+		$this->createTestIBlockTypes(array(self::$_arTestIBlockType));
 
 		$ibLiquidID = $this->importIBlockFromXML(
 			__DIR__.'/data/'.LANGUAGE_ID.'/liq.xml',
 			self::OBX_TEST_IB_1,
-			self::$_arEComIBlockType['ID'],
+			self::$_arTestIBlockType['ID'],
 			$arSitesList
 		);
 		$this->assertGreaterThan(0, $ibLiquidID);

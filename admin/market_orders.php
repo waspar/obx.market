@@ -220,7 +220,9 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 /**
  * Выборка
  */
-$rsData = $OrderDBS->getList(array($by=>$order), $arFilter);
+$rsData = $OrderDBS->getList(array($by=>$order), $arFilter, null, null, array(
+	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS', 'PROPERTIES_JSON'
+));
 $rsData = new CAdminResult($rsData, $tableID);
 
 $rsData->NavStart();
@@ -236,6 +238,7 @@ $aHeaders = array(
 	array('id'=>'CURRENCY', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_CURRENCY'), 'sort'=>'CURRENCY', 'default'=>true),
 	array('id'=>'COST', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_COST'), 'sort'=>'ITEMS_COST', 'default'=>true),
 	array('id'=>'ITEMS', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_ITEMS'), 'default'=>true),
+	array('id'=>'PROPERTIES_JSON', 'content'=> 'PROPERTIES_JSON', 'default'=>true),
 );
 
 foreach($arOrderProperties as $propertyID => &$arProperty) {
@@ -259,6 +262,8 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	$row->AddViewField("COST", ($f_DELIVERY_COST + $f_ITEMS_COST + $f_PAY_TAX_VALUE - $f_DISCOUNT_VALUE));
 	$f_ITEMS = str_replace(array("\n", " "), array("<br/>\n", "&nbsp;"), $f_ITEMS);
 	$row->AddViewField("ITEMS", $f_ITEMS);
+
+	$row->AddViewField("PROPERTIES_JSON", $f_PROPERTIES_JSON);
 
 	$arPropValues = $OrderPropertyValuesDBS->getListArray(
 		null,

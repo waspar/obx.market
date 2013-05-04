@@ -81,7 +81,7 @@ LEFT JOIN obx_order_status as S ON (O.STATUS_ID = S.ID)
 LEFT JOIN obx_basket_items as I ON (O.ID = I.ORDER_ID)
 LEFT JOIN b_user as U ON (O.USER_ID = U.ID)
 
-WHERE O.ID = 1;
+WHERE O.ID = 2;
 SQL
 );
 		$arResult = $rs->Fetch();
@@ -104,7 +104,7 @@ SQL
 
 	public function testGetList() {
 		$OrderList = OBX_OrderDBS::getInstance();
-		$arResult = $OrderList->getListArray(null, array('ID' => 1), null, null, array(
+		$arResult = $OrderList->getListArray(null, array('ID' => 2), null, null, array(
 			'ID',
 			'DATE_CREATED',
 			'USER_ID',
@@ -137,7 +137,7 @@ SQL
 
 	public function testGetByID() {
 		$OrderList = OBX_OrderDBS::getInstance();
-		$arResult = $OrderList->getByID(1, array(
+		$arResult = $OrderList->getByID(2, array(
 			'ID',
 			'DATE_CREATED',
 			'USER_ID',

@@ -48,10 +48,10 @@ class OBX_OrderDBS extends OBX_DBSimple {
 			'I' => 'concat(
 						\'[\',
 						group_concat(
-							concat(\'{ "PRODUCT_ID": "\',	I.ID,			\'"\'),
-							concat(\'  "PRODUCT_NAME": "\',	I.PRODUCT_NAME,	\'"\'),
-							concat(\'  "QUANTITY": "\',		I.QUANTITY,		\'"\'),
-							concat(\'  "PRODUCT_ID": "\',	I.ID,			\'" }\')
+							concat(\'{ "PRODUCT_ID": "\',		I.ID,			\'"\'),
+							concat(\'  "PRODUCT_NAME": "\',		I.PRODUCT_NAME,	\'"\'),
+							concat(\'  "QUANTITY": "\',			I.QUANTITY,		\'"\'),
+							concat(\'  "PRICE_VALUE": "\',		I.PRICE_VALUE,	\'" }\')
 						),
 						\']\'
 					)'

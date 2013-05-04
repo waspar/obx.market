@@ -116,15 +116,6 @@ create table if not exists obx_orders (
 	key USER_ID (USER_ID)
 );
 
--- Таблица корзин пользователей
-create table if not exists obx_user_basket (
-	ID int(11) not null auto_increment,
-	DATE_CREATE timestamp not null,
-	DATE_UPDATE timestamp not null,
-	USER_ID int(11) NULL,
-	VISITOR_ID int(11) NULL,
-	primary key(ID)
-);
 
 -- Таблица товаров в заказе
 create table if not exists obx_basket_items (

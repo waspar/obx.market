@@ -91,6 +91,13 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	 */
 	static protected $_arTestOrder = array();
 
+	/**
+	 * @var OBX_ECommerceIBlockDBS
+	 * @static
+	 * @access protected
+	 */
+	static protected $_ECommerceIBlockDBS = null;
+
 	static public function setUpBeforeClass() {
 		global $USER, $_COOKIE;
 		$USER->Logout();
@@ -107,6 +114,7 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
 		self::$_PriceDBS = OBX_PriceDBS::getInstance();
 		self::$_OrderDBS = OBX_OrderDBS::getInstance();
+		self::$_ECommerceIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
 	}
 
 	protected function _getTestVisitor() {
@@ -229,6 +237,21 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 			self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][] = $newElementID;
 		}
 		$this->assertEquals($countTestElements, count(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST']));
+	}
+
+	protected function _moveNotECommerceIBlock2ECommerceState() {
+		$iblockID = self::$_ECommerceIBlockDBS->add(array('IBLOCK_ID' => self::$_arTestNotEComIBlock['ID']));
+		if( $iblockID < 1 ) {
+			$arError = self::$_ECommerceIBlockDBS->popLastError('ARRAY');
+			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		}
+	}
+	protected function _moveNotECommerceIBlockStateBack() {
+		$bSuccess = self::$_ECommerceIBlockDBS->delete(self::$_arTestNotEComIBlock['ID']);
+		if( ! $bSuccess ) {
+			$arError = self::$_ECommerceIBlockDBS->popLastError('ARRAY');
+			echo ('Warning: '.$arError['TEXT'].'; code: '.$arError['CODE']."\n");
+		}
 	}
 
 	protected function _addTestOrder() {

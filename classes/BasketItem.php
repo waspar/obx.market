@@ -116,7 +116,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 			'DELAYED'			=> self::FLD_T_BCHAR | self::FLD_NOT_NULL,
 			'WEIGHT'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
 			'PRICE_ID'			=> self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_REQUIRED | self::FLD_CUSTOM_CK | self::FLD_BRK_INCORR,
-			'PRICE_VALUE'		=> self::FLD_T_FLOAT | self::FLD_NOT_NULL | self::FLD_REQUIRED,
+			'PRICE_VALUE'		=> self::FLD_T_FLOAT,
 			'DISCOUNT_VALUE'	=> self::FLD_T_FLOAT | self::FLD_NOT_NULL,
 			'VAT_ID'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
 			'VAT_VALUE'			=> self::FLD_T_FLOAT | self::FLD_NOT_NULL
@@ -237,9 +237,41 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 			$arECommerceIBlocks = OBX_ECommerceIBlock::getCachedList();
 			if( !array_key_exists($arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'], $arECommerceIBlocks) ) {
 				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
+				return false;
 			}
 			if(empty($arFields['PRODUCT_NAME'])) {
 				$arFields['PRODUCT_NAME'] = $arCheckData['PRODUCT_ID']['CHECK_DATA']['NAME'];
+			}
+		}
+		if(
+			!array_key_exists('PRICE_VALUE', $arFields)
+			||
+			intval($arFields['PRICE_VALUE']) <= 0
+		) {
+			$arPricePropList = OBX_CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
+				'PRICE_ID' => $arFields['PRICE_ID'],
+				'IBLOCK_ID' => $arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID']
+			));
+			if( empty($arPricePropList) ) {
+				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_10'), 10);
+				return false;
+			}
+			$arPriceProp = $arPricePropList[0];
+			$rsPricePropValueList = CIBlockElement::GetProperty(
+				$arPriceProp['IBLOCK_ID'],
+				$arFields['PRODUCT_ID'],
+				array('SORT' => 'ASC'),
+				array(
+					'ID' => $arPricePropList[0]['IBLOCK_PROP_ID']
+				)
+			);
+			if(
+				!($arPricePropValue = $rsPricePropValueList->GetNext())
+				||
+				empty($arPricePropValue['VALUE'])
+			) {
+				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_10'), 10);
+				return false;
 			}
 		}
 		return true;

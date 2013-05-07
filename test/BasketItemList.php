@@ -49,7 +49,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	 * @depends testAddTestOrder
 	 * @depends testCreateNotECommerceIBlock
 	 */
-	public function testAddNotAProduct() {
+	public function testTryToAddNotAProduct() {
 		$newBasketItemID = self::$_BasketItemDBS->add(array(
 			'VISITOR_ID' => self::$_Visitor->getFields('ID'),
 			'PRODUCT_ID' => self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0],
@@ -59,9 +59,40 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 			'DISCOUNT_VALUE' => '0'
 		));
 		$arError = self::$_BasketItemDBS->popLastError('ARRAY');
-		$this->assertGreaterThan(0, $newBasketItemID);
+		$this->assertEquals(0, $newBasketItemID);
 		// Обрабатываем ошибку. Нельзя добавить в корзину элемент из инфоблока не являющегося торговым каталогом
 		$this->assertEquals(9, $arError['CODE']);
+	}
+
+	/**
+	 * @depends testTryToAddNotAProduct
+	 */
+	public function testMoveNotECommerceIBlock2ECommerceState() {
+		$this->_moveNotECommerceIBlock2ECommerceState();
+	}
+
+	/**
+	 * @depends testTryToAddNotAProduct
+	 * @depends testMoveNotECommerceIBlock2ECommerceState
+	 */
+	public function testTryToAddProductWithoutPrice() {
+		$newBasketItemID = self::$_BasketItemDBS->add(array(
+			'VISITOR_ID' => self::$_Visitor->getFields('ID'),
+			'PRODUCT_ID' => self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0],
+			'QUANTITY' => rand(1, 9),
+			'PRICE_ID' => self::$_arPrice['ID'],
+		));
+		$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+		$this->assertEquals(0, $newBasketItemID);
+		// Обрабатываем ошибку. Цена не указана явно и получить её из элемента не удастся. Код ошибки 10
+		$this->assertEquals(10, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+	}
+
+	/**
+	 * @depends testMoveNotECommerceIBlock2ECommerceState
+	 */
+	public function testMoveNotECommerceIBlockStateBack() {
+		$this->_moveNotECommerceIBlockStateBack();
 	}
 
 	/**
@@ -236,14 +267,13 @@ SQL
 
 	/**
 	 * Получаем содержимое корзины
-	 * TODO: Что бы получить только корзину без товаров заказа, надо дописать в DBSimple логику OR и возможность  проверять на is null и nit is null
 	 */
 	public function testGetListOnlyFromBasket() {
 		$arVisitorBasket = self::$_BasketItemDBS->getListArray(null, array(
 			'VISITOR_ID' => self::$_Visitor->getFields('ID'),
 			'ORDER_ID' => null
 		));
-		$lastSQL = self::$_BasketItemDBS->getLastQueryString();
+		//$lastSQL = self::$_BasketItemDBS->getLastQueryString();
 		$this->assertNotEmpty($arVisitorBasket, 'Error: Visitor basket is empty');
 		$this->assertGreaterThan(19, count($arVisitorBasket), 'Error: in visitor basket less then 20 product positions');
 		foreach($arVisitorBasket as &$arItem) {
@@ -260,6 +290,7 @@ SQL
 	}
 
 	/**
+	 * TODO: Просто обновляем любое поле заказа. Проверяем через getList что оно поменялось
 	 * @depends testGetTestVisitor
 	 * @depends testAddTestPrice
 	 * @depends testGetTestIBlockData
@@ -270,7 +301,7 @@ SQL
 	}
 
 	/**
-	 * Этот тест должен обработать ошибку, поскуольку нельщя обновить саму позицию.
+	 * Этот тест должен обработать ошибку, поскуольку нельзя обновить саму позицию.
 	 * Если необходимо сменить товарв в корзине, то необходимо старый товар удалить и новый добавить
 	 * @depends testGetTestVisitor
 	 * @depends testAddTestPrice
@@ -282,16 +313,30 @@ SQL
 	}
 
 	/**
+	 * Простое удаление по вервичному ключу
 	 * @depends testGetTestVisitor
 	 * @depends testAddTestPrice
 	 * @depends testGetTestIBlockData
 	 * @depends testAddTestOrder
+	 */
+	public function testSimpleDeletion() {
+
+	}
+
+	/**
+	 * Удаляем заказы привязанные к посетителю.
+	 * Товары могут быть привязаны к заказу. Не имеет значения. Удаляем по связке с посетителем
+	 * @depends testGetTestVisitor
+	 * @depends testAddTestPrice
+	 * @depends testGetTestIBlockData
+	 * @depends testAdd4Visitor
 	 */
 	public function testDeleteFromVisitor() {
 
 	}
 
 	/**
+	 * Удаляем товары привязанные к тестовому заказу
 	 * @depends testGetTestVisitor
 	 * @depends testAddTestPrice
 	 * @depends testGetTestIBlockData
@@ -302,12 +347,15 @@ SQL
 	}
 
 	/**
+	 * Удаляем заказы привязанные к корзине.
+	 * Варианта два. Или получить список через arFilter(array( 'ORDER_ID' => null))
+	 * или добавить в OBX\DBSimple в метод deleteByFilter() поддержку проверки на IS NULL так же как это сделано в getList
 	 * @depends testGetTestVisitor
 	 * @depends testAddTestPrice
 	 * @depends testGetTestIBlockData
-	 * @depends testAddTestOrder
+	 * @depends testAdd4Visitor
 	 */
-	public function testSimpleDeletion() {
+	public function testDeleteFromBasket() {
 
 	}
 }

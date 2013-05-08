@@ -117,11 +117,21 @@ create table if not exists obx_orders (
 );
 
 
+-- Таблица корзин пользователей
+create table if not exists obx_basket (
+	ID int(11) not null auto_increment,
+	USER_ID int(18) NULL,
+	ORDER_ID int(11) NULL,
+	DATE_CREATED timestamp not null,
+	TIMESTAMP_X timestamp on update current_timestamp not null default current_timestamp,
+	primary key (ID),
+	unique obx_basket_hash(HASH)
+);
+
 -- Таблица товаров в заказе
 create table if not exists obx_basket_items (
 	ID int(11) not null auto_increment,
-	ORDER_ID int(11) NULL,
-	VISITOR_ID int(18) NULL,
+	BASKET_ID int(11) not null,
 	PRODUCT_ID int(11) NULL,
 	PRODUCT_NAME varchar(255) not null,
 	QUANTITY int(11) not null default 1,
@@ -132,7 +142,7 @@ create table if not exists obx_basket_items (
 	DISCOUNT_VALUE decimal(18,2) not null default 0,
 	VAT_ID int(11) null,
 	VAT_VALUE decimal(18,2) not null default 0,
-	unique udx_obx_basket_items(VISITOR_ID, ORDER_ID, PRODUCT_ID),
+	unique udx_obx_basket_items(BASKET_ID, PRODUCT_ID),
 	primary key(ID)
 );
 -- Таблица статусов заказов
@@ -147,7 +157,8 @@ create table if not exists obx_order_status (
 	SORT int(11) not null default '100',
 	ACTIVE char(1) not null default 'Y',
 	PERMISSION SMALLINT not null default 3,
-	-- ALLOW_CHANGE_STATUS				1 - обратить внимание сюда. Это для финального статуса заказа
+	-- DENY_CHANGES								0 - обратить внимание сюда. Это для финального статуса заказа
+	-- ALLOW_CHANGE_STATUS				1
 	-- ALLOW_CHANGE_ITEMS 				2
 	-- ALLOW_CHANGE_DELIVERY_ID		4
 	-- ALLOW_CHANGE_PAY_ID				8

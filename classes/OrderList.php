@@ -21,69 +21,79 @@ class OBX_OrderDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
 		'O' => 'obx_orders',
 		'S' => 'obx_order_status',
-		'I' => 'obx_basket_items',
+		'B' => 'obx_basket',
+		'BI' => 'obx_basket_items',
 		'U' => 'b_user',
 		//'OP' => 'obx_order_property',
 		//'OPV' => 'obx_order_property_values'
 	);
 
 	protected $_arTableFields = array(
-		'ID' => array('O' => 'ID'),
-		'DATE_CREATED' => array('O' => 'DATE_CREATED'),
-		'TIMESTAMP_X' => array('O' => 'TIMESTAMP_X'),
-		'USER_ID' => array('O' => 'USER_ID'),
-		'USER_NAME' => array('U' => 'CONCAT(U.LAST_NAME," ",U.NAME)'),
-		'STATUS_ID' => array('O' => 'STATUS_ID'),
-		'STATUS_CODE' => array('S' => 'CODE'),
-		'STATUS_NAME' => array('S' => 'NAME'),
-		'STATUS_DESCRIPTION' => array('S' => 'DESCRIPTION'),
-		'CURRENCY' => array('O' => 'CURRENCY'),
-//		'DELIVERY_ID' => array('O' => 'DELIVERY_ID'),
-//		'DELIVERY_COST' => array('O' => 'DELIVERY_COST'),
-//		'PAY_ID' => array('O' => 'PAY_ID'),
-//		'PAY_TAX_VALUE' => array('O' => 'PAY_TAX_VALUE'),
-//		'DISCOUNT_ID' => array('O' => 'DISCOUNT_ID'),
-//		'DISCOUNT_VALUE' => array('O' => 'DISCOUNT_VALUE'),
-		'ITEMS' => array(
-			'I' => 'concat(
-						\'[\',
-						group_concat(
-							concat(\'{ "PRODUCT_ID": "\',		I.ID,			\'"\'),
-							concat(\'  "PRODUCT_NAME": "\',		I.PRODUCT_NAME,	\'"\'),
-							concat(\'  "QUANTITY": "\',			I.QUANTITY,		\'"\'),
-							concat(\'  "PRICE_VALUE": "\',		I.PRICE_VALUE,	\'" }\')
-						),
-						\']\'
-					)'
-		),
-		'ITEMS_COST' => array('I' => 'SUM(I.PRICE_VALUE * I.QUANTITY)'),
-		'PROPERTIES_JSON' => array(
-			'O' => '(SELECT
-						concat(
-							\'[\',
+		'ID'					=> array('O' => 'ID'),
+		'DATE_CREATED'			=> array('O' => 'DATE_CREATED'),
+		'TIMESTAMP_X'			=> array('O' => 'TIMESTAMP_X'),
+		'USER_ID'				=> array('O' => 'USER_ID'),
+		'USER_NAME'				=> array('U' => 'CONCAT(U.LAST_NAME," ",U.NAME)'),
+		'STATUS_ID'				=> array('O' => 'STATUS_ID'),
+		'STATUS_CODE'			=> array('S' => 'CODE'),
+		'STATUS_NAME'			=> array('S' => 'NAME'),
+		'STATUS_DESCRIPTION'	=> array('S' => 'DESCRIPTION'),
+		'CURRENCY'				=> array('O' => 'CURRENCY'),
+
+//		'DELIVERY_ID'			=> array('O' => 'DELIVERY_ID'),
+//		'DELIVERY_COST'			=> array('O' => 'DELIVERY_COST'),
+//		'PAY_ID'				=> array('O' => 'PAY_ID'),
+//		'PAY_TAX_VALUE'			=> array('O' => 'PAY_TAX_VALUE'),
+//		'DISCOUNT_ID'			=> array('O' => 'DISCOUNT_ID'),
+//		'DISCOUNT_VALUE'		=> array('O' => 'DISCOUNT_VALUE'),
+		'ITEMS_JSON' => array('BI' => '
+				concat(
+					\'{ \',
+						\'"items": [\',
 							group_concat(
-								concat(\'{ "PROPERTY_ID": "\', OP.ID, \'"\'),
-								concat(\', "PROPERTY_TYPE": "\', OP.PROPERTY_TYPE, \'"\'),
-								concat(\', "PROPERTY_NAME": "\',OP.NAME, \'"\'),
-								concat(\', "PROPERTY_CODE": "\', OP.CODE, \'" }\')
+								concat(\'{ \',
+											\'"ID": "\',				BI.ID,				\'", \',
+											\'"PRODUCT_ID": "\',		BI.PRODUCT_ID,		\'", \',
+											\'"PRODUCT_NAME": "\',		BI.PRODUCT_NAME,	\'", \',
+											\'"QUANTITY": "\',			BI.QUANTITY,		\'", \',
+											\'"PRICE_VALUE": "\',		BI.PRICE_VALUE,		\'"\',
+									\'" }\'
+								)
 							),
-							\']\'
-						)
-					FROM
-						obx_order_property as OP
-					LEFT JOIN
-						obx_order_property_values as OPV ON (OPV.PROPERTY_ID = OP.ID)
-					WHERE
-						OPV.ORDER_ID = O.ID
-					GROUP BY
-						OPV.ORDER_ID
-					)'
+						\'], \',
+						\'"cost": "\', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,\'"\'
+					\' }\'
+				)'
+				, 'REQUIRED_TABLES' => array('B')
 		),
+		'ITEMS_COST' => array('BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
+		'PROPERTIES_JSON' => array('O' => '
+			SELECT
+				concat(
+					\'[\',
+					group_concat(
+						concat(\'{ "PROPERTY_ID": "\', OP.ID, \'"\'),
+						concat(\', "PROPERTY_TYPE": "\', OP.PROPERTY_TYPE, \'"\'),
+						concat(\', "PROPERTY_NAME": "\',OP.NAME, \'"\'),
+						concat(\', "PROPERTY_CODE": "\', OP.CODE, \'" }\')
+					),
+					\']\'
+				)
+			FROM
+				obx_order_property as OP
+			LEFT JOIN
+				obx_order_property_values as OPV ON (OPV.PROPERTY_ID = OP.ID)
+			WHERE
+				OPV.ORDER_ID = O.ID
+			GROUP BY
+				OPV.ORDER_ID
+		'),
 	);
 	protected $_arTableLeftJoin = array(
-		'S' => 'O.STATUS_ID = S.ID',
-		'I' => 'O.ID = I.ORDER_ID',
-		'U' => 'O.USER_ID = U.ID'
+		'S'		=> 'O.STATUS_ID = S.ID',
+		'B'		=> 'O.ID = B.ORDER_ID',
+		'BI'	=> 'B.ID = BI.BASKET_ID',
+		'U'		=> 'O.USER_ID = U.ID'
 	);
 
 	protected $_arGroupByFields = array(

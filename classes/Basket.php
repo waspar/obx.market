@@ -9,46 +9,92 @@
  ***********************************************/
 
 class OBX_Basket extends OBX_CMessagePoolDecorator {
-
-	protected $_VisitorsDBS = null;
-	protected $_Visitor = null;
-	protected $_BasketItemDBS = null;
-	protected $_OrderDBS = null;
-	protected $_PriceDBS = null;
-	protected $_arProductList = array();
-
-	static protected $_arInstances = array();
+	/**
+	 * @var bool
+	 * @static
+	 * @access protected
+	 */
+	static protected $_bDBSimpleObjectInitialized = false;
 
 	/**
-	 * @param OBX_Visitor | null $Visitor
-	 * @return self
+	 * @var OBX_BasketDBS
+	 * @static
+	 * @access protected
 	 */
-	final static public function getInstance(OBX_Visitor $Visitor = null) {
-		$visitorID = null;
-		if($Visitor !== null) {
-			$visitorID = $Visitor->getFields('ID');
-		}
-		$visitorID = intval($visitorID);
-		if( $visitorID < 1) {
-			$Visitor = new OBX_Visitor();
-			$visitorID = $Visitor->getFields('ID');
-		}
-		$className = get_called_class();
-		if( !array_key_exists($className, self::$_arInstances) ) {
-			self::$_arInstances[$className] = array();
-			if( !array_key_exists($visitorID, self::$_arInstances[$className]) ) {
-				self::$_arInstances[$className][$visitorID] = new $className($Visitor);
-			}
+	static protected $_BasketDBS = null;
 
-		}
-		return self::$_arInstances[$className][$visitorID];
+	/**
+	 * @var OBX_BasketItemDBS
+	 * @static
+	 * @access protected
+	 */
+	static protected $_BasketItemDBS = null;
+
+	/**
+	 * @var OBX_OrderDBS
+	 * @static
+	 * @access protected
+	 */
+	static protected $_OrderDBS = null;
+
+	/**
+	 * @var OBX_PriceDBS
+	 * @static
+	 * @access protected
+	 */
+	static protected $_PriceDBS = null;
+
+	protected $_arFields = array(
+		'ID' => null
+	);
+	protected $_arProductList = array();
+
+	static protected function _initDBSimpleObjects() {
+		self::$_BasketDBS = OBX_BasketDBS::getInstance();
+		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
+		self::$_OrderDBS = OBX_OrderDBS::getInstance();
+		self::$_PriceDBS = OBX_PriceDBS::getInstance();
+	}
+	static public function getByID($basketID) {
+		return new self(intval($basketID), null, null, null);
+	}
+	static public function getByHash($hash) {
+		return new self(null, substr($hash, 0, 32), null, null);
+	}
+	static public function getByUserID($userID) {
+		return new self(null, null, intval($userID), null);
+	}
+	static public function getByOrderID($orderID) {
+		return new self(null, null, null, intval($orderID));
 	}
 
-	protected function __construct(OBX_Visitor &$Visitor) {
-		$this->_OrderDBS = OBX_OrderDBS::getInstance();
-		$this->_BasketItemDBS = OBX_BasketItemDBS::getInstance();
-		$this->_PriceDBS = OBX_PriceDBS::getInstance();
-		$this->_Visitor = &$Visitor;
+	protected function __construct($basketID = null, $basketHash = null, $userID = null, $orderID = null) {
+		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+
+		$rsBasket = null;
+		if($basketID !== null) {
+			$rsBasket = self::$_BasketDBS->getByID($basketID, null, true);
+		}
+		elseif($basketHash !== null) {
+			$rsBasket = self::$_BasketDBS->getList(null, array(
+				'HASH' => $basketHash,
+				'ORDER_ID' => null
+			));
+		}
+		elseif($userID !== null) {
+			$rsBasket = self::$_BasketDBS->getList(null, array(
+				'USER_ID' => $userID,
+				'ORDER_ID' => null
+			));
+		}
+		elseif($orderID !== null) {
+			$rsBasket = self::$_BasketDBS->getList(null, array(
+				'ORDER_ID' => $orderID
+			));
+		}
+		if($rsBasket != null && $arBasket = $rsBasket->Fetch()) {
+			$this->_arFields = $arBasket;
+		}
 	}
 	final protected function __clone() {}
 
@@ -57,8 +103,32 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 		//$this->_arProductList
 	}
 
-	public function getProductCount() {
+	public function getFields($fieldName = null) {
+		if($fieldName !== null) {
+			if(array_key_exists($fieldName, $this->_arFields)) {
+				return $this->_arFields[$fieldName];
+			}
+			else {
+				return null;
+			}
+		}
+		return $this->_arFields;
+	}
 
+	/**
+	 * Получить число позиций номенклатуры
+	 * @return int
+	 */
+	public function getProductCount() {
+		return 0;
+	}
+
+	/**
+	 * Получить общее число товаров (с учетом количесва каждой позиции номенклатуры)
+	 * @return int
+	 */
+	public function getItemsCount() {
+		return 0;
 	}
 
 	public function getProductList() {
@@ -73,15 +143,11 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 
 	}
 
-	public function getItemList() {
+	public function getCost() {
 
 	}
 
-	public function getBasketCost() {
-
-	}
-
-	public function clearBasket() {
+	public function clear() {
 
 	}
 }

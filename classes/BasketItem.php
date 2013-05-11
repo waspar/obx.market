@@ -42,8 +42,8 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 		)
 	);
 	protected $_arTableLeftJoin = array(
-		'O'		=> 'O.ID = I.ORDER_ID',
-		'V'		=> 'V.ID = I.VISITOR_ID',
+		'B'		=> 'B.ID = I.BASKET_ID',
+		'O'		=> 'O.ID = B.ORDER_ID',
 		'P'		=> 'P.ID = I.PRICE_ID',
 		'IBE'	=> 'I.PRODUCT_ID = IBE.ID',
 		'IBS'	=> 'IBE.IBLOCK_SECTION_ID = IBS.ID',
@@ -53,10 +53,8 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	protected $_arTableFields = array(
 		'ID'						=> array('I'	=> 'ID'),
 		'BASKET_ID'					=> array('I'	=> 'BASKET_ID'),
-		'ORDER_ID'					=> array('B'	=> 'ORDER_ID'),
-		'BASKET_USER_ID'			=> array('B'	=> 'USER_ID'),
-		'ORDER_USER_ID'				=> array('O'	=> 'USER_ID'),
-
+		'ORDER_ID'					=> array('B'	=> 'ORDER_ID', 'REQUIRED_FIELDS' => 'BASKET_ID'),
+		'USER_ID'					=> array('O'	=> 'USER_ID'),
 		'PRODUCT_ID'				=> array('I'	=> 'PRODUCT_ID'),
 		'PRODUCT_NAME'				=> array('I'	=> 'PRODUCT_NAME'),
 		'QUANTITY'					=> array('I'	=> 'QUANTITY'),
@@ -90,7 +88,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	protected $_arSelectDefault = array(
 		'ID',
 		'ORDER_ID',
-		'VISITOR_ID',
+		'BASKET_ID',
 		'PRODUCT_ID',
 		'PRODUCT_NAME',
 		'QUANTITY',
@@ -102,7 +100,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	protected $_mainTablePrimaryKey = 'ID';
 	protected $_mainTableAutoIncrement = 'ID';
 	protected $_arTableUnique = array(
-		'udx_obx_basket_items' => array('ORDER_ID', 'VISITOR_ID', 'PRODUCT_ID')
+		'udx_obx_basket_items' => array('BASKET_ID', 'PRODUCT_ID')
 	);
 	protected $_arSortDefault = array('ID' => 'ASC');
 	protected $_arTableFieldsDefault = array(
@@ -112,26 +110,27 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 
 	function __construct() {
 		$this->_arTableFieldsCheck = array(
-			'ID'				=> self::FLD_T_INT | self::FLD_NOT_NULL,
-			'ORDER_ID'			=> self::FLD_T_INT | self::FLD_CUSTOM_CK,
-			'VISITOR_ID'		=> self::FLD_T_INT | self::FLD_CUSTOM_CK,
-			'PRODUCT_ID'		=> self::FLD_T_IBLOCK_ELEMENT_ID | self::FLD_NOT_NULL | self::FLD_REQUIRED,
-			'PRODUCT_NAME'		=> self::FLD_T_STRING | self::FLD_NOT_NULL | self::FLD_REQUIRED,
+			'ID'				=> self::FLD_T_PK_ID,
+			'BASKET_ID'			=> self::FLD_T_PK_ID | self::FLD_CUSTOM_CK,
+			// Это поле реально отсутствует в основной таблице, обязательно удалять в событиях, после использования
+			'ORDER_ID'			=> self::FLD_T_PK_ID | self::FLD_CUSTOM_CK,
+
+			'PRODUCT_ID'		=> self::FLD_T_IBLOCK_ELEMENT_ID | self::FLD_REQUIRED,
+			'PRODUCT_NAME'		=> self::FLD_T_STRING | self::FLD_NOT_NULL | self::FLD_NOT_ZERO | self::FLD_REQUIRED,
 			'QUANTITY'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
 			'DELAYED'			=> self::FLD_T_BCHAR | self::FLD_NOT_NULL,
 			'WEIGHT'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
-			'PRICE_ID'			=> self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_REQUIRED | self::FLD_CUSTOM_CK | self::FLD_BRK_INCORR,
-			'PRICE_VALUE'		=> self::FLD_T_FLOAT,
+			'PRICE_ID'			=> self::FLD_T_PK_ID
+									| self::FLD_REQUIRED
+									| self::FLD_CUSTOM_CK
+									| self::FLD_BRK_INCORR,
+
+			'PRICE_VALUE'		=> self::FLD_T_FLOAT | self::FLD_NOT_NULL,
 			'DISCOUNT_VALUE'	=> self::FLD_T_FLOAT | self::FLD_NOT_NULL,
-			'VAT_ID'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
-			'VAT_VALUE'			=> self::FLD_T_FLOAT | self::FLD_NOT_NULL
+			'VAT_ID'			=> self::FLD_T_INT,
+			'VAT_VALUE'			=> self::FLD_T_FLOAT
 		);
 		$this->_arDBSimpleLangMessages = array(
-//			'REQ_FLD_ORDER_ID' => array(
-//				'TYPE' => 'E',
-//				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_1'),
-//				'CODE' => 1
-//			),
 			'REQ_FLD_IBLOCK_ID' => array(
 				'TYPE' => 'E',
 				'TEXT' => GetMessage('OBX_ORDER_ITEMS_ERROR_2'),
@@ -224,19 +223,50 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 //		}
 //		return true;
 //	}
-	public function __check_VISITOR_ID(&$fieldValue, &$arCheckData = null) {
-		$VisitorsDBS = OBX_VisitorDBS::getInstance();
-		$arVisitor = $VisitorsDBS->getByID($fieldValue);
-		if( empty($arVisitor) ) {
+	public function __check_BASKET_ID(&$fieldValue, &$arCheckData = null) {
+		$arBasket = OBX_BasketDBS::getInstance()->getByID($fieldValue);
+		if( empty($arBasket) ) {
 			return false;
 		}
+		$arCheckData = $arBasket;
+		return true;
+	}
+
+	public function __check_ORDER_ID(&$value, &$arCheckData = null) {
+		$arOrder = OBX_OrderDBS::getInstance()->getByID($value);
+		if( empty($arOrder) ) {
+			return false;
+		}
+		$arCheckData = $arOrder;
 		return true;
 	}
 
 	protected function _onBeforeAdd(&$arFields, &$arCheckData) {
-		if( empty($arFields['ORDER_ID']) && empty($arFields['VISITOR_ID']) ) {
-			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_1'));
+		if( empty($arFields['BASKET_ID']) && empty($arFields['ORDER_ID']) ) {
+			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_1'), 1);
 			return false;
+		}
+		elseif(empty($arFields['BASKET_ID']) && !empty($arFields['ORDER_ID'])) {
+			$BasketDBS = OBX_BasketDBS::getInstance();
+			$arBasketList = $BasketDBS->getListArray(null, array('ORDER_ID' => $arFields['ORDER_ID']));
+			if( empty($arBasketList) ) {
+				$basketOrderID = $BasketDBS->add(array(
+					'ORDER_ID' => $arFields['ORDER_ID']
+				));
+				if(!$basketOrderID) {
+					$arError = $BasketDBS->popLastError('ARRAY');
+					$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_11', array(
+						'#ERROR_TEXT#' => $arError['TEXT'].'; код ошибки: '.$arError['CODE'].'.'
+					)), 11);
+					return false;
+				}
+				$arFields['BASKET_ID'] = $basketOrderID;
+			}
+			else {
+				$arFields['BASKET_ID'] = $arBasketList[0]['ID'];
+			}
+			unset($arFields['ORDER_ID']);
+			unset($arCheckData['ORDER_ID']);
 		}
 		if($arCheckData['PRODUCT_ID']['IS_CORRECT']) {
 			$arECommerceIBlocks = OBX_ECommerceIBlock::getCachedList();

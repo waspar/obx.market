@@ -16,14 +16,10 @@
 			<file>OrderStatus.php</file>
 			<file>OrderProperty.php</file>
 			<file>OrderList.php</file>
-
 			<file>OrderPropertyValues</file>
-
 			<file>BasketList.php</file>
-
 			<file>BasketItemList.php</file>
 			<file>Basket.php</file>
-			-->
 		</testsuite>
 	</testsuites>
 </phpunit>

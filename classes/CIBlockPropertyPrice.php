@@ -95,9 +95,22 @@ class OBX_CIBlockPropertyPriceDBS extends OBX_DBSimple
 	public function __construct() {
 		$this->_arTableFieldsCheck = array(
 			//"ID"				=> self::FLD_T_INT | self::FLD_NOT_NULL,
-			"PRICE_ID"			=> self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_REQUIRED | self::FLD_CUSTOM_CK,
-			"IBLOCK_ID"			=> self::FLD_T_IBLOCK_ID | self::FLD_NOT_NULL | self::FLD_REQUIRED | self::FLD_CUSTOM_CK | self::FLD_BRK_INCORR,
-			"IBLOCK_PROP_ID"	=> self::FLD_T_IBLOCK_PROP_ID | self::FLD_NOT_NULL | self::FLD_REQUIRED,
+			"PRICE_ID"			=> self::FLD_T_INT
+									| self::FLD_NOT_NULL
+									| self::FLD_NOT_ZERO
+									| self::FLD_REQUIRED
+									| self::FLD_CUSTOM_CK,
+
+			"IBLOCK_ID"			=> self::FLD_T_IBLOCK_ID
+									| self::FLD_NOT_NULL
+									| self::FLD_NOT_ZERO
+									| self::FLD_REQUIRED
+									| self::FLD_CUSTOM_CK
+									| self::FLD_BRK_INCORR,
+
+			"IBLOCK_PROP_ID"	=> self::FLD_T_IBLOCK_PROP_ID
+									| self::FLD_NOT_NULL
+									| self::FLD_REQUIRED,
 		);
 		$this->_arDBSimpleLangMessages = array(
 			"REQ_FLD_IBLOCK_ID" => array(

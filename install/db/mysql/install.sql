@@ -122,10 +122,13 @@ create table if not exists obx_basket (
 	ID int(11) not null auto_increment,
 	USER_ID int(18) NULL,
 	ORDER_ID int(11) NULL,
-	DATE_CREATED timestamp not null,
+	HASH_STRING char(32) NULL,
 	TIMESTAMP_X timestamp on update current_timestamp not null default current_timestamp,
+	DATE_CREATED timestamp not null,
 	primary key (ID),
-	unique obx_basket_hash(HASH)
+	index obx_basket_hash(HASH_STRING),
+	index obx_basket_user(USER_ID),
+	index obx_basket_order(ORDER_ID)
 );
 
 -- Таблица товаров в заказе

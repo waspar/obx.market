@@ -35,12 +35,28 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	static protected $_arTestNotEComIBlock = array();
 
 	/**
-	 * Объект сущности списка товаров корзины / заказа
+	 * Собъект сущности-БД корзины
+	 * @var OBX_BasketDBS
+	 * @static
+	 * @access protected
+	 */
+	static protected $_BasketDBS = null;
+
+	/**
+	 * Объект сущности-БД списка товаров корзины
 	 * @var OBX_BasketItemDBS
 	 * @static
 	 * @access protected
 	 */
 	static protected $_BasketItemDBS = null;
+
+	/**
+	 * Объект сущности корзины
+	 * @var Array OBX_Basket
+	 * @static
+	 * @access private
+	 */
+	static protected $_BasketArray = array();
 
 
 	/**
@@ -50,14 +66,6 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	 * @access protected
 	 */
 	static protected $_cookieID = null;
-
-	/**
-	 * Объект посетителя
-	 * @var OBX_Visitor
-	 * @static
-	 * @access private
-	 */
-	static protected $_Visitor = null;
 
 	/**
 	 * Объект сущности БД цен
@@ -84,12 +92,35 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	static protected $_OrderDBS = null;
 
 	/**
+	 * Идентификатор тестового пользователя
+	 * @var int
+	 * @static
+	 * @access protected
+	 */
+	static protected $_arTestUser = 0;
+	/**
+	 * Идентификатор ещё одого тестового пользователя
+	 * @var int
+	 * @static
+	 * @access protected
+	 */
+	static protected $_arSomeOtherTestUser = 0;
+
+	/**
 	 * Заказ
 	 * @var array
 	 * @static
 	 * @access protected
 	 */
 	static protected $_arTestOrder = array();
+
+	/**
+	 * Заказ ещё одного пользвтаеля
+	 * @var array
+	 * @static
+	 * @access protected
+	 */
+	static protected $_arSomeOthTestOrder = array();
 
 	/**
 	 * @var OBX_ECommerceIBlockDBS
@@ -109,18 +140,72 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		// $APPLICATION->set_cookie() не поможет ибо использует встроенную ф-ию php setcookie(),
 		// а та в свою очередь не модифицирует $_COOKIE, а просто формирует header http-ответа
 		// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
-		$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".OBX_Visitor::VISITOR_COOKIE_NAME] = self::$_cookieID;
+		$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".OBX_Basket::COOKIE_NAME] = self::$_cookieID;
 		// ^^^ cookie hack
+		self::$_BasketDBS = OBX_BasketDBS::getInstance();
 		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
 		self::$_PriceDBS = OBX_PriceDBS::getInstance();
 		self::$_OrderDBS = OBX_OrderDBS::getInstance();
 		self::$_ECommerceIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
 	}
 
-	protected function _getTestVisitor() {
-		self::$_Visitor = new OBX_Visitor(array('COOKIE_ID' => self::$_cookieID));
-		if( self::$_Visitor->getFields('ID') == null) {
-			$this->fail('Error: '.self::$_Visitor->popLastError());
+	public function _getTestUser() {
+		global $USER;
+		$arFields = Array(
+			'NAME'              => 'тестовый',
+			'LAST_NAME'         => 'пользователь',
+			'EMAIL'             => 'test@test.loc',
+			'LID'               => 'ru',
+			'ACTIVE'            => 'Y',
+			'GROUP_ID'          => array(1,2),
+			'PASSWORD'          => '123456',
+			'CONFIRM_PASSWORD'  => '123456',
+		);
+		$rsUser1 = CUser::GetByLogin('__test_basket_user_1');
+		$rsUser2 = CUser::GetByLogin('__test_basket_user_2');
+		if( $arUser1 = $rsUser1->Fetch() ) {
+			self::$_arTestUser = $arUser1;
+		}
+		else {
+			$user = new CUser;
+			$arFields['LOGIN'] = '__test_basket_user_1';
+			$ID = $user->Add($arFields);
+			$this->assertGreaterThan(0, $ID, 'Error: can\'t create test user 1. text: '.$user->LAST_ERROR);
+			$rsUser1 = CUser::GetByLogin('__test_basket_user_1');
+			if( $arUser1 = $rsUser1->Fetch() ) {
+				$this->assertEquals('__test_basket_user_1', $arUser1['LOGIN']);
+				self::$_arTestUser = $arUser1;
+			}
+			else {
+				$this->fail('Error: can\'t get test user 1');
+			}
+		}
+		if( $arUser2 = $rsUser2->Fetch() ) {
+			self::$_arSomeOtherTestUser = $arUser2;
+		}
+		else {
+			$user = new CUser;
+			$arFields['LOGIN'] = '__test_basket_user_2';
+			$ID = $user->Add($arFields);
+			$this->assertGreaterThan(0, $ID, 'Error: can\'t create test user 2. text: '.$user->LAST_ERROR);
+			$rsUser1 = CUser::GetByLogin('__test_basket_user_2');
+			if( $arUser2 = $rsUser1->Fetch() ) {
+				$this->assertEquals('__test_basket_user_2', $arUser2['LOGIN']);
+				self::$_arSomeOtherTestUser = $arUser2;
+			}
+			else {
+				$this->fail('Error: can\'t get test user 2');
+			}
+		}
+	}
+
+	/**
+	 * @depends _getTestUser
+	 */
+	public function _getTestBasket() {
+		self::$_BasketArray['TEST_BASKET'] = OBX_Basket::getByHash(self::$_cookieID);
+		if( self::$_BasketArray['TEST_BASKET']->getFields('ID') == null) {
+			$this->fail('Error: '.self::$_BasketArray['TEST_BASKET']->popLastError());
 		}
 	}
 
@@ -255,7 +340,7 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	}
 
 	protected function _addTestOrder() {
-		$newOrderID = self::$_OrderDBS->add(array('USER_ID' => 1));
+		$newOrderID = self::$_OrderDBS->add(array('USER_ID' => self::$_arTestUser['ID']));
 		if($newOrderID<1) {
 			$arError = self::$_OrderDBS->popLastError('ARRAY');
 			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
@@ -263,5 +348,31 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		$arOrder = self::$_OrderDBS->getByID($newOrderID);
 		$this->assertNotEmpty($arOrder, 'test order not found.');
 		self::$_arTestOrder = $arOrder;
+	}
+
+	protected function _addSomeOtherTestOrder() {
+		$newOrderID = self::$_OrderDBS->add(array('USER_ID' => self::$_arSomeOtherTestUser['ID']));
+		if($newOrderID<1) {
+			$arError = self::$_OrderDBS->popLastError('ARRAY');
+			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		}
+		$arOrder = self::$_OrderDBS->getByID($newOrderID);
+		$this->assertNotEmpty($arOrder, 'test order not found.');
+		self::$_arSomeOthTestOrder = $arOrder;
+	}
+
+	protected function _deleteTestOrder() {
+		$bSuccess = self::$_OrderDBS->delete(self::$_arTestOrder['ID']);
+		if( !$bSuccess ) {
+			$arError = self::$_OrderDBS->popLastError('ARRAY');
+			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		}
+	}
+	protected function _deleteSomeOtherTestOrder() {
+		$bSuccess = self::$_OrderDBS->delete(self::$_arSomeOthTestOrder['ID']);
+		if( !$bSuccess ) {
+			$arError = self::$_OrderDBS->popLastError('ARRAY');
+			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		}
 	}
 }

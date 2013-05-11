@@ -37,8 +37,13 @@ class OBX_CurrencyDBS extends OBX_DBSimple {
 
 	public function __construct() {
 		$this->_arTableFieldsCheck = array(
-			'CURRENCY'		=> self::FLD_T_NO_CHECK | self::FLD_NOT_NULL,
-			'SORT'			=> self::FLD_T_INT | self::FLD_DEFAULT,
+			'CURRENCY'		=> self::FLD_T_NO_CHECK | self::FLD_NOT_NULL | self::FLD_NOT_ZERO,
+			'SORT'			=> self::FLD_T_INT
+								| self::FLD_NOT_NULL
+								| self::FLD_NOT_ZERO
+								| self::FLD_UNSIGNED
+								| self::FLD_DEFAULT,
+
 			'COURSE'		=> self::FLD_T_FLOAT,
 			'RATE'			=> self::FLD_T_FLOAT,
 			'IS_DEFAULT'	=> self::FLD_T_BCHAR,

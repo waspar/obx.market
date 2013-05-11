@@ -11,7 +11,7 @@
  ***********************************************/
 
 $arModuleClasses = array(
-	'OBX_ECommerceIBlock'				=> 'classes/ECommerceIBlock.php'
+	 'OBX_ECommerceIBlock'				=> 'classes/ECommerceIBlock.php'
 	,'OBX_ECommerceIBlockDBS'			=> 'classes/ECommerceIBlock.php'
 	,'OBX_PriceDBS'						=> 'classes/Price.php'
 	,'OBX_Price'						=> 'classes/Price.php'
@@ -24,6 +24,10 @@ $arModuleClasses = array(
 	,'OBX_CurrencyInfo'					=> 'classes/CurrencyInfo.php'
 	,'OBX_Market_BXMainEventsHandlers'	=> 'classes/BXMainEventsHandlers.php'
 	,'OBX_MarketSettings'				=> 'classes/MarketSettings.php'
+	,'OBX_BasketDBS'					=> 'classes/BasketList.php'
+	,'OBX_BasketList'					=> 'classes/BasketList.php'
+	,'OBX_BasketItemDBS'				=> 'classes/BasketItem.php'
+	,'OBX_BasketItem'					=> 'classes/BasketITem.php'
 	,'OBX_Basket'						=> 'classes/Basket.php'
 	,'OBX_Order'						=> 'classes/Order.php'
 	,'OBX_OrderDBResult'				=> 'classes/OrderDBResult.php'

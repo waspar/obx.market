@@ -8,7 +8,10 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_Basket extends OBX_CMessagePoolDecorator {
+class OBX_Basket extends OBX_CMessagePoolDecorator
+{
+	const COOKIE_NAME = 'OBX_BASKET_HASH';
+
 	/**
 	 * @var bool
 	 * @static
@@ -67,6 +70,17 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 	static public function getByOrderID($orderID) {
 		return new self(null, null, null, intval($orderID));
 	}
+	static public function getCurrent() {
+		global $USER, $APPLICATION;
+		$BasketByUser = null;
+		if( $USER->IsAuthorized() ) {
+			$BasketByUser = new self(null, null, $USER);
+		}
+		$currenctCookieID = trim($APPLICATION->get_cookie(self::COOKIE_NAME));
+		if( self::$_BasketDBS->__check_HASH_STRING($currenctCookieID) ) {
+
+		}
+	}
 
 	protected function __construct($basketID = null, $basketHash = null, $userID = null, $orderID = null) {
 		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
@@ -77,7 +91,7 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 		}
 		elseif($basketHash !== null) {
 			$rsBasket = self::$_BasketDBS->getList(null, array(
-				'HASH' => $basketHash,
+				'HASH_STRING' => $basketHash,
 				'ORDER_ID' => null
 			));
 		}
@@ -92,11 +106,34 @@ class OBX_Basket extends OBX_CMessagePoolDecorator {
 				'ORDER_ID' => $orderID
 			));
 		}
+
 		if($rsBasket != null && $arBasket = $rsBasket->Fetch()) {
 			$this->_arFields = $arBasket;
 		}
+		else {
+			$newBasketID = self::$_BasketDBS->add(array(
+				'USER_ID'	=> $userID,
+				'ORDER_ID'	=> $orderID,
+				'HASH_STRING'		=> $basketHash
+			));
+			if( $newBasketID > 0 ) {
+				$this->_arFields = self::$_BasketDBS->getByID($newBasketID);
+			}
+			else {
+				$arError = self::$_BasketDBS->popLastError('ARRAY');
+				$this->addError($arError['TEXT'], $arError['CODE']);
+			}
+		}
 	}
 	final protected function __clone() {}
+
+	public function generateHash() {
+
+	}
+
+	public function mergeBasket(self $Basket) {
+
+	}
 
 	public function syncProductList() {
 		//$this->_BasketItemDBS->getListArray();

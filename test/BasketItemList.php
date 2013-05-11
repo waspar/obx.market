@@ -8,12 +8,13 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-include dirname(__FILE__).'/_Basket.php';
+require_once dirname(__FILE__).'/_Basket.php';
 
 final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 {
-	public function testGetTestVisitor() {
-		return $this->_getTestVisitor();
+
+	public function testGetTestBasket() {
+		$this->_getTestBasket();
 	}
 
 	public function testAddTestPrice() {
@@ -51,7 +52,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	 */
 	public function testTryToAddNotAProduct() {
 		$newBasketItemID = self::$_BasketItemDBS->add(array(
-			'VISITOR_ID' => self::$_Visitor->getFields('ID'),
+			'BASKET_ID' => self::$_BasketArray['TEST_BASKET']->getFields('ID'),
 			'PRODUCT_ID' => self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0],
 			'QUANTITY' => rand(1, 9),
 			'PRICE_ID' => self::$_arPrice['ID'],
@@ -77,7 +78,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	 */
 	public function testTryToAddProductWithoutPrice() {
 		$newBasketItemID = self::$_BasketItemDBS->add(array(
-			'VISITOR_ID' => self::$_Visitor->getFields('ID'),
+			'BASKET_ID' => self::$_BasketArray['TEST_BASKET']->getFields('ID'),
 			'PRODUCT_ID' => self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0],
 			'QUANTITY' => rand(1, 9),
 			'PRICE_ID' => self::$_arPrice['ID'],
@@ -106,7 +107,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 			$arOptimalPrice = self::$_PriceDBS->getOptimalProductPrice($arElement['ID']);
 			$this->assertNotEmpty($arOptimalPrice, 'Error: can\'t get optimal price of product. Check price permissions');
 			$newBasketITemID = self::$_BasketItemDBS->add(array(
-				'VISITOR_ID' => self::$_Visitor->getFields('ID'),
+				'BASKET_ID' => self::$_BasketArray['TEST_BASKET']->getFields('ID'),
 				'PRODUCT_ID' => $arElement['ID'],
 				'QUANTITY' => rand(1, 9),
 				'PRICE_ID' => $arOptimalPrice['PRICE_ID'],
@@ -135,7 +136,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 			$newBasketITemID = self::$_BasketItemDBS->add(array(
 				'ORDER_ID' => self::$_arTestOrder['ID'],
 				// В след. строке мы моделируем ситуацию когда товар из корзины стал товаром заказа
-				'VISITOR_ID' => (rand(0,1)?null:self::$_Visitor->getFields('ID')),
+				'BASKET_ID' => self::$_BasketArray['TEST_BASKET']->getFields('ID'),
 				'PRODUCT_ID' => $arElement['ID'],
 				'QUANTITY' => rand(1, 9),
 				'PRICE_ID' => $arOptimalPrice['PRICE_ID'],
@@ -153,28 +154,6 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	}
 
 	/**
-	 * Получаем заказы привязанные к постетителю
-	 * В выборку могут попасть товары уже привязанные к товару
-	 * @depends testGetTestVisitor
-	 * @depends testAddTestPrice
-	 * @depends testGetTestIBlockData
-	 */
-	public function testGetListFromVisitor() {
-		$arVisitorBasket = self::$_BasketItemDBS->getListArray(null, array('VISITOR_ID' => self::$_Visitor->getFields('ID')));
-		$this->assertNotEmpty($arVisitorBasket, 'Error: Visitor basket is empty');
-		$this->assertGreaterThan(19, count($arVisitorBasket), 'Error: in visitor basket less then 20 product positions');
-		foreach($arVisitorBasket as &$arItem) {
-			$this->assertArrayHasKey('ORDER_ID', $arItem);
-			$this->assertArrayHasKey('VISITOR_ID', $arItem);
-			$this->assertArrayHasKey('QUANTITY', $arItem);
-			$this->assertArrayHasKey('PRICE_VALUE', $arItem);
-			$this->assertNotEmpty($arItem['VISITOR_ID']);
-			$this->assertGreaterThan(0, $arItem['QUANTITY']);
-			$this->assertGreaterThan(0, $arItem['PRICE_VALUE']);
-		} unset($arItem);
-	}
-
-	/**
 	 * @depends testAddTestPrice
 	 * @depends testGetTestIBlockData
 	 * @depends testAddTestOrder
@@ -186,7 +165,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 		$this->assertGreaterThan(19, count($arVisitorBasket), 'Error: in visitor basket less then 20 product positions');
 		foreach($arVisitorBasket as &$arItem) {
 			$this->assertArrayHasKey('ORDER_ID', $arItem);
-			$this->assertArrayHasKey('VISITOR_ID', $arItem);
+			$this->assertArrayHasKey('BASKET_ID', $arItem);
 			$this->assertArrayHasKey('QUANTITY', $arItem);
 			$this->assertArrayHasKey('PRICE_VALUE', $arItem);
 			$this->assertNotEmpty($arItem['ORDER_ID']);
@@ -268,9 +247,9 @@ SQL
 	/**
 	 * Получаем содержимое корзины
 	 */
-	public function testGetListOnlyFromBasket() {
+	public function testGetListFromBasket() {
 		$arVisitorBasket = self::$_BasketItemDBS->getListArray(null, array(
-			'VISITOR_ID' => self::$_Visitor->getFields('ID'),
+			'BASKET_ID' => self::$_BasketArray['TEST_BASKET']->getFields('ID'),
 			'ORDER_ID' => null
 		));
 		//$lastSQL = self::$_BasketItemDBS->getLastQueryString();

@@ -32,13 +32,13 @@ class OBX_OrderPropertyValuesDBS extends OBX_DBSimple {
 		'PROPERTY_TYPE'		=> array('OP'	=> 'PROPERTY_TYPE'),
 		'PROPERTY_IS_SYS'	=> array('OP'	=> 'IS_SYS'),
 		'PROPERTY_SORT'		=> array('OP'	=> 'SORT'),
-		'VALUE'				=> array('OP'	=>
-								'(SELECT CASE OP.PROPERTY_TYPE
-									WHEN \'S\' THEN OPV.VALUE_S
-									WHEN \'N\' THEN OPV.VALUE_N
-									WHEN \'T\' THEN OPV.VALUE_T
-									WHEN \'C\' THEN OPV.VALUE_C
-									WHEN \'L\' THEN (
+		'VALUE'				=> array('OP'	=> <<<SQL
+								(SELECT CASE OP.PROPERTY_TYPE
+									WHEN 'S' THEN OPV.VALUE_S
+									WHEN 'N' THEN OPV.VALUE_N
+									WHEN 'T' THEN OPV.VALUE_T
+									WHEN 'C' THEN OPV.VALUE_C
+									WHEN 'L' THEN (
 										SELECT VALUE FROM obx_order_property_enum as OPVE
 										WHERE
 											OPV.VALUE_L = OPVE.ID
@@ -47,7 +47,8 @@ class OBX_OrderPropertyValuesDBS extends OBX_DBSimple {
 									)
 									ELSE NULL
 									END
-								)'
+								)
+SQL
 							),
 		'VALUE_S'			=> array('OPV'	=> 'VALUE_S'),
 		'VALUE_N'			=> array('OPV'	=> 'VALUE_N'),

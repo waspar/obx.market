@@ -19,13 +19,11 @@ IncludeModuleLangFile(__FILE__);
 class OBX_OrderDBS extends OBX_DBSimple {
 
 	protected $_arTableList = array(
-		'O' => 'obx_orders',
-		'S' => 'obx_order_status',
-		'B' => 'obx_basket',
-		'BI' => 'obx_basket_items',
-		'U' => 'b_user',
-		//'OP' => 'obx_order_property',
-		//'OPV' => 'obx_order_property_values'
+		'O'		=> 'obx_orders',
+		'S'		=> 'obx_order_status',
+		'B'		=> 'obx_basket',
+		'BI'	=> 'obx_basket_items',
+		'U'		=> 'b_user',
 	);
 
 	protected $_arTableFields = array(
@@ -46,38 +44,61 @@ class OBX_OrderDBS extends OBX_DBSimple {
 //		'PAY_TAX_VALUE'			=> array('O' => 'PAY_TAX_VALUE'),
 //		'DISCOUNT_ID'			=> array('O' => 'DISCOUNT_ID'),
 //		'DISCOUNT_VALUE'		=> array('O' => 'DISCOUNT_VALUE'),
-		'ITEMS_JSON' => array('BI' => '
+		'ITEMS_JSON' => array('BI' => <<<SQL
 				concat(
-					\'{ \',
-						\'"items": [\',
+					'{ ',
+						'"items": [',
 							group_concat(
-								concat(\'{ \',
-											\'"ID": "\',				BI.ID,				\'", \',
-											\'"PRODUCT_ID": "\',		BI.PRODUCT_ID,		\'", \',
-											\'"PRODUCT_NAME": "\',		BI.PRODUCT_NAME,	\'", \',
-											\'"QUANTITY": "\',			BI.QUANTITY,		\'", \',
-											\'"PRICE_VALUE": "\',		BI.PRICE_VALUE,		\'"\',
-									\'" }\'
+								concat('{ ',
+											'"ID": "',				BI.ID,				'", ',
+											'"PRODUCT_ID": "',		BI.PRODUCT_ID,		'", ',
+											'"PRODUCT_NAME": "',	BI.PRODUCT_NAME,	'", ',
+											'"QUANTITY": "',		BI.QUANTITY,		'", ',
+											'"PRICE_VALUE": "',		BI.PRICE_VALUE,		'"',
+									'" }'
 								)
 							),
-						\'], \',
-						\'"cost": "\', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,\'"\'
-					\' }\'
-				)'
+						' ], ',
+						'"product_count": "', SUM(1) ,'", '
+						'"items_count": "', SUM(BI.QUANTITY) ,'", '
+						'"cost": "', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,'"'
+					' }'
+				)
+SQL
 				, 'REQUIRED_TABLES' => array('B')
 		),
+		'PRODUCT_COUNT' => array('BI' => 'SUM(1)', 'REQUIRED_TABLES' => 'B'),
+		'ITEMS_COUNT' => array('BI' => 'SUM(BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
 		'ITEMS_COST' => array('BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
-		'PROPERTIES_JSON' => array('O' => '
+		'PROPERTIES_JSON' => array('O' => <<<SQL
 			SELECT
 				concat(
-					\'[\',
+					'[ ',
 					group_concat(
-						concat(\'{ "PROPERTY_ID": "\', OP.ID, \'"\'),
-						concat(\', "PROPERTY_TYPE": "\', OP.PROPERTY_TYPE, \'"\'),
-						concat(\', "PROPERTY_NAME": "\',OP.NAME, \'"\'),
-						concat(\', "PROPERTY_CODE": "\', OP.CODE, \'" }\')
+						concat('{ ',
+									'"PROPERTY_ID": "',		OP.ID,				'", ',
+									'"PROPERTY_TYPE": "',	OP.PROPERTY_TYPE,	'", ',
+									'"PROPERTY_NAME": "',	P.NAME,				'", ',
+									'"PROPERTY_CODE": "',	OP.CODE,			'", ',
+									'"PROPERTY_VALUE": "',	(SELECT CASE OP.PROPERTY_TYPE
+																WHEN 'S' THEN OPV.VALUE_S
+																WHEN 'N' THEN OPV.VALUE_N
+																WHEN 'T' THEN OPV.VALUE_T
+																WHEN 'C' THEN OPV.VALUE_C
+																WHEN 'L' THEN (
+																	SELECT VALUE FROM obx_order_property_enum as OPVE
+																	WHERE
+																		OPV.VALUE_L = OPVE.ID
+																		AND
+																		OPVE.PROPERTY_ID = OPV.PROPERTY_ID
+																)
+																ELSE NULL
+																END
+															), '"',
+								' }'
+						)
 					),
-					\']\'
+					' ]'
 				)
 			FROM
 				obx_order_property as OP
@@ -87,7 +108,8 @@ class OBX_OrderDBS extends OBX_DBSimple {
 				OPV.ORDER_ID = O.ID
 			GROUP BY
 				OPV.ORDER_ID
-		'),
+SQL
+		),
 	);
 	protected $_arTableLeftJoin = array(
 		'S'		=> 'O.STATUS_ID = S.ID',

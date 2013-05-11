@@ -15,8 +15,8 @@ IncludeModuleLangFile(__FILE__);
 class OBX_BasketItemDBS extends OBX_DBSimple {
 	protected $_arTableList = array(
 		'I'		=> 'obx_basket_items',
+		'B'		=> 'obx_basket',
 		'O'		=> 'obx_orders',
-		'V'		=> 'obx_visitors',
 		'P'		=> 'obx_price',
 		'IBE'	=> 'b_iblock_element',
 		'IB'	=> 'b_iblock',
@@ -25,14 +25,18 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	);
 	protected $_arTableLinks = array(
 		0 => array(
-			array("I" => "ORDER_ID"),
-			array("O" => "ID")
+			array("I" => "BASKET_ID"),
+			array("B" => "ID")
 		),
 		1 => array(
+			array('B' => 'ORDER_ID'),
+			array('O' => 'ID')
+		),
+		2 => array(
 			array("I" => "PRICE_ID"),
 			array("P" => "ID")
 		),
-		2 => array(
+		3 => array(
 			array('I' => 'PRODUCT_ID'),
 			array('IBE' => 'ID'),
 		)
@@ -48,10 +52,11 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	);
 	protected $_arTableFields = array(
 		'ID'						=> array('I'	=> 'ID'),
-		'ORDER_ID'					=> array('I'	=> 'ORDER_ID'),
+		'BASKET_ID'					=> array('I'	=> 'BASKET_ID'),
+		'ORDER_ID'					=> array('B'	=> 'ORDER_ID'),
+		'BASKET_USER_ID'			=> array('B'	=> 'USER_ID'),
 		'ORDER_USER_ID'				=> array('O'	=> 'USER_ID'),
-		'VISITOR_ID'				=> array('V'	=> 'ID'),
-		'VISITOR_USER_ID'			=> array('V'	=> 'USER_ID'),
+
 		'PRODUCT_ID'				=> array('I'	=> 'PRODUCT_ID'),
 		'PRODUCT_NAME'				=> array('I'	=> 'PRODUCT_NAME'),
 		'QUANTITY'					=> array('I'	=> 'QUANTITY'),

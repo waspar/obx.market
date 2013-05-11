@@ -9,6 +9,7 @@ DROP TABLE if exists obx_price_ibe;
 DROP TABLE if exists obx_ecom_ibe;
 DROP TABLE if exists obx_orders;
 DROP TABLE if exists obx_order_items;
+DROP TABLE if exists obx_basket;
 DROP TABLE if exists obx_basket_items;
 DROP TABLE if exists obx_order_status;
 DROP TABLE if exists obx_order_property;

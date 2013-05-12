@@ -123,7 +123,7 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 			if( $arProp['IS_SYS'] == 'Y'
 				&& !array_key_exists('IS_SYS', $arFields)
 				&& $arFields['IS_SYS']!='N'
-				&& !array_key_exists(OBX_MAGIC_WORD, $arCheckResult)
+				&& !$arCheckResult['__MAGIC_WORD']
 			) {
 				if ($arFields['CODE'] != $arProp['CODE']) {
 					$arFields['CODE'] = $arProp['CODE'];

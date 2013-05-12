@@ -312,10 +312,53 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 		return true;
 	}
 
+	protected function _onBeforeExecUpdate(&$arFields, &$arCheckData = null) {
+		// +++ [pronix] try to change PRODUCT_ID or BASKET_ID
+			// DBSimple::update() и выбросил из $arFields поля входящие в уникальный индекс
+			// см. переопределенный метод update($arFields, $bNotUpdateUniqueFields)
+			// аргумент $bNotUpdateUniqueFields = true
+		 	// Тем не менее стоит выбросить предупреждение о попытке обновления PRODUCT_ID и BASKET_ID
+			// А при использовании OBX_MAGIC_WORD можно и ошибку бросить
+			if($arCheckData !== null) {
+				if( array_key_exists('PRODUCT_ID', $arCheckData)
+					&& $arCheckData['PRODUCT_ID']['IS_CORRECT'] == true
+					&& $arCheckData['__EXIST_ROW']['PRODUCT_ID'] != $arCheckData['PRODUCT_ID']['VALUE']
+				) {
+					if($arCheckData['__MAGIC_WORD']) {
+						$this->addError(GetMessage('OBX_BASKET_ITEM_WARNING_1'), 31);
+						return false;
+					}
+					$this->addWarning(GetMessage('OBX_BASKET_ITEM_WARNING_1'), 1);
+				}
+				if( array_key_exists('BASKET_ID', $arCheckData)
+					&& $arCheckData['BASKET_ID']['IS_CORRECT'] == true
+					&& $arCheckData['__EXIST_ROW']['BASKET_ID'] != $arCheckData['BASKET_ID']['VALUE']
+				) {
+					if($arCheckData['__MAGIC_WORD']) {
+						$this->addError(GetMessage('OBX_BASKET_ITEM_WARNING_2'), 32);
+						return false;
+					}
+					$this->addWarning(GetMessage('OBX_BASKET_ITEM_WARNING_2'), 2);
+				}
+				return true;
+			}
+		// ^^^ try to change PRODUCT_ID or BASKET_ID
+		return true;
+	}
+
 	public function update($arFields) {
+		// [pronix]
 		// передаем параметр $bNotUpdateUniqueFields = true
 		// исключаем тем самым дублирование записей при обновлении товара в заказе
-		return parent::update($arFields, true);
+		// а так же исключаем возможность поменять у товара корзины собственно PRODUCT_ID и BASKET_ID
+		// однако предусмотрим явное задание через OBX_MAGIC_WORD
+		if( array_key_exists(OBX_MAGIC_WORD, $arFields)) {
+			return parent::update($arFields, false);
+		}
+		else {
+			return parent::update($arFields, true);
+		}
+
 	}
 
 	/*public function onIBlockDelete($IBLOCK_ID) {

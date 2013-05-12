@@ -10,13 +10,16 @@
 		<testsuite name="OBX Market API Tests">
 			<!-- <directory></directory> -->
 			<file>Currency.php</file>
+			<file>CurrencyInfo.php</file>
 			<file>Price.php</file>
 			<file>ECommerceIBlock.php</file>
 			<file>CIBlockPropertyPrice.php</file>
 			<file>OrderStatus.php</file>
 			<file>OrderProperty.php</file>
+			<file>OrderPropertyValues.php</file>
 			<file>OrderList.php</file>
 			<file>OrderPropertyValues</file>
+			<file>Order.php</file>
 			<file>BasketList.php</file>
 			<file>BasketItemList.php</file>
 			<file>Basket.php</file>

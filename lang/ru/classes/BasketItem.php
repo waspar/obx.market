@@ -12,6 +12,9 @@ $MESS['OBX_ORDER_ITEMS_ERROR_9'] = 'Указан элемент информац
 $MESS['OBX_ORDER_ITEMS_ERROR_10'] = 'Товар не содержит цены и цена товара не указана явно при добавлении в корзину / к заказу';
 $MESS['OBX_ORDER_ITEMS_ERROR_11'] = 'Не найдена корзина заказа. Не удалось автоматически создать корзину заказа. Ошибка: «#ERROR_TEXT#»';
 
+$MESS['OBX_BASKET_ITEM_WARNING_1'] = 'Невозможно сменить идентификатор товара в корзине';
+$MESS['OBX_BASKET_ITEM_WARNING_2'] = 'Нельзя перемещять товар между корзинами';
+
 
 //FIELDS
 //$MESS["OBX_ORDERITEM_ID_DESCR"] = 'ID';
@@ -31,4 +34,3 @@ $MESS["OBX_ORDERITEM_PRICE_NAME_NAME"] = 'Наименование типа це
 $MESS["OBX_ORDERITEM_PRICE_NAME_DESCR"] = 'Наименование типа цены';
 $MESS["OBX_ORDERITEM_PRICE_VALUE_NAME"] = 'Цена';
 $MESS["OBX_ORDERITEM_PRICE_VALUE_DESCR"] = 'Цена за ед.';
-?>

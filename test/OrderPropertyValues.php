@@ -11,9 +11,9 @@
 class OBX_Test_OrderPropertyValues extends OBX_Market_TestCase
 {
 	static public function setUpBeforeClass() {
-		require_once dirname(__FILE__)."OrderProperty.php";
+		require_once dirname(__FILE__).'/OrderProperty.php';
 		$Test_OrderProperty = new OBX_Test_OrderProperty();
-		$Test_OrderProperty->testPrepareTests();
+		OBX_Test_OrderProperty::setUpBeforeClass();
 		$Test_OrderProperty->testAddProperty();
 	}
 

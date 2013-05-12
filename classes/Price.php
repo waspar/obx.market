@@ -10,13 +10,15 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  * Class OBX_PriceDBS
  * @method @static OBX_PriceDBS getInstance()
  */
-class OBX_PriceDBS extends OBX_DBSimple {
+class PriceDBS extends \OBX_DBSimple {
 
 	const DEFAULT_PRICE_GROUP = "2";
 
@@ -484,7 +486,7 @@ SQL;
 /**
  * @method @static OBX_PriceDBS getInstance()
  */
-class OBX_Price extends OBX_DBSimpleStatic {
+class Price extends \OBX_DBSimpleStatic {
 
 	static public function getProductPriceList($productID, $userID = null) {
 		return self::getInstance()->getProductPriceList($productID, $userID);
@@ -508,4 +510,4 @@ class OBX_Price extends OBX_DBSimpleStatic {
 		return self::getInstance()->getAvailPriceForUser($userID, $bReturnCDBResult);
 	}
 }
-OBX_Price::__initDBSimple(OBX_PriceDBS::getInstance());
+Price::__initDBSimple(PriceDBS::getInstance());

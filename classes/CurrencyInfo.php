@@ -8,7 +8,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_CurrencyInfo extends OBX_CMessagePoolDecorator
+namespace OBX;
+
+class CurrencyInfo extends \OBX_CMessagePoolDecorator
 {
 	/**
 	 * @var array
@@ -21,7 +23,7 @@ class OBX_CurrencyInfo extends OBX_CMessagePoolDecorator
 	 * @return null | self
 	 */
 	static public function & getInstance($currency, $bUpdateInstance = false) {
-		$isCorrectCurrency = OBX_CurrencyDBS::getInstance()->__check_CURRENCY($currency);
+		$isCorrectCurrency = CurrencyDBS::getInstance()->__check_CURRENCY($currency);
 		if(!$isCorrectCurrency) {
 			return null;
 		}
@@ -46,8 +48,8 @@ class OBX_CurrencyInfo extends OBX_CMessagePoolDecorator
 	protected $_arCurrencyFields = array();
 
 	public function __construct($currency) {
-		$this->_CurrencyDBS = OBX_CurrencyDBS::getInstance();
-		$this->_CurrencyFormatDBS = OBX_CurrencyFormatDBS::getInstance();
+		$this->_CurrencyDBS = CurrencyDBS::getInstance();
+		$this->_CurrencyFormatDBS = CurrencyFormatDBS::getInstance();
 		$bSuccess = $this->_updateInfo($currency);
 		if( !$bSuccess ) {
 			$this->addError($this->_CurrencyDBS->getLastError());

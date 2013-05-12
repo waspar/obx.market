@@ -8,9 +8,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_CurrencyDBS extends OBX_DBSimple {
+class CurrencyDBS extends \OBX_DBSimple {
 	protected $_arTableList = array(
 		'C' => 'obx_currency'
 	);
@@ -123,7 +125,7 @@ class OBX_CurrencyDBS extends OBX_DBSimple {
 			$this->setDefault($this->_bSetJustUpdatedCurrencyDefault);
 		}
 			// Clear currency info cache
-			OBX_CurrencyInfo::clearInstance($this->_bSetJustUpdatedCurrencyDefault);
+			CurrencyInfo::clearInstance($this->_bSetJustUpdatedCurrencyDefault);
 		$this->_bSetJustUpdatedCurrencyDefault = null;
 		// ^^^ automatic setDefault() in update()
 		return true;
@@ -179,7 +181,7 @@ class OBX_CurrencyDBS extends OBX_DBSimple {
 		return array();
 	}
 }
-class OBX_Currency extends OBX_DBSimpleStatic {
+class Currency extends \OBX_DBSimpleStatic {
 
 	static public function setDefault($currency, &$bIsAlreadyDefault = false) {
 		return self::getInstance()->setDefault($currency, $bIsAlreadyDefault);
@@ -191,7 +193,7 @@ class OBX_Currency extends OBX_DBSimpleStatic {
 		return self::getInstance()->getDefaultArray();
 	}
 }
-OBX_Currency::__initDBSimple(OBX_CurrencyDBS::getInstance());
+Currency::__initDBSimple(CurrencyDBS::getInstance());
 
 
 //class OBX_CurrencyDBS_BAK extends OBX_DBSimple

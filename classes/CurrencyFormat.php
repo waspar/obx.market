@@ -8,13 +8,15 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  * Class OBX_CurrencyFormatDBS
  * @method @static OBX_CurrencyFormatDBS getInstance()
  */
-class OBX_CurrencyFormatDBS extends OBX_DBSimple
+class CurrencyFormatDBS extends \OBX_DBSimple
 {
 	protected $_arTableList = array(
 		'C' => 'obx_currency',
@@ -185,7 +187,7 @@ class OBX_CurrencyFormatDBS extends OBX_DBSimple
 			if( $currencyCode == null ) {
 				$currencyCode = OBX_Currency::getDefault();
 			}
-			$CurrencyInfo = OBX_CurrencyInfo::getInstance($currencyCode);
+			$CurrencyInfo = CurrencyInfo::getInstance($currencyCode);
 			if($CurrencyInfo == null) {
 				$this->addWarning('Currency set incorrect');
 				return $priceValue;
@@ -203,7 +205,7 @@ class OBX_CurrencyFormatDBS extends OBX_DBSimple
 			$arFormat['FORMAT']);
 	}
 }
-class OBX_CurrencyFormat extends OBX_DBSimpleStatic {
+class CurrencyFormat extends \OBX_DBSimpleStatic {
 	static public function getListGroupedByLang($arSort = null) {
 		return self::getInstance()->getListGroupedByLang($arSort);
 	}
@@ -211,4 +213,4 @@ class OBX_CurrencyFormat extends OBX_DBSimpleStatic {
 		return self::getInstance()->formatPrice($priceValue, $currencyCode, $langID, $arFormat);
 	}
 }
-OBX_CurrencyFormat::__initDBSimple(OBX_CurrencyFormatDBS::getInstance());
+CurrencyFormat::__initDBSimple(CurrencyFormatDBS::getInstance());

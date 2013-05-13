@@ -10,15 +10,16 @@
 
 class OBX_Test_OrderPropertyValues extends OBX_Market_TestCase
 {
-	static public function setUpBeforeClass() {
-		require_once dirname(__FILE__).'/OrderProperty.php';
-		$Test_OrderProperty = new OBX_Test_OrderProperty();
-		OBX_Test_OrderProperty::setUpBeforeClass();
-		$Test_OrderProperty->testAddProperty();
-	}
-
 	public function testGetNullValues() {
-
+		require_once dirname(__FILE__).'/Basket.php';
+		$TestCase = new OBX_Test_Basket;
+		$TestCase->setTestResultObject($this->getTestResultObject());
+		$TestCase->setName('testAuthUser');
+		$TestCase->runTest();
+		$resO = $TestCase->getTestResultObject();
+		$res = $TestCase->getResult();
+		$debug=1;
+		$this->assertTrue(true);
 	}
 
 	public function testAddValues() {

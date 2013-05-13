@@ -8,4 +8,5 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-
+$MESS['OBX_MARKET_TEST_USER_1_FNAME'] = 'тестовый';
+$MESS['OBX_MARKET_TEST_USER_1_LNAME'] = 'пользователь';

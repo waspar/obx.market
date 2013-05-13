@@ -33,6 +33,10 @@ if( !CModule::IncludeModule('obx.market') ) {
 	die('Module OBX: Market not installed');
 }
 
+/**
+ * TODO: Организовать выполнение тестов через PHPUnit_Framework_TestSuite
+ */
+
 abstract class OBX_Market_TestCase extends PHPUnit_Framework_TestCase {
 	protected $backupGlobals = false;
 	// pr0n1x: 2013-01-25:
@@ -45,6 +49,20 @@ abstract class OBX_Market_TestCase extends PHPUnit_Framework_TestCase {
 	//$this->setPreserveGlobalState(false);
 	//protected $preserveGlobalState = false;
 
+	/**
+	 * Идентификатор тестового пользователя
+	 * @var int
+	 * @static
+	 * @access protected
+	 */
+	static protected $_arTestUser = array();
+	/**
+	 * Идентификатор ещё одого тестового пользователя
+	 * @var int
+	 * @static
+	 * @access protected
+	 */
+	static protected $_arSomeOtherTestUser = array();
 
 	static protected  $_arTestIBlockType = array(
 		'ID' => 'obx_market_test',
@@ -79,8 +97,54 @@ abstract class OBX_Market_TestCase extends PHPUnit_Framework_TestCase {
 		return false;
 	}
 
-	protected function setUp() {
-
+	public function _getTestUser() {
+		global $USER;
+		$arFields = Array(
+			'NAME'              => GetMessage('OBX_MARKET_TEST_USER_1_FNAME'),
+			'LAST_NAME'         => GetMessage('OBX_MARKET_TEST_USER_1_LNAME'),
+			'EMAIL'             => 'test@test.loc',
+			'LID'               => 'ru',
+			'ACTIVE'            => 'Y',
+			'GROUP_ID'          => array(1,2),
+			'PASSWORD'          => '123456',
+			'CONFIRM_PASSWORD'  => '123456',
+		);
+		$rsUser1 = CUser::GetByLogin('__test_basket_user_1');
+		$rsUser2 = CUser::GetByLogin('__test_basket_user_2');
+		if( $arUser1 = $rsUser1->Fetch() ) {
+			self::$_arTestUser = $arUser1;
+		}
+		else {
+			$user = new CUser;
+			$arFields['LOGIN'] = '__test_basket_user_1';
+			$ID = $user->Add($arFields);
+			$this->assertGreaterThan(0, $ID, 'Error: can\'t create test user 1. text: '.$user->LAST_ERROR);
+			$rsUser1 = CUser::GetByLogin('__test_basket_user_1');
+			if( $arUser1 = $rsUser1->Fetch() ) {
+				$this->assertEquals('__test_basket_user_1', $arUser1['LOGIN']);
+				self::$_arTestUser = $arUser1;
+			}
+			else {
+				$this->fail('Error: can\'t get test user 1');
+			}
+		}
+		if( $arUser2 = $rsUser2->Fetch() ) {
+			self::$_arSomeOtherTestUser = $arUser2;
+		}
+		else {
+			$user = new CUser;
+			$arFields['LOGIN'] = '__test_basket_user_2';
+			$ID = $user->Add($arFields);
+			$this->assertGreaterThan(0, $ID, 'Error: can\'t create test user 2. text: '.$user->LAST_ERROR);
+			$rsUser1 = CUser::GetByLogin('__test_basket_user_2');
+			if( $arUser2 = $rsUser1->Fetch() ) {
+				$this->assertEquals('__test_basket_user_2', $arUser2['LOGIN']);
+				self::$_arSomeOtherTestUser = $arUser2;
+			}
+			else {
+				$this->fail('Error: can\'t get test user 2');
+			}
+		}
 	}
 
 	protected function getBXLangList() {
@@ -154,3 +218,4 @@ abstract class OBX_Market_TestCase extends PHPUnit_Framework_TestCase {
 		$DB->Commit();
 	}
 }
+OBX_Market_TestCase::includeLang(__FILE__);

@@ -23,6 +23,8 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 	public function testAuthUser() {
 		global $USER;
 		$USER->Authorize(1);
+		$this->assertTrue(false);
+		return -123;
 	}
 
 	/**

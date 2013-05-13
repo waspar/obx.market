@@ -10,7 +10,7 @@
 
 IncludeModuleLangFile(__FILE__);
 
-class OBX_OrderDBResult extends OBX_DBResult {
+class OBX_OrderDBResult extends OBX_DBSResult {
 
 	function __construct($DBResult = null) {
 		parent::__construct($DBResult);

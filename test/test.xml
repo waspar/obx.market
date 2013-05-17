@@ -7,7 +7,7 @@
 -->
 <phpunit bootstrap="./__bootstrap_tests.php">
 	<testsuites>
-		<testsuite name="OBX Market API Tests">
+		<testsuite name="OBX_Market_API_Tests">
 			<!-- <directory></directory> -->
 			<file>Currency.php</file>
 			<file>CurrencyInfo.php</file>

@@ -24,8 +24,16 @@ class OBX_Test_Lib_Order extends OBX_Market_TestCase
 		);
 	}
 
+	/**
+	 * @return array
+	 */
+	static public function & getTestOrderList() {
+		return self::$_arOrderList;
+	}
+
 	public function _addOrder() {
-		$orderID = OBX_OrderList::add(array('USER_ID' => 1));
+		$this->_getTestUser();
+		$orderID = OBX_OrderList::add(array('USER_ID' => self::$_arTestUser['ID']));
 		if($orderID<1) {
 			$arError = OBX_OrderList::popLastError('ARRAY');
 			$this->assertGreaterThan(0, $orderID, 'Error: code: "'.$arError['CODE'].'"; test: "'.$arError['TEXT'].'"');

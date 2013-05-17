@@ -97,6 +97,30 @@ abstract class OBX_Market_TestCase extends PHPUnit_Framework_TestCase {
 		return false;
 	}
 
+	protected function callTest($testCaseName, $testName) {
+		$fileName = dirname(__FILE__).'/'.$testCaseName.'.php';
+		if( !file_exists($fileName) ) {
+			$this->fail('ERROR: Can\'t invoke test. File not found');
+		}
+		require_once $fileName;
+		if( substr($testCaseName, 0, 1) == '_' ) {
+			$className = 'OBX_Test_Lib'.$testCaseName;
+		}
+		else {
+			$className = 'OBX_Test_'.$testCaseName;
+		}
+		if( strlen($className)<1 || !class_exists($className) ) {
+			$this->fail('ERROR: Can\'t invoke test. TestCase Class not found');
+		}
+		$TestCase = new $className;
+		if( strlen($testName)<1 || !method_exists($TestCase, $testName) ) {
+			$this->fail('ERROR: Can\'t invoke test. TestCase Method not found');
+		}
+		$TestCase->setTestResultObject($this->getTestResultObject());
+		$TestCase->setName($testName);
+		$TestCase->runTest();
+	}
+
 	public function _getTestUser() {
 		global $USER;
 		$arFields = Array(

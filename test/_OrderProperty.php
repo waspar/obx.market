@@ -10,7 +10,9 @@
 
 OBX_Market_TestCase::includeLang(__FILE__);
 
-class OBX_Test_Lib_OrderProperty extends OBX_Market_TestCase
+require_once dirname(__FILE__).'/_Order.php';
+
+class OBX_Test_Lib_OrderProperty extends OBX_Test_Lib_Order
 {
 	static protected  $_arPropertyList = array();
 	static public function setUpBeforeClass() {
@@ -88,5 +90,19 @@ class OBX_Test_Lib_OrderProperty extends OBX_Market_TestCase
 			$this->assertEquals('N', $arProperty['IS_SYS']);
 			$arFields = $arProperty;
 		}
+	}
+
+	public function _deleteProperty() {
+		foreach(self::$_arPropertyList as $propCode => &$arFields) {
+			$bSuccess = OBX_OrderProperty::delete($arFields['ID']);
+			if(!$bSuccess) {
+				$arError = OBX_OrderProperty::popLastError('ARRAY');
+				$this->assertTrue($bSuccess, 'Error: code: "'.$arError['CODE'].'"; text: "'.$arError['TEXT'].'"');
+			}
+		}
+	}
+
+	public function & _getPropertyList() {
+		return self::$_arPropertyList;
 	}
 }

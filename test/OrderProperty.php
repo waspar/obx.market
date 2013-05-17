@@ -163,12 +163,6 @@ final class OBX_Test_OrderProperty extends OBX_Test_Lib_OrderProperty
 	}
 
 	public function testDeleteProperty() {
-		foreach(self::$_arPropertyList as $propCode => &$arFields) {
-			$bSuccess = OBX_OrderProperty::delete($arFields['ID']);
-			if(!$bSuccess) {
-				$arError = OBX_OrderProperty::popLastError('ARRAY');
-				$this->assertTrue($bSuccess, 'Error: code: "'.$arError['CODE'].'"; text: "'.$arError['TEXT'].'"');
-			}
-		}
+		$this->_deleteProperty();
 	}
 }

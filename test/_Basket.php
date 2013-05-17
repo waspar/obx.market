@@ -8,7 +8,7 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
+class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 {
 	/**
 	 * Список товаров
@@ -133,8 +133,6 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		self::$_OrderDBS = OBX_OrderDBS::getInstance();
 		self::$_ECommerceIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
 	}
-
-
 
 	/**
 	 * @depends _getTestUser

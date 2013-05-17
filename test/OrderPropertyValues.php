@@ -8,18 +8,15 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_Test_OrderPropertyValues extends OBX_Market_TestCase
+require_once dirname(__FILE__).'/_OrderProperty.php';
+
+class OBX_Test_OrderPropertyValues extends OBX_Test_Lib_OrderProperty
 {
+	public function testAddOrder() {
+		$this->_addOrder();
+	}
 	public function testGetNullValues() {
-		require_once dirname(__FILE__).'/Basket.php';
-		$TestCase = new OBX_Test_Basket;
-		$TestCase->setTestResultObject($this->getTestResultObject());
-		$TestCase->setName('testAuthUser');
-		$TestCase->runTest();
-		$resO = $TestCase->getTestResultObject();
-		$res = $TestCase->getResult();
-		$debug=1;
-		$this->assertTrue(true);
+
 	}
 
 	public function testAddValues() {
@@ -36,5 +33,9 @@ class OBX_Test_OrderPropertyValues extends OBX_Market_TestCase
 
 	public function testRemoveValues() {
 
+	}
+
+	public function testDeleteOrder() {
+		$this->_deleteOrder();
 	}
 }

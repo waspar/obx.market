@@ -29,6 +29,7 @@ $arModuleClasses = array(
 	,'OBX_BasketItemDBS'				=> 'classes/BasketItem.php'
 	,'OBX_BasketItem'					=> 'classes/BasketITem.php'
 	,'OBX_Basket'						=> 'classes/Basket.php'
+	,'OBX_BasketOld'					=> 'classes/Basket.old.php'
 	,'OBX_Order'						=> 'classes/Order.php'
 	,'OBX_OrderDBResult'				=> 'classes/OrderDBResult.php'
 	,'OBX_OrderComment'					=> 'classes/OrderComment.php'

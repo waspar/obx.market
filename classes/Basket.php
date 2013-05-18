@@ -70,16 +70,36 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 	static public function getByOrderID($orderID) {
 		return new self(null, null, null, intval($orderID));
 	}
+
+	/**
+	 * @return null | self
+	 */
 	static public function getCurrent() {
 		global $USER, $APPLICATION;
 		$BasketByUser = null;
 		if( $USER->IsAuthorized() ) {
 			$BasketByUser = new self(null, null, $USER);
 		}
-		$currenctCookieID = trim($APPLICATION->get_cookie(self::COOKIE_NAME));
-		if( self::$_BasketDBS->__check_HASH_STRING($currenctCookieID) ) {
-
+		else {
+			$currenctCookieID = trim($APPLICATION->get_cookie(self::COOKIE_NAME));
+			if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+			if( ! self::$_BasketDBS->__check_HASH_STRING($currenctCookieID) ) {
+				$currenctCookieID = self::generateHash();
+			}
+			// Данный код нужен для выполнения автоматического тестирования в cli-режиме
+			// +++ cookie hack [pr0n1x:2013-05-01]
+			// простой hack для эмулирвоания наличия кукисов.
+			// Если задать хотя бы одно значение в $_COOKIE в cli-режиме,
+			// массив так и сотается суперглобальным
+			// $APPLICATION->set_cookie() не поможет ибо использует встроенную ф-ию php setcookie(),
+			// а та в свою очередь не модифицирует $_COOKIE, а просто формирует header http-ответа
+			// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
+			$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".OBX_Basket::COOKIE_NAME] = $currenctCookieID;
+			// ^^^ cookie hack
+			$APPLICATION->set_cookie(OBX_Basket::COOKIE_NAME, $currenctCookieID);
+			$BasketByUser = new self(null, $currenctCookieID, null, null);
 		}
+		return $BasketByUser;
 	}
 
 	protected function __construct($basketID = null, $basketHash = null, $userID = null, $orderID = null) {
@@ -127,8 +147,14 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 	}
 	final protected function __clone() {}
 
-	public function generateHash() {
-
+	static public function generateHash() {
+		if( !array_key_exists('REMOTE_ADDR', $_SERVER) ) {
+			$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+		}
+		if( !array_key_exists('HTTP_USER_AGENT', $_SERVER) ) {
+			$_SERVER['HTTP_USER_AGENT'] = 'local test user agent';
+		}
+		return md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].microtime().mt_rand());
 	}
 
 	public function mergeBasket(self $Basket) {
@@ -168,6 +194,9 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 		return 0;
 	}
 
+	/**
+	 * Получить список продуктов
+	 */
 	public function getProductList() {
 
 	}

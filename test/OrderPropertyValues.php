@@ -8,15 +8,13 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_Test_OrderPropertyValues extends OBX_Market_TestCase
-{
-	static public function setUpBeforeClass() {
-		require_once dirname(__FILE__).'/OrderProperty.php';
-		$Test_OrderProperty = new OBX_Test_OrderProperty();
-		OBX_Test_OrderProperty::setUpBeforeClass();
-		$Test_OrderProperty->testAddProperty();
-	}
+require_once dirname(__FILE__).'/_OrderProperty.php';
 
+class OBX_Test_OrderPropertyValues extends OBX_Test_Lib_OrderProperty
+{
+	public function testAddOrder() {
+		$this->_addOrder();
+	}
 	public function testGetNullValues() {
 
 	}
@@ -35,5 +33,9 @@ class OBX_Test_OrderPropertyValues extends OBX_Market_TestCase
 
 	public function testRemoveValues() {
 
+	}
+
+	public function testDeleteOrder() {
+		$this->_deleteOrder();
 	}
 }

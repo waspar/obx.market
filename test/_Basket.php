@@ -8,7 +8,7 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
+class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 {
 	/**
 	 * Список товаров
@@ -92,21 +92,6 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	static protected $_OrderDBS = null;
 
 	/**
-	 * Идентификатор тестового пользователя
-	 * @var int
-	 * @static
-	 * @access protected
-	 */
-	static protected $_arTestUser = 0;
-	/**
-	 * Идентификатор ещё одого тестового пользователя
-	 * @var int
-	 * @static
-	 * @access protected
-	 */
-	static protected $_arSomeOtherTestUser = 0;
-
-	/**
 	 * Заказ
 	 * @var array
 	 * @static
@@ -147,56 +132,6 @@ abstract class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		self::$_PriceDBS = OBX_PriceDBS::getInstance();
 		self::$_OrderDBS = OBX_OrderDBS::getInstance();
 		self::$_ECommerceIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
-	}
-
-	public function _getTestUser() {
-		global $USER;
-		$arFields = Array(
-			'NAME'              => 'тестовый',
-			'LAST_NAME'         => 'пользователь',
-			'EMAIL'             => 'test@test.loc',
-			'LID'               => 'ru',
-			'ACTIVE'            => 'Y',
-			'GROUP_ID'          => array(1,2),
-			'PASSWORD'          => '123456',
-			'CONFIRM_PASSWORD'  => '123456',
-		);
-		$rsUser1 = CUser::GetByLogin('__test_basket_user_1');
-		$rsUser2 = CUser::GetByLogin('__test_basket_user_2');
-		if( $arUser1 = $rsUser1->Fetch() ) {
-			self::$_arTestUser = $arUser1;
-		}
-		else {
-			$user = new CUser;
-			$arFields['LOGIN'] = '__test_basket_user_1';
-			$ID = $user->Add($arFields);
-			$this->assertGreaterThan(0, $ID, 'Error: can\'t create test user 1. text: '.$user->LAST_ERROR);
-			$rsUser1 = CUser::GetByLogin('__test_basket_user_1');
-			if( $arUser1 = $rsUser1->Fetch() ) {
-				$this->assertEquals('__test_basket_user_1', $arUser1['LOGIN']);
-				self::$_arTestUser = $arUser1;
-			}
-			else {
-				$this->fail('Error: can\'t get test user 1');
-			}
-		}
-		if( $arUser2 = $rsUser2->Fetch() ) {
-			self::$_arSomeOtherTestUser = $arUser2;
-		}
-		else {
-			$user = new CUser;
-			$arFields['LOGIN'] = '__test_basket_user_2';
-			$ID = $user->Add($arFields);
-			$this->assertGreaterThan(0, $ID, 'Error: can\'t create test user 2. text: '.$user->LAST_ERROR);
-			$rsUser1 = CUser::GetByLogin('__test_basket_user_2');
-			if( $arUser2 = $rsUser1->Fetch() ) {
-				$this->assertEquals('__test_basket_user_2', $arUser2['LOGIN']);
-				self::$_arSomeOtherTestUser = $arUser2;
-			}
-			else {
-				$this->fail('Error: can\'t get test user 2');
-			}
-		}
 	}
 
 	/**

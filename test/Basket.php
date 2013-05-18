@@ -30,6 +30,10 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 	 */
 	public function testGetCurrentBasketFromAuthUser() {
 		$Basket = OBX_Basket::getCurrent();
+		$this->assertGreaterThan(0, $Basket->getFields('ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_1'));
+		$this->assertGreaterThan(0, $Basket->getFields('USER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_2'));
+		$this->assertNull($Basket->getFields('ORDER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_3'));
+		$this->assertNull($Basket->getFields('HASH_STRING'), 'Error: user basket ');
 	}
 
 	public function testLogoutUser() {

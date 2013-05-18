@@ -48,12 +48,12 @@ $arModuleClasses = array(
 	,'OBX_OrderList'					=> 'classes/OrderList.php'
 
 	// compat
-	,'OBX_Currency'						=> 'classes/.compat.php'
-	,'OBX_CurrencyDBS'					=> 'classes/.compat.php'
-	,'OBX_CurrencyFormat'				=> 'classes/.compat.php'
-	,'OBX_CurrencyFormatDBS'			=> 'classes/.compat.php'
-	,'OBX_CurrencyInfo'					=> 'classes/.compat.php'
-	,'OBX_Price'						=> 'classes/.compat.php'
-	,'OBX_PriceDBS'						=> 'classes/.compat.php'
+	,'OBX_Currency'						=> 'classes/.compat/_load.php'
+	,'OBX_CurrencyDBS'					=> 'classes/.compat/_load.php'
+	,'OBX_CurrencyFormat'				=> 'classes/.compat/_load.php'
+	,'OBX_CurrencyFormatDBS'			=> 'classes/.compat/_load.php'
+	,'OBX_CurrencyInfo'					=> 'classes/.compat/_load.php'
+	,'OBX_Price'						=> 'classes/.compat/_load.php'
+	,'OBX_PriceDBS'						=> 'classes/.compat/_load.php'
 );
 return $arModuleClasses;

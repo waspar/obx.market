@@ -10,9 +10,7 @@
 
 namespace OBX\Market;
 
-use OBX\Market\Price as OBX_Price;
-use OBX\Market\PriceDBS as OBX_PriceDBS;
-use Basket as OBX_Basket;
+IncludeModuleLangFile(__FILE__);
 
 class Basket extends \OBX_CMessagePoolDecorator
 {
@@ -53,10 +51,15 @@ class Basket extends \OBX_CMessagePoolDecorator
 	 */
 	static protected $_PriceDBS = null;
 
+	/**
+	 * @var null | \OBX_DBSResult
+	 */
+	protected $_rsBasket = null;
 	protected $_arFields = array(
 		'ID' => null
 	);
 	protected $_arProductList = array();
+	protected $_arItemsList = array();
 
 	static protected function _initDBSimpleObjects() {
 		self::$_BasketDBS = BasketDBS::getInstance();
@@ -65,16 +68,45 @@ class Basket extends \OBX_CMessagePoolDecorator
 		self::$_PriceDBS = PriceDBS::getInstance();
 	}
 	static public function getByID($basketID) {
-		return new self(intval($basketID), null, null, null);
+		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+		$rsBasket = self::$_BasketDBS->getByID($basketID, null, true);
+		return new self($rsBasket);
 	}
 	static public function getByHash($hash) {
-		return new self(null, substr($hash, 0, 32), null, null);
+		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+		$hash = substr($hash, 0, 32);
+		$rsBasket = self::$_BasketDBS->getList(null, array(
+			'HASH_STRING' => $hash,
+			'ORDER_ID' => null
+		));
+		if( $rsBasket->SelectedRowsCount() < 1 ) {
+			$newBasketID = self::$_BasketDBS->add(array('HASH_STRING'	=> $hash));
+			$rsBasket = self::$_BasketDBS->getByID($newBasketID, null, true);
+		}
+		return new self($rsBasket);
 	}
 	static public function getByUserID($userID) {
-		return new self(null, null, intval($userID), null);
+		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+		$rsBasket = self::$_BasketDBS->getList(null, array(
+			'USER_ID' => $userID,
+			'ORDER_ID' => null
+		));
+		if( $rsBasket->SelectedRowsCount() < 1 ) {
+			$newBasketID = self::$_BasketDBS->add(array('USER_ID'	=> $userID));
+			$rsBasket = self::$_BasketDBS->getByID($newBasketID, null, true);
+		}
+		return new self($rsBasket);
 	}
 	static public function getByOrderID($orderID) {
-		return new self(null, null, null, intval($orderID));
+		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+		$rsBasket = self::$_BasketDBS->getList(null, array(
+			'ORDER_ID' => $orderID
+		));
+		if( $rsBasket->SelectedRowsCount() < 1 ) {
+			$newBasketID = self::$_BasketDBS->add(array('ORDER_ID'	=> $orderID));
+			$rsBasket = self::$_BasketDBS->getByID($newBasketID, null, true);
+		}
+		return new self($rsBasket);
 	}
 
 	/**
@@ -84,7 +116,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 		global $USER, $APPLICATION;
 		$BasketByUser = null;
 		if( $USER->IsAuthorized() ) {
-			$BasketByUser = new self(null, null, $USER);
+			$BasketByUser = self::getByUserID($USER->GetID());
 		}
 		else {
 			$currenctCookieID = trim($APPLICATION->get_cookie(self::COOKIE_NAME));
@@ -103,50 +135,23 @@ class Basket extends \OBX_CMessagePoolDecorator
 			$_COOKIE[\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".self::COOKIE_NAME] = $currenctCookieID;
 			// ^^^ cookie hack
 			$APPLICATION->set_cookie(Basket::COOKIE_NAME, $currenctCookieID);
-			$BasketByUser = new self(null, $currenctCookieID, null, null);
+
+			$BasketByUser = self::getByHash($currenctCookieID);
 		}
 		return $BasketByUser;
 	}
 
-	protected function __construct($basketID = null, $basketHash = null, $userID = null, $orderID = null) {
-		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
-
-		$rsBasket = null;
-		if($basketID !== null) {
-			$rsBasket = self::$_BasketDBS->getByID($basketID, null, true);
-		}
-		elseif($basketHash !== null) {
-			$rsBasket = self::$_BasketDBS->getList(null, array(
-				'HASH_STRING' => $basketHash,
-				'ORDER_ID' => null
-			));
-		}
-		elseif($userID !== null) {
-			$rsBasket = self::$_BasketDBS->getList(null, array(
-				'USER_ID' => $userID,
-				'ORDER_ID' => null
-			));
-		}
-		elseif($orderID !== null) {
-			$rsBasket = self::$_BasketDBS->getList(null, array(
-				'ORDER_ID' => $orderID
-			));
-		}
-
-		if($rsBasket != null && $arBasket = $rsBasket->Fetch()) {
-			$this->_arFields = $arBasket;
+	public function __construct(\OBX_DBSResult $rsBasket) {
+		if($rsBasket != null && $rsBasket->SelectedRowsCount() > 0) {
+			$abstractionName = get_class(self::$_BasketDBS);
+			if($rsBasket->getAbstractionName() != $abstractionName) {
+				$this->addError('Error: Basket must be constructed from the result of '.$abstractionName.'::getList()');
+			}
+			$this->_arFields = $rsBasket->Fetch();
 		}
 		else {
-			$newBasketID = self::$_BasketDBS->add(array(
-				'USER_ID'	=> $userID,
-				'ORDER_ID'	=> $orderID,
-				'HASH_STRING'		=> $basketHash
-			));
-			if( $newBasketID > 0 ) {
-				$this->_arFields = self::$_BasketDBS->getByID($newBasketID);
-			}
-			else {
-				$arError = self::$_BasketDBS->popLastError('ARRAY');
+			$arError = self::$_BasketDBS->popLastError('ARRAY');
+			if(strlen($arError['TEXT']) > 0) {
 				$this->addError($arError['TEXT'], $arError['CODE']);
 			}
 		}
@@ -163,15 +168,6 @@ class Basket extends \OBX_CMessagePoolDecorator
 		return md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].microtime().mt_rand());
 	}
 
-	public function mergeBasket(self $Basket) {
-
-	}
-
-	public function syncProductList() {
-		//$this->_BasketItemDBS->getListArray();
-		//$this->_arProductList
-	}
-
 	public function getFields($fieldName = null) {
 		if($fieldName !== null) {
 			if(array_key_exists($fieldName, $this->_arFields)) {
@@ -182,6 +178,107 @@ class Basket extends \OBX_CMessagePoolDecorator
 			}
 		}
 		return $this->_arFields;
+	}
+
+	public function syncProductList() {
+		$userID = intval($this->_arFields['USER_ID']);
+		$orderID = intval($this->_arFields['ORDER_ID']);
+		$arSelect = array(
+			'ID',
+			'BASKET_ID',
+			//'ORDER_ID',
+			//'USER_ID',
+			'PRODUCT_ID',
+			'PRODUCT_NAME',
+			'QUANTITY',
+			'WEIGHT',
+			'PRICE_ID',
+			//'PRICE_CODE',
+			//'PRICE_NAME',
+			'PRICE_VALUE',
+			'DISCOUNT_VALUE',
+			//'VAT_ID',
+			//'VAT_VALUE',
+			'IB_ELT_ID',
+			'IB_ELT_NAME',
+			'IB_ELT_CODE',
+			'IB_ELT_SECTION_ID',
+			'IB_ELT_SECTION_CODE',
+			'IB_ELT_SORT',
+			'IB_ELT_PREVIEW_TEXT',
+			'IB_ELT_PREVIEW_PICTURE',
+			'IB_ELT_DETAIL_TEXT',
+			'IB_ELT_DETAIL_PICTURE',
+			'IB_ELT_XML_ID',
+			'IB_ELT_TIMESTAMP_X',
+			'IB_ELT_MODIFIED_BY',
+			'IB_ELT_LIST_PAGE_URL',
+			'IB_ELT_SECTION_PAGE_URL',
+			'IB_ELT_DETAIL_PAGE_URL',
+			//'IB_ELT_SITE_ID',
+			//'IB_ELT_SITE_DIR',
+		);
+		if( $userID > 0 ) {
+			$arBasketItems = $this->_BasketItemDBS->getListArray(null, array('USER_ID' => $userID), null, null, $arSelect);
+		}
+		elseif( $orderID > 0 ) {
+			$arBasketItems = $this->_BasketItemDBS->getListArray(null, array('ORDER_ID' => $orderID), null, null, $arSelect);
+		}
+		elseif( strlen($this->_arFields['HASH_STRING']) == 32 ) {
+			$arBasketItems = $this->_BasketItemDBS->getListArray(null, array('HASH_STRING' => $this->_arFields['HASH_STRING']));
+		}
+		else {
+			$this->addError(GetMessage('OBX_BASKET_ERROR_1'));
+			return false;
+		}
+		if( count($arBasketItems)>1 ) {
+			$this->_arProductList = $arBasketItems;
+		}
+		return true;
+	}
+
+	public function addProduct($productID, $quantity = 1, $priceValue = null, $priceID = null) {
+		$quantity = intval($quantity);
+		$quantity = ($quantity<1)?1:$quantity;
+		$productID = intval($productID);
+		if($productID<1) {
+			return -1;
+		}
+		if( $priceID !== null ) {
+			$arAvailPriceList = self::$_PriceDBS->getAvailPriceForUser($this->_arFields['USER_ID']);
+			if( ! in_array($priceID, $arAvailPriceList) ) {
+				$this->addWarning('OBX_BASKET_WARNING_1', 1);
+			}
+		}
+		//$arOptimalPrice = Price::getOptimalProductPrice($productID, $this->_arFields['USER_ID']);
+		//if()
+		if( array_key_exists($productID, $this->_arItemsList) ) {
+			$bSuccess = self::$_BasketItemDBS->update(array(
+				'BASKET_ID' => $this->_arFields['ID'],
+				'PRODUCT_ID' => $productID,
+				'QUANTITY' => $this->_arItemsList[$productID]
+			));
+			if(!$bSuccess) {
+				$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+				$this->addError(GetMessage('OBX_BASKET_ERROR_200').' '.$arError['TEXT'], (200 + $arError['CODE']));
+				return -1;
+			}
+			$this->_arItemsList[$productID] = $this->_arItemsList[$productID] + $quantity;
+		}
+		else {
+			$newID = self::$_BasketItemDBS->add(array(
+				'BASKET_ID' => $this->_arFields['ID'],
+				'PRODUCT_ID' => $productID,
+				'QUANTITY' => $quantity
+			));
+			if($newID < 1) {
+				$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+				$this->addError(GetMessage('OBX_BASKET_ERROR_300').' '.$arError['TEXT'], (300 + $arError['CODE']));
+				return -1;
+			}
+			$this->_arItemsList[$productID] = $quantity;
+		}
+		return $this->_arItemsList[$productID];
 	}
 
 	/**
@@ -207,10 +304,6 @@ class Basket extends \OBX_CMessagePoolDecorator
 
 	}
 
-	public function addProduct($productID, $quantity = 1) {
-
-	}
-
 	public function removeProduct() {
 
 	}
@@ -220,6 +313,10 @@ class Basket extends \OBX_CMessagePoolDecorator
 	}
 
 	public function clear() {
+
+	}
+
+	public function mergeBasket(self $Basket, $bClearMergedBasket = false) {
 
 	}
 }

@@ -268,6 +268,13 @@ SQL;
 		return $arResult;
 	}
 
+	/**
+	 * Получить оптимальную цену продукта
+	 * @param $productID
+	 * @param null $userID
+	 * @param string $langID
+	 * @return array
+	 */
 	public function getOptimalProductPrice($productID, $userID = null, $langID = LANGUAGE_ID) {
 		$arPriceList = $this->getProductPriceList($productID, $userID, $langID);
 		foreach($arPriceList as &$arPrice) {
@@ -487,7 +494,9 @@ SQL;
  * @method @static OBX_PriceDBS getInstance()
  */
 class Price extends \OBX_DBSimpleStatic {
-
+	static public function getOptimalProductPrice($productID, $userID = null, $langID = LANGUAGE_ID) {
+		return self::getInstance()->getOptimalProductPrice($productID, $userID, $langID);
+	}
 	static public function getProductPriceList($productID, $userID = null) {
 		return self::getInstance()->getProductPriceList($productID, $userID);
 	}

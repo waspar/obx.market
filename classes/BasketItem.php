@@ -84,8 +84,8 @@ class BasketItemDBS extends \OBX_DBSimple {
 		'IB_ELT_LIST_PAGE_URL'		=> array('IB'	=> 'DETAIL_PAGE_URL'),
 		'IB_ELT_SECTION_PAGE_URL'	=> array('IB'	=> 'DETAIL_PAGE_URL'),
 		'IB_ELT_DETAIL_PAGE_URL'	=> array('IB'	=> 'DETAIL_PAGE_URL'),
-		'IB_ELT_SITE_ID'			=> array('SI'	=> 'LID'),
-		'IB_ELT_SITE_DIR'			=> array('SI'	=> 'DIR')
+		'IB_ELT_SITE_ID'			=> array('SI'	=> 'LID', 'REQUIRED_TABLES' => array('IBE', 'IB')),
+		'IB_ELT_SITE_DIR'			=> array('SI'	=> 'DIR', 'REQUIRED_TABLES' => array('IBE', 'IB'))
 	);
 	protected $_arSelectDefault = array(
 		'ID',

@@ -5,9 +5,14 @@
  ** @copyright 2013 DevTop                      **
  *************************************************/
 
-use OBX\Market\Currency as OBX_Currency;
-use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
-use OBX\Market\Price as OBX_Price;
+use OBX\Market\Currency;
+use OBX\Market\CurrencyFormat;
+use OBX\Market\Price;
+use OBX\Market\ECommerceIBlock;
+use OBX\Market\CIBlockPropertyPrice;
+use OBX\Market\OrderStatus;
+use OBX\Market\OrderProperty;
+use OBX\Market\OrderPropertyEnum;
 
 class obx_market extends CModule {
 	var $MODULE_ID = "obx.market";
@@ -111,16 +116,16 @@ class obx_market extends CModule {
 	public function InstallEvents() {
 		RegisterModuleDependences("main", "OnBuildGlobalMenu", "obx.market", "OBX_Market_BXMainEventsHandlers", "OnbBuildGlobalMenu");
 		require_once $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/" . $this->MODULE_ID . "/include_static.php";
-		OBX_ECommerceIBlock::registerModuleDependencies();
-		OBX_CIBlockPropertyPrice::registerModuleDependencies();
+		ECommerceIBlock::registerModuleDependencies();
+		CIBlockPropertyPrice::registerModuleDependencies();
 		return true;
 	}
 
 	public function UnInstallEvents() {
 		UnRegisterModuleDependences("main", "OnBuildGlobalMenu", "obx.market", "OBX_Market_BXMainEventsHandlers", "OnbBuildGlobalMenu");
 		require_once $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/" . $this->MODULE_ID . "/include_static.php";
-		OBX_ECommerceIBlock::unRegisterModuleDependencies();
-		OBX_CIBlockPropertyPrice::unRegisterModuleDependencies();
+		ECommerceIBlock::unRegisterModuleDependencies();
+		CIBlockPropertyPrice::unRegisterModuleDependencies();
 		return true;
 	}
 	
@@ -194,37 +199,37 @@ class obx_market extends CModule {
 
 	public function InstallData() {
 		require_once $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/" . $this->MODULE_ID . "/include.php";
-		OBX_Currency::add(array(
+		Currency::add(array(
 			'CURRENCY' => 'RUB',
 			'SORT' => '10'
 		));
-		OBX_Currency::add(array(
+		Currency::add(array(
 			'CURRENCY' => 'USD',
 			'SORT' => '50'
 		));
-		OBX_Currency::setDefault('RUB');
-		OBX_CurrencyFormat::add(array(
+		Currency::setDefault('RUB');
+		CurrencyFormat::add(array(
 			'CURRENCY' => 'RUB',
 			'NAME' => GetMessage('OBX_MARKET_INS_CURRRENCY_RUB'),
 			'LANGUAGE_ID' => 'ru',
 			'FORMAT' => GetMessage('OBX_MARKET_INS_CURRRENCY_RUB_FORMAT'),
 			'THOUSANDS_SEP' => ' ',
 		));
-		OBX_CurrencyFormat::add(array(
+		CurrencyFormat::add(array(
 			'CURRENCY' => 'RUB',
 			'NAME' => 'Roubles',
 			'LANGUAGE_ID' => 'en',
 			'FORMAT' => '# Rub.',
 			'THOUSANDS_SEP' => '\'',
 		));
-		OBX_CurrencyFormat::add(array(
+		CurrencyFormat::add(array(
 			'CURRENCY' => 'USD',
 			'NAME' => GetMessage('OBX_MARKET_INS_CURRRENCY_USD'),
 			'LANGUAGE_ID' => 'ru',
 			'FORMAT' => GetMessage('OBX_MARKET_INS_CURRRENCY_USD_FORMAT'),
 			'THOUSANDS_SEP' => ' ',
 		));
-		OBX_CurrencyFormat::add(array(
+		CurrencyFormat::add(array(
 			'CURRENCY' => 'USD',
 			'NAME' => 'US Dollars',
 			'LANGUAGE_ID' => 'en',
@@ -232,27 +237,27 @@ class obx_market extends CModule {
 			'THOUSANDS_SEP' => '\'',
 		));
 
-		$priceID = OBX_Price::add(array(
+		$priceID = Price::add(array(
 			'CODE' => 'PRICE',
 			'NAME' => GetMessage('OBX_MARKET_INS_BASE_PRICE'),
 			'CURRENCY' => 'RUB',
 			'SORT' => 10
 		));
-		OBX_Price::add(array(
+		Price::add(array(
 			'CODE' => 'WHOLESALE',
 			'NAME' => GetMessage('OBX_MARKET_INS_WHOLESALE_PRICE'),
 			'CURRENCY' => 'RUB',
 			'SORT' => 20
 		));
-		OBX_Price::setGroupList($priceID, array(2));
-		OBX_OrderStatus::add(array(
+		Price::setGroupList($priceID, array(2));
+		OrderStatus::add(array(
 			'CODE' => 'ACCEPTED',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_STATUS_ACCEPTED'),
 			'SORT' => '10',
 			'IS_SYS' => 'Y',
 			OBX_MAGIC_WORD => 'Y'
 		));
-		OBX_OrderStatus::add(array(
+		OrderStatus::add(array(
 			'CODE' => 'COMPLETE',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_STATUS_COMPLETE'),
 			'COLOR' => '97c004',
@@ -260,7 +265,7 @@ class obx_market extends CModule {
 			'IS_SYS' => 'Y',
 			OBX_MAGIC_WORD => 'Y'
 		));
-		OBX_OrderStatus::add(array(
+		OrderStatus::add(array(
 			'CODE' => 'CANCELED',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_STATUS_CANCELED'),
 			'COLOR' => 'D0D0D0',
@@ -268,7 +273,7 @@ class obx_market extends CModule {
 			'IS_SYS' => 'Y',
 			OBX_MAGIC_WORD => 'Y'
 		));
-		OBX_OrderProperty::add(array(
+		OrderProperty::add(array(
 			'CODE' => 'IS_PAID',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_PROP_IS_PAID'),
 			'DESCRIPTION' => GetMessage('OBX_MARKET_INS_ORDER_PROP_IS_PAID_DESCR'),
@@ -280,7 +285,7 @@ class obx_market extends CModule {
 			'IS_SYS' => 'Y',
 			OBX_MAGIC_WORD => 'Y'
 		));
-		$deliveryPropID = OBX_OrderProperty::add(array(
+		$deliveryPropID = OrderProperty::add(array(
 			'CODE' => 'DELIVERY',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_PROP_DELIVERY'),
 			'DESCRIPTION' => GetMessage('OBX_MARKET_INS_ORDER_PROP_DELIVERY_DESCR'),
@@ -293,20 +298,20 @@ class obx_market extends CModule {
 			OBX_MAGIC_WORD => 'Y'
 		));
 		if($deliveryPropID>0) {
-			OBX_OrderPropertyEnum::add(array(
+			OrderPropertyEnum::add(array(
 				'CODE' => '1',
 				'PROPERTY_ID' => $deliveryPropID,
 				'VALUE' => GetMessage('OBX_MARKET_INS_ORDER_PROP_DELIVERY_ENUM_1'),
 				'SORT' => '10'
 			));
-			OBX_OrderPropertyEnum::add(array(
+			OrderPropertyEnum::add(array(
 				'CODE' => '2',
 				'PROPERTY_ID' => $deliveryPropID,
 				'VALUE' => GetMessage('OBX_MARKET_INS_ORDER_PROP_DELIVERY_ENUM_2'),
 				'SORT' => '20'
 			));
 		}
-		$payMethodPropID = OBX_OrderProperty::add(array(
+		$payMethodPropID = OrderProperty::add(array(
 			'CODE' => 'PAYMENT',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_PROP_PAYMENT'),
 			'DESCRIPTION' => GetMessage('OBX_MARKET_INS_ORDER_PROP_PAYMENT_DESCR'),
@@ -319,7 +324,7 @@ class obx_market extends CModule {
 			OBX_MAGIC_WORD => 'Y'
 		));
 		if($payMethodPropID>0) {
-			OBX_OrderPropertyEnum::add(array(
+			OrderPropertyEnum::add(array(
 				'CODE' => '1',
 				'PROPERTY_ID' => $payMethodPropID,
 				'VALUE' => GetMessage('OBX_MARKET_INS_ORDER_PROP_PAYMENT_ENUM_1'),
@@ -362,4 +367,3 @@ class obx_market extends CModule {
 		@include(GetLangFileName(self::getModuleCurDir() . "/lang/", "/install/index.php"));
 	}
 }
-?>

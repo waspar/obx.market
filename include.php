@@ -19,4 +19,4 @@ if(!CModule::IncludeModule('obx.core')) {
 
 $arModuleClasses = require dirname(__FILE__).'/classes/.classes.php';
 CModule::AddAutoloadClasses('obx.market', $arModuleClasses);
-?>
+require dirname(__FILE__).'/tools.php';

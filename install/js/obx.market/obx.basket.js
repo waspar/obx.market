@@ -416,11 +416,15 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				return basket.count;
 			}
 			,setBasketItemsFromServer: function() {
-				ajaxQuery({}, {onAfterAjaxSuccess: function(data, textStatus, jqXHR) {
-					self.addPageItems(data.products_list);
-					self.clearBasket();
-					self.add2Basket(data.items_list, false);
-				}});
+				if (conf.ajaxSend) {
+					ajaxQuery({}, {onAfterAjaxSuccess: function(data, textStatus, jqXHR) {
+						self.addPageItems(data.products_list);
+						self.clearBasket();
+						self.add2Basket(data.items_list, false);
+					}});
+				} else {
+					basket.count = root.find(".item").length;
+				}
 			}
 			,setItemTemplate : function(id){
 				jq.template = $(id);
@@ -2376,5 +2380,13 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		})(jQuery,this);
 
 	};
-
+	//\      /\      /\       /\       /\      /\       /\       /\      /\       /\       /\      /\       /\
+	//\\\    /\\\    /\\\     /\\\     /\\\    /\\\     /\\\     /\\\    /\\\     /\\\     /\\\    /\\\     /\\\
+	//\\\\\  /\\\\\  /\\\\\   /\\\\\   /\\\\   /\\\\\   /\\\\\   /\\\\\  /\\\\\   /\\\\\   /\\\\\  /\\\\\   /\\\\\
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////                /////////////////////////////////////////////////////////////////////////////////////
+	//////////////  DEPENDENCIES  /////////////////////////////////////////////////////////////////////////////////////
+	//////////////                /////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 })(jQuery);

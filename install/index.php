@@ -4,6 +4,11 @@
  ** @License EULA                               **
  ** @copyright 2013 DevTop                      **
  *************************************************/
+
+use OBX\Market\Currency as OBX_Currency;
+use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
+use OBX\Market\Price as OBX_Price;
+
 class obx_market extends CModule {
 	var $MODULE_ID = "obx.market";
 	var $MODULE_VERSION;

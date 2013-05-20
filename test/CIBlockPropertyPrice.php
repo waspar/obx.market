@@ -8,6 +8,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\Price as Price;
+use OBX\Market\Price as OBX_Price;
+use OBX\Market\PriceDBS as PriceDBS;
+use OBX\Market\PriceDBS as OBX_PriceDBS;
+
 final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 {
 

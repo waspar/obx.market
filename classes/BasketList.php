@@ -8,9 +8,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_BasketDBS extends OBX_DBSimple
+class BasketDBS extends \OBX_DBSimple
 {
 	protected $_mainTable = 'B';
 	protected $_arTableList = array(
@@ -82,7 +84,7 @@ SQL
 
 	public function __check_ORDER_ID(&$value, &$arCheckData) {
 		if($value !== null) {
-			$rsOrder = OBX_OrderDBS::getInstance()->getByID($value, null, true);
+			$rsOrder = \OBX_OrderDBS::getInstance()->getByID($value, null, true);
 			if( ! ($arOrder = $rsOrder->Fetch()) ) {
 				if($arCheckData !== null) {
 					$this->addError(GetMessage('OBX_BASKET_LIST_ERROR_7'), 7);
@@ -176,3 +178,14 @@ SQL
 		return true;
 	}
 }
+class BasketList extends \OBX_DBSimpleStatic {
+	static public function registerModuleDependencies() {
+		return self::getInstance()->registerModuleDependencies();
+	}
+
+	static public function unRegisterModuleDependencies() {
+		return self::getInstance()->unRegisterModuleDependencies();
+	}
+}
+
+BasketList::__initDBSimple(BasketDBS::getInstance());

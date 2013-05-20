@@ -1,4 +1,11 @@
 <?php
+
+use OBX\Market;
+use OBX\Market\Currency as OBX_Currency;
+use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
+use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
+use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
+
 class OBX_Test_Currency extends OBX_Market_TestCase
 {
 	/**

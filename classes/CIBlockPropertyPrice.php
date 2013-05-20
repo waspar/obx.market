@@ -10,6 +10,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\Price as OBX_Price;
+use OBX\Market\PriceDBS as OBX_PriceDBS;
+
 IncludeModuleLangFile(__FILE__);
 
 class OBX_CIBlockPropertyPriceDBS extends OBX_DBSimple

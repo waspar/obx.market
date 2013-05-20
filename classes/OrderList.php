@@ -10,6 +10,12 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\Currency;
+use OBX\Market\Currency as OBX_Currency;
+use OBX\Market\CurrencyDBS;
+use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
+use OBX\Market\BasketItemDBS;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
@@ -256,7 +262,7 @@ SQL
 	protected function _onAfterDelete(&$arOrder) {
 		$arFilter = array("ORDER_ID" => $arOrder["ID"]);
 		OBX_OrderPropertyValuesDBS::getInstance()->deleteByFilter($arFilter);
-		OBX_BasketItemDBS::getInstance()->deleteByFilter($arFilter);
+		BasketItemDBS::getInstance()->deleteByFilter($arFilter);
 		return true;
 	}
 

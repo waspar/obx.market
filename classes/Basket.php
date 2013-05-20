@@ -8,7 +8,13 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_Basket extends OBX_CMessagePoolDecorator
+namespace OBX\Market;
+
+use OBX\Market\Price as OBX_Price;
+use OBX\Market\PriceDBS as OBX_PriceDBS;
+use Basket as OBX_Basket;
+
+class Basket extends \OBX_CMessagePoolDecorator
 {
 	const COOKIE_NAME = 'OBX_BASKET_HASH';
 
@@ -20,14 +26,14 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 	static protected $_bDBSimpleObjectInitialized = false;
 
 	/**
-	 * @var OBX_BasketDBS
+	 * @var BasketDBS
 	 * @static
 	 * @access protected
 	 */
 	static protected $_BasketDBS = null;
 
 	/**
-	 * @var OBX_BasketItemDBS
+	 * @var BasketItemDBS
 	 * @static
 	 * @access protected
 	 */
@@ -41,7 +47,7 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 	static protected $_OrderDBS = null;
 
 	/**
-	 * @var OBX_PriceDBS
+	 * @var PriceDBS
 	 * @static
 	 * @access protected
 	 */
@@ -53,10 +59,10 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 	protected $_arProductList = array();
 
 	static protected function _initDBSimpleObjects() {
-		self::$_BasketDBS = OBX_BasketDBS::getInstance();
-		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
-		self::$_OrderDBS = OBX_OrderDBS::getInstance();
-		self::$_PriceDBS = OBX_PriceDBS::getInstance();
+		self::$_BasketDBS = BasketDBS::getInstance();
+		self::$_BasketItemDBS = BasketItemDBS::getInstance();
+		self::$_OrderDBS = \OBX_OrderDBS::getInstance();
+		self::$_PriceDBS = PriceDBS::getInstance();
 	}
 	static public function getByID($basketID) {
 		return new self(intval($basketID), null, null, null);
@@ -94,9 +100,9 @@ class OBX_Basket extends OBX_CMessagePoolDecorator
 			// $APPLICATION->set_cookie() не поможет ибо использует встроенную ф-ию php setcookie(),
 			// а та в свою очередь не модифицирует $_COOKIE, а просто формирует header http-ответа
 			// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
-			$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".OBX_Basket::COOKIE_NAME] = $currenctCookieID;
+			$_COOKIE[\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".self::COOKIE_NAME] = $currenctCookieID;
 			// ^^^ cookie hack
-			$APPLICATION->set_cookie(OBX_Basket::COOKIE_NAME, $currenctCookieID);
+			$APPLICATION->set_cookie(Basket::COOKIE_NAME, $currenctCookieID);
 			$BasketByUser = new self(null, $currenctCookieID, null, null);
 		}
 		return $BasketByUser;

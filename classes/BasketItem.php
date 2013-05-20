@@ -10,9 +10,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_BasketItemDBS extends OBX_DBSimple {
+class BasketItemDBS extends \OBX_DBSimple {
 	protected $_arTableList = array(
 		'I'		=> 'obx_basket_items',
 		'B'		=> 'obx_basket',
@@ -204,7 +206,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	}
 
 	public function __check_PRICE_ID(&$fieldValue, &$arCheckData = null) {
-		$DBPrice = OBX_PriceDBS::getInstance();
+		$DBPrice = PriceDBS::getInstance();
 		$arPrice = $DBPrice->getByID($fieldValue);
 		if( empty($arPrice) || !is_array($arPrice) ) {
 			if($arCheckData !== null) {
@@ -224,7 +226,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 //		return true;
 //	}
 	public function __check_BASKET_ID(&$fieldValue, &$arCheckData = null) {
-		$arBasket = OBX_BasketDBS::getInstance()->getByID($fieldValue);
+		$arBasket = BasketDBS::getInstance()->getByID($fieldValue);
 		if( empty($arBasket) ) {
 			return false;
 		}
@@ -233,7 +235,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	}
 
 	public function __check_ORDER_ID(&$value, &$arCheckData = null) {
-		$arOrder = OBX_OrderDBS::getInstance()->getByID($value);
+		$arOrder = \OBX_OrderDBS::getInstance()->getByID($value);
 		if( empty($arOrder) ) {
 			return false;
 		}
@@ -247,7 +249,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 			return false;
 		}
 		elseif(empty($arFields['BASKET_ID']) && !empty($arFields['ORDER_ID'])) {
-			$BasketDBS = OBX_BasketDBS::getInstance();
+			$BasketDBS = BasketDBS::getInstance();
 			$arBasketList = $BasketDBS->getListArray(null, array('ORDER_ID' => $arFields['ORDER_ID']));
 			if( empty($arBasketList) ) {
 				$basketOrderID = $BasketDBS->add(array(
@@ -269,7 +271,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 			unset($arCheckData['ORDER_ID']);
 		}
 		if($arCheckData['PRODUCT_ID']['IS_CORRECT']) {
-			$arECommerceIBlocks = OBX_ECommerceIBlock::getCachedList();
+			$arECommerceIBlocks = \OBX_ECommerceIBlock::getCachedList();
 			if( !array_key_exists($arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'], $arECommerceIBlocks) ) {
 				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
 				return false;
@@ -283,7 +285,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 			||
 			intval($arFields['PRICE_VALUE']) <= 0
 		) {
-			$arPricePropList = OBX_CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
+			$arPricePropList = \OBX_CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
 				'PRICE_ID' => $arFields['PRICE_ID'],
 				'IBLOCK_ID' => $arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID']
 			));
@@ -292,7 +294,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 				return false;
 			}
 			$arPriceProp = $arPricePropList[0];
-			$rsPricePropValueList = CIBlockElement::GetProperty(
+			$rsPricePropValueList = \CIBlockElement::GetProperty(
 				$arPriceProp['IBLOCK_ID'],
 				$arFields['PRODUCT_ID'],
 				array('SORT' => 'ASC'),
@@ -392,7 +394,7 @@ class OBX_BasketItemDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_BasketItem extends OBX_DBSimpleStatic {
+class BasketItem extends \OBX_DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}
@@ -402,4 +404,4 @@ class OBX_BasketItem extends OBX_DBSimpleStatic {
 	}
 }
 
-OBX_BasketItem::__initDBSimple(OBX_BasketItemDBS::getInstance());
+BasketItem::__initDBSimple(BasketItemDBS::getInstance());

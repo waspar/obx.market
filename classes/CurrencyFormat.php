@@ -8,7 +8,8 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-namespace OBX;
+namespace OBX\Market;
+use OBX\Market\Currency as OBX_Currency;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -135,7 +136,7 @@ class CurrencyFormatDBS extends \OBX_DBSimple
 	}
 
 	public function getListGroupedByLang($arSort = null) {
-		$rsLang = CLanguage::GetList($by='sort', $sort='asc', $arLangFilter=array('ACTIVE' => 'Y'));
+		$rsLang = \CLanguage::GetList($by='sort', $sort='asc', $arLangFilter=array('ACTIVE' => 'Y'));
 		$arLangList = array();
 		$arLangExistsReset = array();
 		while( $arLang = $rsLang->Fetch() ) {
@@ -185,7 +186,7 @@ class CurrencyFormatDBS extends \OBX_DBSimple
 		}
 		else {
 			if( $currencyCode == null ) {
-				$currencyCode = OBX_Currency::getDefault();
+				$currencyCode = \OBX_Currency::getDefault();
 			}
 			$CurrencyInfo = CurrencyInfo::getInstance($currencyCode);
 			if($CurrencyInfo == null) {

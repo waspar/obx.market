@@ -8,6 +8,8 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\Basket;
+
 OBX_Market_TestCase::includeLang(__FILE__);
 
 require_once dirname(__FILE__).'/_Basket.php';
@@ -29,7 +31,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 	 * @depends testAuthUser
 	 */
 	public function testGetCurrentBasketFromAuthUser() {
-		$Basket = OBX_Basket::getCurrent();
+		$Basket = Basket::getCurrent();
 		$this->assertGreaterThan(0, $Basket->getFields('ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_1'));
 		$this->assertGreaterThan(0, $Basket->getFields('USER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_2'));
 		$this->assertNull($Basket->getFields('ORDER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_3'));
@@ -45,7 +47,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 	 * @depends testLogoutUser
 	 */
 	public function testGetCurrentBasketFromCookieHash() {
-		$Basket = OBX_Basket::getCurrent();
+		$Basket = Basket::getCurrent();
 	}
 
 	public function testAddItems2Basket() {

@@ -8,9 +8,12 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\Basket;
+use OBX\Market\BasketDBS;
+
 require_once dirname(__FILE__).'/_Basket.php';
 
-final class OBX_BasketItemList extends OBX_Test_Lib_Basket
+final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 {
 
 	/**
@@ -298,7 +301,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	 */
 	public function testTryToUpdateBasketID() {
 		$arBasketItemBeforeUpdate = &self::$_arTestBasketItems['BASKET'][self::$_BasketArray['TEST_BASKET']->getFields('ID')][4];
-		$SomeOtherBasket = OBX_Basket::getByHash(md5('__TEST_AND_DELETE_testTryToUpdateBasketID()'));
+		$SomeOtherBasket = Basket::getByHash(md5('__TEST_AND_DELETE_testTryToUpdateBasketID()'));
 		$bSuccess = self::$_BasketItemDBS->update(array(
 			'ID' => $arBasketItemBeforeUpdate['ID'],
 			'DISCOUNT_VALUE' => 686868.68,
@@ -353,7 +356,7 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	 * @depends testGetListFromOrder
 	 */
 	public function testDeleteFromOrder() {
-		$orderBasketID = OBX_Basket::getByOrderID(self::$_arTestOrder['ID'])->getFields('ID');
+		$orderBasketID = Basket::getByOrderID(self::$_arTestOrder['ID'])->getFields('ID');
 		$this->assertGreaterThan(0, $orderBasketID, 'Error: can\'t find order basket');
 		$bSuccess = self::$_BasketItemDBS->deleteByFilter(array('BASKET_ID' => $orderBasketID));
 		if( !$bSuccess ) {
@@ -366,9 +369,9 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 
 	public function testDeleteTestBasket() {
 		self::$_BasketDBS->delete(self::$_BasketArray['TEST_BASKET']->getFields('ID'));
-		$orderBasketID = OBX_Basket::getByOrderID(self::$_arTestOrder['ID'])->getFields('ID');
+		$orderBasketID = Basket::getByOrderID(self::$_arTestOrder['ID'])->getFields('ID');
 		self::$_BasketDBS->delete($orderBasketID);
-		$someOtherOrderBasketID = OBX_Basket::getByOrderID(self::$_arSomeOthTestOrder['ID'])->getFields('ID');
+		$someOtherOrderBasketID = Basket::getByOrderID(self::$_arSomeOthTestOrder['ID'])->getFields('ID');
 		self::$_BasketDBS->delete($someOtherOrderBasketID);
 	}
 
@@ -376,11 +379,11 @@ final class OBX_BasketItemList extends OBX_Test_Lib_Basket
 	 * Тест новыго фильтра DBSimple
 	 */
 	public function testNewDBSimpleGetListFilter() {
-		$arBaskets[0] = OBX_Basket::getByHash(md5('__TEST_VISITOR_0__'));
-		$arBaskets[1] = OBX_Basket::getByHash(md5('__TEST_VISITOR_1__'));
-		$arBaskets[2] = OBX_Basket::getByHash(md5('__TEST_VISITOR_2__'));
-		$arBaskets[3] = OBX_Basket::getByHash(md5('__TEST_VISITOR_3__'));
-		$arBaskets[4] = OBX_Basket::getByHash(md5('__TEST_VISITOR_4__'));
+		$arBaskets[0] = Basket::getByHash(md5('__TEST_VISITOR_0__'));
+		$arBaskets[1] = Basket::getByHash(md5('__TEST_VISITOR_1__'));
+		$arBaskets[2] = Basket::getByHash(md5('__TEST_VISITOR_2__'));
+		$arBaskets[3] = Basket::getByHash(md5('__TEST_VISITOR_3__'));
+		$arBaskets[4] = Basket::getByHash(md5('__TEST_VISITOR_4__'));
 		$arBaskets[0] = $arBaskets[0]->getFields('ID');
 		$arBaskets[1] = $arBaskets[1]->getFields('ID');
 		$arBaskets[2] = $arBaskets[2]->getFields('ID');

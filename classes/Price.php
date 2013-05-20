@@ -10,7 +10,7 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-namespace OBX;
+namespace OBX\Market;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -146,14 +146,14 @@ class PriceDBS extends \OBX_DBSimple {
 	public function getProductPriceList($productID, $userID = null, $langID = LANGUAGE_ID) {
 		global $DB;
 		$productID = intval($productID);
-		$rsProd = CIBlockElement::GetByID($productID);
+		$rsProd = \CIBlockElement::GetByID($productID);
 
 		if (!($arProd = $rsProd->GetNext())) {
 			$this->addError(GetMessage('OBX_MARKET_PRICE_ERROR_13'), 13);
 			return array();
 		}
 		$productID = $arProd['ID'];
-		$rsLang = CLanguage::GetByID($langID);
+		$rsLang = \CLanguage::GetByID($langID);
 		if ( $arLang = $rsLang->Fetch() ) {
 			$langID = $arLang['LANGUAGE_ID'];
 		}
@@ -197,13 +197,13 @@ SQL;
 		$i = 0;
 		$refArOptimalPrice = null;
 		while ($arPrice = $res->Fetch()) {
-			$resProp = CIBlockElement::GetProperty($arPrice["IBLOCK_ID"], $productID, array(),
+			$resProp = \CIBlockElement::GetProperty($arPrice["IBLOCK_ID"], $productID, array(),
 				array(
 					"ID" => $arPrice["IBLOCK_PROP_ID"]
 				));
 			if( $arPriceProp = $resProp->Fetch() ) {
 				if( floatval($arPriceProp["VALUE"]) < 0.001) {
-					$rsProduct = CIBlockElement::GetByID($productID);
+					$rsProduct = \CIBlockElement::GetByID($productID);
 					$arProduct = $rsProduct->GetNext();
 					$this->addWarning(GetMessage('OBX_MARKET_PRICE_WARNING_1', array(
 						'#ID#' => $arProduct['ID'],
@@ -239,7 +239,7 @@ SQL;
 				}
 			}
 
-			$arResult[$i]["VALUE_FORMATTED"] = OBX_CurrencyFormatDBS::getInstance()->formatPrice(
+			$arResult[$i]["VALUE_FORMATTED"] = CurrencyFormatDBS::getInstance()->formatPrice(
 				$arResult[$i]['VALUE'],
 				$arResult[$i]['PRICE_CURRENCY'],	// передавая формат, тут можно и null поставить, не важно
 				$langID,							// передавая формат, тут можно и null поставить, не важно
@@ -252,7 +252,7 @@ SQL;
 					'THOUSANDS_SEP' => $arResult[$i]['CURRENCY_THOUSANDS_SEP']
 				)
 			);
-			$arResult[$i]["DISCOUNT_VALUE_FORMATTED"] = OBX_CurrencyFormatDBS::getInstance()->formatPrice(
+			$arResult[$i]["DISCOUNT_VALUE_FORMATTED"] = CurrencyFormatDBS::getInstance()->formatPrice(
 				$arResult[$i]['DISCOUNT_VALUE'],
 				$arResult[$i]['PRICE_CURRENCY'],
 				$langID,
@@ -298,7 +298,7 @@ SQL;
 			if (!empty($this->_arFormatPriceCache[$priceCode . $priceID])) {
 				$arFormat = $this->_arFormatPriceCache[$priceCode . $priceID];
 			} else {
-				$rsLang = CLanguage::GetByID($langID);
+				$rsLang = \CLanguage::GetByID($langID);
 				if (!$rsLang->Fetch()) {
 					$this->addError(GetMessage("OBX_MARKET_PRICE_WARNING_2"), 2);
 					$langID = LANGUAGE_ID;
@@ -321,7 +321,7 @@ SQL;
 				);
 			}
 		}
-		return OBX_CurrencyFormat::formatPrice($priceValue, null, $langID, $arFormat);
+		return CurrencyFormat::formatPrice($priceValue, null, $langID, $arFormat);
 	}
 
 	/**
@@ -340,7 +340,7 @@ SQL;
 			), 9);
 			return 0;
 		}
-		$rsExistsGroup = CGroup::GetByID($groupID);
+		$rsExistsGroup = \CGroup::GetByID($groupID);
 		if( !($arExistsGroup = $rsExistsGroup->Fetch()) ) {
 			$this->addError(GetMessage("OBX_MARKET_PRICE_ERROR_10"), array(
 				"#GROUP_ID#" => $groupID
@@ -403,7 +403,7 @@ SQL;
 		if (!$isOneIdForDelete) {
 			$arFilterExistsGroups = array("ID" => "");
 			$arFilterExistsGroups["ID"] = implode(" | ", $arGroupIDList);
-			$rsExistsGroupList = CGroup::GetList($by = "c_sort", $order = "asc", $arFilterExistsGroups);
+			$rsExistsGroupList = \CGroup::GetList($by = "c_sort", $order = "asc", $arFilterExistsGroups);
 			$arExistGroupIDList = array();
 			while ($arExistGroup = $rsExistsGroupList->Fetch()) {
 				$arExistGroupIDList[] = $arExistGroup["ID"];

@@ -8,6 +8,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\PriceDBS;
+use OBX\Market\Basket;
+use OBX\Market\BasketDBS;
+use OBX\Market\BasketItemDBS;
+
 class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 {
 	/**
@@ -36,7 +41,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 
 	/**
 	 * Собъект сущности-БД корзины
-	 * @var OBX_BasketDBS
+	 * @var BasketDBS
 	 * @static
 	 * @access protected
 	 */
@@ -44,7 +49,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 
 	/**
 	 * Объект сущности-БД списка товаров корзины
-	 * @var OBX_BasketItemDBS
+	 * @var BasketItemDBS
 	 * @static
 	 * @access protected
 	 */
@@ -52,7 +57,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 
 	/**
 	 * Объект сущности корзины
-	 * @var Array OBX_Basket
+	 * @var Array Basket
 	 * @static
 	 * @access private
 	 */
@@ -69,7 +74,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 
 	/**
 	 * Объект сущности БД цен
-	 * @var OBX_PriceDBS
+	 * @var PriceDBS
 	 * @static
 	 * @access protected
 	 */
@@ -125,11 +130,11 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		// $APPLICATION->set_cookie() не поможет ибо использует встроенную ф-ию php setcookie(),
 		// а та в свою очередь не модифицирует $_COOKIE, а просто формирует header http-ответа
 		// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
-		$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".OBX_Basket::COOKIE_NAME] = self::$_cookieID;
+		$_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".Basket::COOKIE_NAME] = self::$_cookieID;
 		// ^^^ cookie hack
-		self::$_BasketDBS = OBX_BasketDBS::getInstance();
-		self::$_BasketItemDBS = OBX_BasketItemDBS::getInstance();
-		self::$_PriceDBS = OBX_PriceDBS::getInstance();
+		self::$_BasketDBS = BasketDBS::getInstance();
+		self::$_BasketItemDBS = BasketItemDBS::getInstance();
+		self::$_PriceDBS = PriceDBS::getInstance();
 		self::$_OrderDBS = OBX_OrderDBS::getInstance();
 		self::$_ECommerceIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
 	}
@@ -138,7 +143,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	 * @depends _getTestUser
 	 */
 	public function _getTestBasket() {
-		self::$_BasketArray['TEST_BASKET'] = OBX_Basket::getByHash(self::$_cookieID);
+		self::$_BasketArray['TEST_BASKET'] = Basket::getByHash(self::$_cookieID);
 		if( self::$_BasketArray['TEST_BASKET']->getFields('ID') == null) {
 			$this->fail('Error: '.self::$_BasketArray['TEST_BASKET']->popLastError());
 		}
@@ -168,7 +173,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	}
 
 	protected function _getTestIBlockData() {
-		$rsTestIB = CIBlock::GetList(array('SORT' => 'ASC'), array('CODE' => self::OBX_TEST_IB_1));
+		$rsTestIB = \CIBlock::GetList(array('SORT' => 'ASC'), array('CODE' => self::OBX_TEST_IB_1));
 		if( $arTestIB = $rsTestIB->GetNext() ) {
 
 			// Делаем инфоблок торговым
@@ -183,7 +188,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 			self::$_arTestIBlock = $arTestIB;
 
 			// Получаем идентификор свойства являющегося содержащего цену товаров
-			$rsPricePropList = CIBlockProperty::GetList(array('ID' => 'ASC'), array('IBLOCK_ID' => $arTestIB['ID'], 'CODE' => 'PRICE'));
+			$rsPricePropList = \CIBlockProperty::GetList(array('ID' => 'ASC'), array('IBLOCK_ID' => $arTestIB['ID'], 'CODE' => 'PRICE'));
 			if( !($arPriceIBProp = $rsPricePropList->GetNext()) ) {
 				$this->fail('test iblock price property not found');
 			}

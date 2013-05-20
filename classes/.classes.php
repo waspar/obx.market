@@ -45,6 +45,8 @@ $arModuleClasses = array(
 	,'OBX\Market\OrderPropertyValuesDBS'		=> 'classes/OrderPropertyValues.php'
 	,'OBX\Market\OrdersListAdminResult'			=> 'classes/OrdersListAdminResult.php'
 	,'OBX\Market\OrderProfile'					=> 'classes/OrderProfile.php'
+	,'OBX\Market\OrderComment'					=> 'classes/OrderComment.php'
+	,'OBX\Market\OrderCommentDBS'				=> 'classes/OrderComment.php'
 
 );
 return $arModuleClasses;

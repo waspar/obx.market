@@ -32,15 +32,15 @@ class Order extends \OBX_CMessagePoolDecorator {
 	// Кострутор объекта из БД или из ID заказа
 	protected function __construct() {
 		$this->_OrderDBS = OrderDBS::getInstance();
-		$this->_OrderStatusDBS = \OBX_OrderStatusDBS::getInstance();
-		$this->_OrderPropertyDBS = \OBX_OrderPropertyDBS::getInstance();
-		$this->_OrderPropertyValuesDBS = \OBX_OrderPropertyValuesDBS::getInstance();
-		$this->_OrderCommentDBS = \OBX_OrderCommentDBS::getInstance();
+		$this->_OrderStatusDBS = OrderStatusDBS::getInstance();
+		$this->_OrderPropertyDBS = OrderPropertyDBS::getInstance();
+		$this->_OrderPropertyValuesDBS = OrderPropertyValuesDBS::getInstance();
+		$this->_OrderCommentDBS = OrderCommentDBS::getInstance();
 		$this->_BasketItemDBS = BasketItemDBS::getInstance();
 		$this->_EComIBlockDBS = ECommerceIBlockDBS::getInstance();
 		$this->_PriceDBS = PriceDBS::getInstance();
 		$this->_CIBlockPropertyPriceDBS = CIBlockPropertyPriceDBS::getInstance();
-		$this->_Basket = Basket::getInstance();
+		//$this->_Basket = Basket::getByOrderID();
 	}
 
 	protected function __clone() {
@@ -125,6 +125,7 @@ class Order extends \OBX_CMessagePoolDecorator {
 
 		$this->_arOrder = $arOrder;
 		$this->_bFieldsChanged = false;
+		$this->_Basket = Basket::getByOrderID($arOrder['ID']);
 		return true;
 	}
 

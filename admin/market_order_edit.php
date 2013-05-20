@@ -8,6 +8,31 @@
  ** @mailto rootfavell@gmail.com      **
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
+use OBX\Market\Currency;
+use OBX\Market\Currency as OBX_Currency	;
+use OBX\Market\CurrencyDBS;
+use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
+use OBX\Market\CurrencyFormat;
+use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
+use OBX\Market\CurrencyFormatDBS;
+use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
+use OBX\Market\Order;
+use OBX\Market\OrderDBS;
+use OBX\Market\Order as OBX_Order;
+use OBX\Market\OrderDBS as OBX_OrderDBS;
+use OBX\Market\OrderStatusDBS;
+use OBX\Market\OrderStatusDBS as OBX_OrderStatusDBS;
+use OBX\Market\OrderPropertyDBS;
+use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
+use OBX\Market\OrderPropertyValuesDBS;
+use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
+use OBX\Market\OrderPropertyEnumDBS;
+use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
+use OBX\Market\Price;
+use OBX\Market\Price as OBX_Price;
+use OBX\Market\PriceDBS;
+use OBX\Market\Price as OBX_PriceDBS;
+
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 if (!CModule::IncludeModule('obx.market')) return;

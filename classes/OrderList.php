@@ -73,14 +73,14 @@ SQL
 		'ITEMS_COUNT' => array('BI' => 'SUM(BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
 		'ITEMS_COST' => array('BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
 		'PROPERTIES_JSON' => array('O' => <<<SQL
-			SELECT
+			(SELECT
 				concat(
 					'[ ',
 					group_concat(
 						concat('{ ',
 									'"PROPERTY_ID": "',		OP.ID,				'", ',
 									'"PROPERTY_TYPE": "',	OP.PROPERTY_TYPE,	'", ',
-									'"PROPERTY_NAME": "',	P.NAME,				'", ',
+									'"PROPERTY_NAME": "',	OP.NAME,			'", ',
 									'"PROPERTY_CODE": "',	OP.CODE,			'", ',
 									'"PROPERTY_VALUE": "',	(SELECT CASE OP.PROPERTY_TYPE
 																WHEN 'S' THEN OPV.VALUE_S
@@ -109,7 +109,7 @@ SQL
 			WHERE
 				OPV.ORDER_ID = O.ID
 			GROUP BY
-				OPV.ORDER_ID
+				OPV.ORDER_ID)
 SQL
 		),
 	);

@@ -12,7 +12,8 @@
 
 $arModuleClasses = array(
 	 'OBX_Market_BXMainEventsHandlers'			=> 'classes/BXMainEventsHandlers.php'
-	,'OBX_MarketSettings'						=> 'classes/MarketSettings.php'
+	,'OBX\Market\Settings'						=> 'classes/MarketSettings.php'
+	,'OBX_MarketSettings'						=> 'classes/MarketSettings_.php'
 	,'OBX\Market\ECommerceIBlock'				=> 'classes/ECommerceIBlock.php'
 	,'OBX\Market\ECommerceIBlockDBS'			=> 'classes/ECommerceIBlock.php'
 	,'OBX\Market\PriceDBS'						=> 'classes/Price.php'

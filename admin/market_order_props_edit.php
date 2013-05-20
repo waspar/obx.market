@@ -9,6 +9,14 @@
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
+use OBX\Market\OrderPropertyDBS;
+use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
+use OBX\Market\OrderPropertyValuesDBS;
+use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
+use OBX\Market\OrderPropertyEnumDBS;
+use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
+
+
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 if(!CModule::IncludeModule('obx.market')) return;
 

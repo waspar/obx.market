@@ -10,9 +10,34 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+
+
+namespace OBX\Market;
+
+use OBX\Market\Currency;
+use OBX\Market\Currency as OBX_Currency	;
+use OBX\Market\CurrencyDBS;
+use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
+use OBX\Market\CurrencyFormat;
+use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
+use OBX\Market\CurrencyFormatDBS;
+use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
+use OBX\Market\Order;
+use OBX\Market\OrderDBS;
+use OBX\Market\Order as OBX_Order;
+use OBX\Market\OrderDBS as OBX_OrderDBS;
+use OBX\Market\OrderStatusDBS;
+use OBX\Market\OrderStatusDBS as OBX_OrderStatusDBS;
+use OBX\Market\OrderPropertyDBS;
+use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
+use OBX\Market\OrderPropertyValuesDBS;
+use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
+use OBX\Market\OrderPropertyEnumDBS;
+use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
+
 IncludeModuleLangFile(__FILE__);
 
-abstract class OBX_MarketSettings extends OBX_CMessagePoolDecorator {
+abstract class Settings extends \OBX_CMessagePoolDecorator {
 
 	final protected function __construct() {
 	}
@@ -25,18 +50,18 @@ abstract class OBX_MarketSettings extends OBX_CMessagePoolDecorator {
 
 	/**
 	 * @param String $tabCode Постфикс имени класса
-	 * @return OBX_MarketSettings
+	 * @return Settings
 	 */
 	final static public function getController($tabCode) {
 		if (!preg_match('~^[a-zA-Z\_][a-zA-Z0-9\_]*$~', $tabCode)) {
 			return null;
 		}
-		if (!class_exists('OBX_MarketSettings_' . $tabCode)) {
+		if (!class_exists('OBX\Market\Settings_' . $tabCode)) {
 			return null;
 		}
 
 		if (empty(self::$_arInstances[$tabCode])) {
-			$className = 'OBX_MarketSettings_' . $tabCode;
+			$className = 'OBX\Market\Settings_' . $tabCode;
 			$TabContentObject = new $className;
 			if ($TabContentObject instanceof self) {
 				self::$_arInstances[$tabCode] = $TabContentObject;
@@ -51,7 +76,7 @@ abstract class OBX_MarketSettings extends OBX_CMessagePoolDecorator {
 	 */
 	static public function getLangList() {
 		if (self::$_arLangList == null) {
-			$rsLang = CLanguage::GetList($by = "sort", $sort = "asc", $arLangFilter = array("ACTIVE" => "Y"));
+			$rsLang = \CLanguage::GetList($by = "sort", $sort = "asc", $arLangFilter = array("ACTIVE" => "Y"));
 			$arLangList = array();
 			while ($arLang = $rsLang->Fetch()) {
 				$arLangList[$arLang["ID"]] = $arLang;
@@ -127,7 +152,7 @@ abstract class OBX_MarketSettings extends OBX_CMessagePoolDecorator {
 	abstract public function saveTabData();
 }
 
-class OBX_MarketSettings_Currency extends OBX_MarketSettings {
+class Settings_Currency extends Settings {
 	protected $listTableColumns = 10;
 
 	public function showTabContent() {
@@ -585,13 +610,13 @@ class OBX_MarketSettings_Currency extends OBX_MarketSettings {
 	}
 }
 
-class OBX_MarketSettings_Price extends OBX_MarketSettings {
+class Settings_Price extends Settings {
 
 	protected $listTableColumns = 7;
 
 	public function showTabContent() {
-		$arPriceList = OBX_Price::getListArray();
-		$arCurrencyList = OBX_CurrencyFormat::getListArray(null, array("LANGUAGE_ID" => LANGUAGE_ID));?>
+		$arPriceList = Price::getListArray();
+		$arCurrencyList = CurrencyFormat::getListArray(null, array("LANGUAGE_ID" => LANGUAGE_ID));?>
 	<tr>
 		<td>
 			<table class="internal" style="width:100%">
@@ -635,7 +660,7 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 				</td>
 				<td>
 					<div class="group_container">
-						<?$curPriceGroups = OBX_Price::getGroupList($arPrice["ID"]);?>
+						<?$curPriceGroups = Price::getGroupList($arPrice["ID"]);?>
 						<?
 						$i = 0;
 						foreach ($curPriceGroups as $groupID):?>
@@ -643,7 +668,7 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 								<select name="obx_price_ugrp[<?=$arPrice["ID"]?>][<?=$i?>]" data-price-id="<?=$arPrice["ID"]?>" data-count-id="<?=$i?>">
 									<option value="-1">(<?=GetMessage("OBX_SETT_PRICE_DEL_GROUP")?>)</option>
 									<?
-									$rsGroups = CGroup::GetList(($by = "c_sort"), ($order = "desc"), array("ACTIVE" => "Y"));
+									$rsGroups = \CGroup::GetList(($by = "c_sort"), ($order = "desc"), array("ACTIVE" => "Y"));
 									while ($arGroup = $rsGroups->Fetch()):?>
 										<option <?if ($arGroup["ID"] == $curPriceGroups[$i]): ?>selected=""<? endif;?>value="<?=$arGroup["ID"]?>">[<?=$arGroup["ID"]?>] <?=$arGroup["NAME"]?></option>
 										<? endwhile;?>
@@ -658,7 +683,7 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 							<select name="obx_price_ugrp[<?=$arPrice["ID"]?>][<?=$i?>]">
 								<option value="-1">(<?=GetMessage("OBX_SETT_PRICE_DEL_GROUP")?>)</option>
 								<?
-								$rsGroups = CGroup::GetList(($by = "c_sort"), ($order = "desc"), array("ACTIVE" => "Y"));
+								$rsGroups = \CGroup::GetList(($by = "c_sort"), ($order = "desc"), array("ACTIVE" => "Y"));
 								while ($arGroup = $rsGroups->Fetch()):?>
 									<option <?if ($arGroup["ID"] == $curPriceGroups[$i]): ?>selected=""<? endif;?>value="<?=$arGroup["ID"]?>">[<?=$arGroup["ID"]?>] <?=$arGroup["NAME"]?></option>
 									<? endwhile;?>
@@ -698,7 +723,7 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 	}
 
 	public function showTabScripts() {
-		$arCurrencyList = OBX_CurrencyFormat::getListArray(null, array("LANGUAGE_ID" => LANGUAGE_ID));
+		$arCurrencyList = CurrencyFormat::getListArray(null, array("LANGUAGE_ID" => LANGUAGE_ID));
 
 		if (false):?><table><? endif; // это надо для корректной подсветки html в NetBeans IDE?>
 		<?=
@@ -756,7 +781,7 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 		$strUpdateSuccessID = '';
 		foreach ($arPriceUpdateID as $priceID) {
 			$priceID = intval($priceID);
-			$arPriceExists = OBX_Price::getByID($priceID);
+			$arPriceExists = Price::getByID($priceID);
 			if (!empty($arPriceExists)) {
 				$arPriceExists;
 				$arUpdateFields = array();
@@ -779,10 +804,10 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 						}
 					}
 					if (count($arUpdateFields) > 1) {
-						if (OBX_Price::update($arUpdateFields)) {
+						if (Price::update($arUpdateFields)) {
 							$strUpdateSuccessID .= ((strlen($strUpdateSuccessID) > 0) ? ", " : "") . $priceID;
 						} else {
-							$arError = OBX_Price::popLastError('ALL');
+							$arError = Price::popLastError('ALL');
 							$this->addError($arError["TEXT"], $arError["CODE"]);
 						}
 					}
@@ -792,7 +817,7 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 			}
 			// UPDATE price groups
 			$curGroups = $arPriceUserGroup[$priceID];
-			OBX_Price::setGroupList($priceID,array_unique($curGroups));
+			Price::setGroupList($priceID,array_unique($curGroups));
 
 		}
 		if (strlen($strUpdateSuccessID) > 0) {
@@ -809,8 +834,8 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 		$arPriceUpdateID = $_REQUEST["obx_price_delete"];
 		foreach ($arPriceUpdateID as $priceID => $delText) {
 			$priceID = intval($priceID);
-			if (!OBX_Price::delete($priceID)) {
-				$this->addError(OBX_Price::popLastError());
+			if (!Price::delete($priceID)) {
+				$this->addError(Price::popLastError());
 			}
 		}
 	}
@@ -830,9 +855,9 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 				"CODE" => $arNewCurrencyRaw["code"],
 				"CURRENCY" => $arNewCurrencyRaw["currency"],
 			);
-			$newPriceID = OBX_Price::add($arNewPriceFields);
+			$newPriceID = Price::add($arNewPriceFields);
 			if (!$newPriceID) {
-				$this->addError(OBX_Price::popLastError());
+				$this->addError(Price::popLastError());
 			} else {
 				$strNewSuccessID .= ((strlen($strNewSuccessID) > 0) ? ", " : "") . $newPriceID;
 			}
@@ -845,13 +870,13 @@ class OBX_MarketSettings_Price extends OBX_MarketSettings {
 	}
 }
 
-class OBX_MarketSettings_Catalog extends OBX_MarketSettings {
+class Settings_Catalog extends Settings {
 
 	protected $listTableColumns = 5;
 
 	public function showTabContent() {
-		$arECommerceIBlockList = OBX_ECommerceIBlock::getFullList();
-		$arPriceList = OBX_Price::getListArray();
+		$arECommerceIBlockList = ECommerceIBlock::getFullList();
+		$arPriceList = Price::getListArray();
 		?>
 	<tr>
 		<td>
@@ -873,8 +898,8 @@ class OBX_MarketSettings_Catalog extends OBX_MarketSettings {
 	</tr>
 	<?
 		foreach ($arECommerceIBlockList as &$arIBlock) {
-			$arPricePropList = OBX_CIBlockPropertyPrice::getFullPriceList($arIBlock["ID"]);
-			$rsPropIntList = CIBlockProperty::GetList(
+			$arPricePropList = CIBlockPropertyPrice::getFullPriceList($arIBlock["ID"]);
+			$rsPropIntList = \CIBlockProperty::GetList(
 				array("SORT" => "ASC"),
 				array("IBLOCK_ID" => $arIBlock["ID"], "PROPERTY_TYPE" => "N")
 			);
@@ -978,27 +1003,27 @@ class OBX_MarketSettings_Catalog extends OBX_MarketSettings {
 		if (empty($_REQUEST["obx_ecom_iblock_save"])) {
 			return true;
 		}
-		$rsIBlockList = OBX_ECommerceIBlock::getFullList(true);
+		$rsIBlockList = ECommerceIBlock::getFullList(true);
 		while (($arIBlock = $rsIBlockList->GetNext())) {
 			if (array_key_exists($arIBlock["ID"], $_REQUEST["obx_iblock_is_ecom"])) {
 				if ($arIBlock["IS_ECOM"] == "N") {
-					OBX_ECommerceIBlock::add(array("IBLOCK_ID" => $arIBlock["ID"]));
+					ECommerceIBlock::add(array("IBLOCK_ID" => $arIBlock["ID"]));
 				}
 			} else {
 				if ($arIBlock["IS_ECOM"] == "Y") {
-					OBX_ECommerceIBlock::delete($arIBlock["ID"]);
+					ECommerceIBlock::delete($arIBlock["ID"]);
 				}
 			}
 		}
 		if (empty($_REQUEST["obx_ib_price_prop"])) {
 			return true;
 		}
-		$arIBlockList = OBX_ECommerceIBlock::getFullList(false);
+		$arIBlockList = ECommerceIBlock::getFullList(false);
 		foreach ($arIBlockList as &$arIBlock) {
 			if ($arIBlock["IS_ECOM"] == "N" || !isset($_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]])) {
 				continue;
 			}
-			$arIBPricePropFullList = OBX_CIBlockPropertyPrice::getFullPropList($arIBlock["ID"]);
+			$arIBPricePropFullList = CIBlockPropertyPrice::getFullPropList($arIBlock["ID"]);
 			$rawSetPriceProp = $_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]];
 			$arNewPricePropLinkList = array();
 			$arUniquePR = array();
@@ -1035,7 +1060,7 @@ class OBX_MarketSettings_Catalog extends OBX_MarketSettings {
 							"IBLOCK_ID" => $arIBlock["ID"],
 							"PRICE_ID" => $priceID,
 						);
-						$arExists = OBX_CIBlockPropertyPrice::getListArray(null, $arDelFilter, null, null, null, false);
+						$arExists = CIBlockPropertyPrice::getListArray(null, $arDelFilter, null, null, null, false);
 						if (!empty($arExists)) {
 							$arExists["__ACTION"] = "DELETE";
 							$arNewPricePropLinkList[] = $arExists;
@@ -1049,19 +1074,19 @@ class OBX_MarketSettings_Catalog extends OBX_MarketSettings {
 					}
 				}
 			}
-			OBX_CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arIBlock["ID"]));
-			OBX_CIBlockPropertyPrice::clearErrors();
+			CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arIBlock["ID"]));
+			CIBlockPropertyPrice::clearErrors();
 			foreach ($arNewPricePropLinkList as &$arNewPricePropLink) {
 				if ($arNewPricePropLink["__ACTION"] == "ADD") {
-					$bSuccess = OBX_CIBlockPropertyPrice::add($arNewPricePropLink);
+					$bSuccess = CIBlockPropertyPrice::add($arNewPricePropLink);
 				} //				elseif($arNewPricePropLink["__ACTION"] == "DELETE") {
-//					$bSuccess = OBX_CIBlockPropertyPrice::deleteByFilter($arNewPricePropLink);
+//					$bSuccess = CIBlockPropertyPrice::deleteByFilter($arNewPricePropLink);
 //				}
 				elseif ($arNewPricePropLink["__ACTION"] == "NEW_PROP") {
-					$bSuccess = OBX_CIBlockPropertyPrice::addIBlockPriceProperty($arNewPricePropLink);
+					$bSuccess = CIBlockPropertyPrice::addIBlockPriceProperty($arNewPricePropLink);
 				}
 				if (!$bSuccess) {
-					$arError = OBX_CIBlockPropertyPrice::popLastError('ALL');
+					$arError = CIBlockPropertyPrice::popLastError('ALL');
 					$this->addError($arError["TEXT"], $arError["CODE"]);
 				}
 			}
@@ -1069,5 +1094,3 @@ class OBX_MarketSettings_Catalog extends OBX_MarketSettings {
 		return true;
 	}
 }
-
-?>

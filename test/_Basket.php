@@ -12,6 +12,10 @@ use OBX\Market\PriceDBS;
 use OBX\Market\Basket;
 use OBX\Market\BasketDBS;
 use OBX\Market\BasketItemDBS;
+use OBX\Market\ECommerceIBlock;
+use OBX\Market\ECommerceIBlockDBS;
+use OBX\Market\CIBlockPropertyPrice;
+use OBX\Market\CIBlockPropertyPriceDBS;
 
 class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 {
@@ -113,7 +117,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	static protected $_arSomeOthTestOrder = array();
 
 	/**
-	 * @var OBX_ECommerceIBlockDBS
+	 * @var ECommerceIBlockDBS
 	 * @static
 	 * @access protected
 	 */
@@ -136,7 +140,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		self::$_BasketItemDBS = BasketItemDBS::getInstance();
 		self::$_PriceDBS = PriceDBS::getInstance();
 		self::$_OrderDBS = OBX_OrderDBS::getInstance();
-		self::$_ECommerceIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
+		self::$_ECommerceIBlockDBS = ECommerceIBlockDBS::getInstance();
 	}
 
 	/**
@@ -173,30 +177,30 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 	}
 
 	protected function _getTestIBlockData() {
-		$rsTestIB = \CIBlock::GetList(array('SORT' => 'ASC'), array('CODE' => self::OBX_TEST_IB_1));
+		$rsTestIB = CIBlock::GetList(array('SORT' => 'ASC'), array('CODE' => self::OBX_TEST_IB_1));
 		if( $arTestIB = $rsTestIB->GetNext() ) {
 
 			// Делаем инфоблок торговым
-			OBX_ECommerceIBlockDBS::getInstance()->add(array(
+			ECommerceIBlockDBS::getInstance()->add(array(
 				'IBLOCK_ID' => $arTestIB['ID']
 			));
 			// Проверяем что инфоблок стал торговым
-			$arTestEComIB = OBX_ECommerceIBlock::getByID($arTestIB['ID']);
+			$arTestEComIB = ECommerceIBlock::getByID($arTestIB['ID']);
 			if( empty($arTestEComIB) ) {
 				$this->fail('test iblock isn\'t an e-commerce catalog');
 			}
 			self::$_arTestIBlock = $arTestIB;
 
 			// Получаем идентификор свойства являющегося содержащего цену товаров
-			$rsPricePropList = \CIBlockProperty::GetList(array('ID' => 'ASC'), array('IBLOCK_ID' => $arTestIB['ID'], 'CODE' => 'PRICE'));
+			$rsPricePropList = CIBlockProperty::GetList(array('ID' => 'ASC'), array('IBLOCK_ID' => $arTestIB['ID'], 'CODE' => 'PRICE'));
 			if( !($arPriceIBProp = $rsPricePropList->GetNext()) ) {
 				$this->fail('test iblock price property not found');
 			}
 
 			// Удаляем все привязки свойств инфоблока к ценам
-			OBX_CIBlockPropertyPrice::deleteByFilter(array('IBLOCK_ID' => $arTestIB['ID']));
+			CIBlockPropertyPrice::deleteByFilter(array('IBLOCK_ID' => $arTestIB['ID']));
 			// Добавляем привязку свойства инфоблока к тестовой цене
-			$bSuccess = OBX_CIBlockPropertyPrice::add(array(
+			$bSuccess = CIBlockPropertyPrice::add(array(
 				'IBLOCK_ID' => $arTestIB['ID'],
 				'IBLOCK_PROP_ID' => $arPriceIBProp['ID'],
 				'PRICE_ID' => self::$_arPrice['ID']

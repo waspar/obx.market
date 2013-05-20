@@ -11,12 +11,12 @@
  ***********************************************/
 
 $arModuleClasses = array(
-	 'OBX_ECommerceIBlock'						=> 'classes/ECommerceIBlock.php'
-	,'OBX_ECommerceIBlockDBS'					=> 'classes/ECommerceIBlock.php'
+	 'OBX\Market\ECommerceIBlock'				=> 'classes/ECommerceIBlock.php'
+	,'OBX\Market\ECommerceIBlockDBS'			=> 'classes/ECommerceIBlock.php'
 	,'OBX\Market\PriceDBS'						=> 'classes/Price.php'
 	,'OBX\Market\Price'							=> 'classes/Price.php'
-	,'OBX_CIBlockPropertyPriceDBS'				=> 'classes/CIBlockPropertyPrice.php'
-	,'OBX_CIBlockPropertyPrice'					=> 'classes/CIBlockPropertyPrice.php'
+	,'OBX\Market\CIBlockPropertyPriceDBS'		=> 'classes/CIBlockPropertyPrice.php'
+	,'OBX\Market\CIBlockPropertyPrice'			=> 'classes/CIBlockPropertyPrice.php'
 	,'OBX\Market\CurrencyDBS'					=> 'classes/Currency.php'
 	,'OBX\Market\Currency'						=> 'classes/Currency.php'
 	,'OBX\Market\CurrencyFormatDBS'				=> 'classes/CurrencyFormat.php'

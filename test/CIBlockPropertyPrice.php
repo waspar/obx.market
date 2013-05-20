@@ -12,6 +12,10 @@ use OBX\Market\Price as Price;
 use OBX\Market\Price as OBX_Price;
 use OBX\Market\PriceDBS as PriceDBS;
 use OBX\Market\PriceDBS as OBX_PriceDBS;
+use OBX\Market\ECommerceIBlock;
+use OBX\Market\ECommerceIBlockDBS;
+use OBX\Market\CIBlockPropertyPrice;
+use OBX\Market\CIBlockPropertyPriceDBS;
 
 final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 {
@@ -52,14 +56,14 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 	 * @depends testPriceAndPropExisting
 	 */
 	public function testTryToAddPricePropLinkToNotEComIB() {
-		OBX_ECommerceIBlock::delete(self::$_arTestIB['ID']);
+		ECommerceIBlock::delete(self::$_arTestIB['ID']);
 
-		$pricePropLinkID = OBX_CIBlockPropertyPrice::add(array(
+		$pricePropLinkID = CIBlockPropertyPrice::add(array(
 			'PRICE_ID' => self::$_arTestPrice['ID'],
 			'IBLOCK_ID' => self::$_arTestIB['ID'],
 			'IBLOCK_PROP_ID' => self::$_arIBPriceProp['ID']
 		));
-		$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+		$arError = CIBlockPropertyPrice::popLastError('ARRAY');
 		$this->assertEquals(0, $pricePropLinkID, 'Error: IBlock isn\'t ECommerce, but Adding is success');
 		$this->assertEquals(6, $arError['CODE'],
 			'Error code must be equal "6", but: code = "'.$arError['CODE'].'", text = "'.$arError['TEXT'].'"');
@@ -70,9 +74,9 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 	 * @depends testPriceAndPropExisting
 	 */
 	public function testAddTestIBToECommerce() {
-		$iblockID = OBX_ECommerceIBlock::add(array('IBLOCK_ID' => self::$_arTestIB['ID']));
+		$iblockID = ECommerceIBlock::add(array('IBLOCK_ID' => self::$_arTestIB['ID']));
 		if( $iblockID == 0 ) {
-			$arError = OBX_ECommerceIBlock::popLastError('ARRAY');
+			$arError = ECommerceIBlock::popLastError('ARRAY');
 		}
 		$this->assertGreaterThan(0, $iblockID, 'Error: code: "'.$arError['CODE'].'"; text: "'.$arError['TEXT'].'".');
 		$this->assertEquals(self::$_arTestIB['ID'], $iblockID, 'Error: Very strange behavior!');
@@ -82,13 +86,13 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 	 * @depends testPriceAndPropExisting
 	 */
 	public function testAddPricePropLink() {
-		$pricePropLinkID = OBX_CIBlockPropertyPrice::add(array(
+		$pricePropLinkID = CIBlockPropertyPrice::add(array(
 			'PRICE_ID' => self::$_arTestPrice['ID'],
 			'IBLOCK_ID' => self::$_arTestIB['ID'],
 			'IBLOCK_PROP_ID' => self::$_arIBPriceProp['ID']
 		));
 		if($pricePropLinkID<1) {
-			$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+			$arError = CIBlockPropertyPrice::popLastError('ARRAY');
 			$this->assertGreaterThan(0, $pricePropLinkID,
 				'Error: code: "'.$arError['CODE'].'"; text: "'.$arError['TEXT'].'"');
 		}
@@ -98,12 +102,12 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 	 * @depends testAddPricePropLink
 	 */
 	public function testAddDuplicatePricePropLink(){
-		$pricePropLinkID = OBX_CIBlockPropertyPrice::add(array(
+		$pricePropLinkID = CIBlockPropertyPrice::add(array(
 			'PRICE_ID' => self::$_arTestPrice['ID'],
 			'IBLOCK_ID' => self::$_arTestIB['ID'],
 			'IBLOCK_PROP_ID' => self::$_arIBPriceProp['ID']
 		));
-		$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+		$arError = CIBlockPropertyPrice::popLastError('ARRAY');
 		$this->assertEquals(0, $pricePropLinkID);
 		// 4 - error code of duplicate price property link
 		$this->assertEquals(4, $arError['CODE'], 'Error: error-code must be equal 4, but it not');
@@ -113,17 +117,17 @@ final class OBX_Test_CIBlockPropertyPrice extends OBX_Market_TestCase
 	 * @depends testAddPricePropLink
 	 */
 	public function testRemovePricePropLink() {
-		$bSuccess = OBX_CIBlockPropertyPrice::delete(13);
-		$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+		$bSuccess = CIBlockPropertyPrice::delete(13);
+		$arError = CIBlockPropertyPrice::popLastError('ARRAY');
 		$this->assertFalse($bSuccess);
-		$this->assertEquals(OBX_CIBlockPropertyPriceDBS::ERR_CANT_DEL_WITHOUT_PK, $arError['CODE']);
+		$this->assertEquals(CIBlockPropertyPriceDBS::ERR_CANT_DEL_WITHOUT_PK, $arError['CODE']);
 
-		$bSuccess = OBX_CIBlockPropertyPrice::deleteByFilter(array(
+		$bSuccess = CIBlockPropertyPrice::deleteByFilter(array(
 			'IBLOCK_ID' => self::$_arTestIB['ID'],
 			'IBLOCK_PROP_ID' => self::$_arIBPriceProp['ID']
 		));
 		if(!$bSuccess) {
-			$arError = OBX_CIBlockPropertyPrice::popLastError('ARRAY');
+			$arError = CIBlockPropertyPrice::popLastError('ARRAY');
 			$this->assertTrue($bSuccess, 'Error: code: '.$arError['CODE'].'; text: '.$arError['TEXT'].'.');
 		}
 	}

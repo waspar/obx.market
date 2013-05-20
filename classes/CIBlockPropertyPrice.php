@@ -10,12 +10,14 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 use OBX\Market\Price as OBX_Price;
 use OBX\Market\PriceDBS as OBX_PriceDBS;
 
 IncludeModuleLangFile(__FILE__);
 
-class OBX_CIBlockPropertyPriceDBS extends OBX_DBSimple
+class CIBlockPropertyPriceDBS extends \OBX_DBSimple
 {
 	protected $_arTableDefaultFields = array();
 	protected $_arTableList = array(
@@ -79,7 +81,7 @@ class OBX_CIBlockPropertyPriceDBS extends OBX_DBSimple
 	protected $_arTableFieldsCheck = array();
 	public function __check_PRICE_ID(&$fieldValue, &$arCheckData) {
 		$fieldValue = intval($fieldValue);
-		$rsPrice = OBX_Price::getByID($fieldValue, null, true);
+		$rsPrice = Price::getByID($fieldValue, null, true);
 		if( ($arPrice = $rsPrice->Fetch()) ) {
 			$arCheckData = $arPrice;
 			return true;
@@ -87,7 +89,7 @@ class OBX_CIBlockPropertyPriceDBS extends OBX_DBSimple
 		return false;
 	}
 	protected function __check_IBLOCK_ID(&$fieldValue, &$arCheckData) {
-		$arCommenctIBlock = OBX_ECommerceIBlock::getByID($fieldValue);
+		$arCommenctIBlock = ECommerceIBlock::getByID($fieldValue);
 		if( !empty($arCommenctIBlock) ) {
 			$arCheckData = $arCommenctIBlock;
 			return true;
@@ -264,7 +266,7 @@ SQL;
 			$bPriceIDAlreadySet = false;
 			if($fieldName=="PRICE_ID") {
 				$fieldValue = intval($arFields["PRICE_ID"]);
-				$arPrice = OBX_Price::getByID($fieldValue);
+				$arPrice = Price::getByID($fieldValue);
 				if( empty($arPrice) ) {
 					$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_3"), 3);
 					return 0;
@@ -324,7 +326,7 @@ SQL;
 				continue;
 			}
 			
-			$IBProp = new CIBlockProperty;
+			$IBProp = new \CIBlockProperty;
 			$newID = $IBProp->Add($arFieldsPrepared);
 			if(!$newID) {
 				$this->addError($IBProp->LAST_ERROR);
@@ -349,7 +351,7 @@ SQL;
 
 	protected function _onAfterDelete(&$arExists) {
 		if( $this->_bDeleteIBlockPropOnDeletePrice ) {
-				return CIBlockProperty::Delete($arExists["IBLOCK_PROP_ID"]);
+				return \CIBlockProperty::Delete($arExists["IBLOCK_PROP_ID"]);
 		}
 		return true;
 	}
@@ -386,7 +388,7 @@ SQL;
 }
 
 
-class OBX_CIBlockPropertyPrice extends OBX_DBSimpleStatic {
+class CIBlockPropertyPrice extends \OBX_DBSimpleStatic {
 	static public function delete($ID, $bDeleteIBlockProp = false) {
 		return self::getInstance()->delete($ID, $bDeleteIBlockProp);
 	}
@@ -417,5 +419,4 @@ class OBX_CIBlockPropertyPrice extends OBX_DBSimpleStatic {
 		return self::getInstance()->unRegisterModuleDependencies();
 	}
 }
-OBX_CIBlockPropertyPrice::__initDBSimple(OBX_CIBlockPropertyPriceDBS::getInstance());
-?>
+CIBlockPropertyPrice::__initDBSimple(CIBlockPropertyPriceDBS::getInstance());

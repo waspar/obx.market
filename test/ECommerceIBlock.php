@@ -8,6 +8,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\ECommerceIBlock;
+use OBX\Market\ECommerceIBlockDBS;
+
 OBX_Market_TestCase::includeLang(__FILE__);
 
 final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
@@ -42,9 +45,9 @@ final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
 	 */
 	public function testSetProductionIBlocks() {
 		foreach(self::$_arEComIBlockList as $arIBlock) {
-			$newEComIBlockLink = OBX_ECommerceIBlock::add(array('IBLOCK_ID' => $arIBlock['ID']));
+			$newEComIBlockLink = ECommerceIBlock::add(array('IBLOCK_ID' => $arIBlock['ID']));
 			if($newEComIBlockLink == 0) {
-				$arError = OBX_ECommerceIBlock::popLastError('ARRAY');
+				$arError = ECommerceIBlock::popLastError('ARRAY');
 				$this->assertTrue(is_array($arError), 'Can\'t get error data');
 				$this->assertArrayHasKey('CODE', $arError, 'Can\'t get error code');
 				$this->assertArrayHasKey('TEXT', $arError, 'Can\'t get error text');
@@ -64,9 +67,9 @@ final class OBX_Test_ECommerceIBlock extends OBX_Market_TestCase
 	 */
 	public function testUnSetProductionIBlocks() {
 		foreach(self::$_arEComIBlockList as $arIBlock) {
-			$bSuccess = OBX_ECommerceIBlock::delete($arIBlock['ID']);
+			$bSuccess = ECommerceIBlock::delete($arIBlock['ID']);
 			if( ! $bSuccess ) {
-				$arError = OBX_ECommerceIBlock::popLastError('ARRAY');
+				$arError = ECommerceIBlock::popLastError('ARRAY');
 				$this->assertTrue(is_array($arError), 'Can\'t get error data');
 				$this->assertArrayHasKey('CODE', $arError, 'Can\'t get error code');
 				$this->assertArrayHasKey('TEXT', $arError, 'Can\'t get error text');

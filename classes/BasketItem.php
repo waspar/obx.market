@@ -271,7 +271,7 @@ class BasketItemDBS extends \OBX_DBSimple {
 			unset($arCheckData['ORDER_ID']);
 		}
 		if($arCheckData['PRODUCT_ID']['IS_CORRECT']) {
-			$arECommerceIBlocks = \OBX_ECommerceIBlock::getCachedList();
+			$arECommerceIBlocks = ECommerceIBlock::getCachedList();
 			if( !array_key_exists($arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'], $arECommerceIBlocks) ) {
 				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_9'), 9);
 				return false;
@@ -285,7 +285,7 @@ class BasketItemDBS extends \OBX_DBSimple {
 			||
 			intval($arFields['PRICE_VALUE']) <= 0
 		) {
-			$arPricePropList = \OBX_CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
+			$arPricePropList = CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
 				'PRICE_ID' => $arFields['PRICE_ID'],
 				'IBLOCK_ID' => $arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID']
 			));

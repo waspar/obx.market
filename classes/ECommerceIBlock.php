@@ -10,9 +10,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_ECommerceIBlockDBS extends OBX_DBSimple
+class ECommerceIBlockDBS extends \OBX_DBSimple
 {
 	protected $_arTableList = array(
 		"E" => "obx_ecom_iblock",
@@ -69,12 +71,12 @@ class OBX_ECommerceIBlockDBS extends OBX_DBSimple
 	}
 
 	protected function _onBeforeDelete(&$arItem) {
-		OBX_CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arItem["IBLOCK_ID"]));
+		CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arItem["IBLOCK_ID"]));
 		return true;
 	}
 	protected function _onBeforeDeleteByFilter(&$arFilter, &$bCheckExistence, &$arDelete) {
 		if( isset($arFilter["IBLOCK_ID"])) {
-			OBX_CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arFilter["IBLOCK_ID"]));
+			CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arFilter["IBLOCK_ID"]));
 		}
 		// TODO: Дописать удаление связок св-в ИБ с ценами если PRICE_VERSION = 1
 		return true;
@@ -161,7 +163,7 @@ SQL;
 }
 
 
-class OBX_ECommerceIBlock extends OBX_DBSimpleStatic {
+class ECommerceIBlock extends \OBX_DBSimpleStatic {
 	static public function getFullList($bResultCDBResult = false) {
 		return self::getInstance()->getFullList($bResultCDBResult);
 	}
@@ -181,4 +183,4 @@ class OBX_ECommerceIBlock extends OBX_DBSimpleStatic {
 		return self::getInstance()->unRegisterModuleDependencies();
 	}
 }
-OBX_ECommerceIBlock::__initDBSimple(OBX_ECommerceIBlockDBS::getInstance());
+ECommerceIBlock::__initDBSimple(ECommerceIBlockDBS::getInstance());

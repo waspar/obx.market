@@ -10,7 +10,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_OrderProfile extends OBX_CMessagePoolStatic
+namespace OBX\Market;
+
+class OrderProfile extends OBX_CMessagePoolStatic
 {
 	// Возвращает профайл для текущего пользователя
 	static function getProfile($USER_ID) {
@@ -27,4 +29,3 @@ class OBX_OrderProfile extends OBX_CMessagePoolStatic
 
 	}
 }
-?>

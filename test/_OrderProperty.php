@@ -8,6 +8,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\OrderProperty;
+use OBX\Market\OrderProperty as OBX_OrderProperty;
+use OBX\Market\OrderPropertyDBS;
+use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
+
 OBX_Market_TestCase::includeLang(__FILE__);
 
 require_once dirname(__FILE__).'/_Order.php';

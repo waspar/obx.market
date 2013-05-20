@@ -10,8 +10,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_DeliverySystem
+namespace OBX\Market;
+
+class DeliverySystem
 {
 
 }
-?>

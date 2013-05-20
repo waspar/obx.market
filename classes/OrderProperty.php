@@ -10,8 +10,10 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
-class OBX_OrderPropertyDBS extends OBX_DBSimple {
+class OrderPropertyDBS extends \OBX_DBSimple {
 	protected $_arTableList = array(
 		'OP' => 'obx_order_property'
 	);
@@ -140,11 +142,11 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 			$this->addError(GetMessage('OBX_MARKET_ORDER_PROP_ERROR_6'), 6);
 			return false;
 		}
-		OBX_OrderPropertyValuesDBS::getInstance()->deleteByFilter(array(
+		OrderPropertyValuesDBS::getInstance()->deleteByFilter(array(
 			'PROPERTY_ID' => $arFields['ID']
 		));
 		if ($arFields['PROPERTY_TYPE'] == 'L') {
-			OBX_OrderPropertyEnumDBS::getInstance()->deleteByFilter(array(
+			OrderPropertyEnumDBS::getInstance()->deleteByFilter(array(
 				'PROPERTY_ID' => $arFields['ID']
 			));
 		}
@@ -161,7 +163,7 @@ class OBX_OrderPropertyDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_OrderProperty extends OBX_DBSimpleStatic {
+class OrderProperty extends \OBX_DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}
@@ -171,4 +173,4 @@ class OBX_OrderProperty extends OBX_DBSimpleStatic {
 	}
 }
 
-OBX_OrderProperty::__initDBSimple(OBX_OrderPropertyDBS::getInstance());
+OrderProperty::__initDBSimple(OrderPropertyDBS::getInstance());

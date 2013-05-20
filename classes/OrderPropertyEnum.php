@@ -9,12 +9,15 @@
  ** @mailto tashiro@yandex.ru                 **
  ** @copyright 2013 DevTop                    **
  ***********************************************/
+
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  *
  */
-class OBX_OrderPropertyEnumDBS extends OBX_DBSimple {
+class OrderPropertyEnumDBS extends \OBX_DBSimple {
 	protected $_arTableList = array(
 		'OPE' => 'obx_order_property_enum',
 		'OP' => 'obx_order_property'
@@ -81,7 +84,7 @@ class OBX_OrderPropertyEnumDBS extends OBX_DBSimple {
 	}
 
 	public function __check_PROPERTY_ID(&$fieldValue, &$arCheckData) {
-		$arProp = OBX_OrderPropertyDBS::getInstance()->getByID($fieldValue);
+		$arProp = OrderPropertyDBS::getInstance()->getByID($fieldValue);
 		if( empty($arProp) || !is_array($arProp) ) {
 			return false;
 		}
@@ -89,6 +92,6 @@ class OBX_OrderPropertyEnumDBS extends OBX_DBSimple {
 		return true;
 	}
 }
-class OBX_OrderPropertyEnum extends OBX_DBSimpleStatic {}
-OBX_OrderPropertyEnum::__initDBSimple(OBX_OrderPropertyEnumDBS::getInstance());
+class OrderPropertyEnum extends \OBX_DBSimpleStatic {}
+OrderPropertyEnum::__initDBSimple(OrderPropertyEnumDBS::getInstance());
 ?>

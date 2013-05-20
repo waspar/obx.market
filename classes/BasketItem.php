@@ -235,7 +235,7 @@ class BasketItemDBS extends \OBX_DBSimple {
 	}
 
 	public function __check_ORDER_ID(&$value, &$arCheckData = null) {
-		$arOrder = \OBX_OrderDBS::getInstance()->getByID($value);
+		$arOrder = OrderDBS::getInstance()->getByID($value);
 		if( empty($arOrder) ) {
 			return false;
 		}

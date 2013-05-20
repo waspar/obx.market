@@ -10,19 +10,15 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-use OBX\Market\Currency;
-use OBX\Market\Currency as OBX_Currency;
-use OBX\Market\CurrencyDBS;
-use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
-use OBX\Market\BasketItemDBS;
+namespace OBX\Market;
 
 IncludeModuleLangFile(__FILE__);
 
 /**
- * Class OBX_OrderDBS
+ * Class OrderDBS
  * @method @static self getInstance()
  */
-class OBX_OrderDBS extends OBX_DBSimple {
+class OrderDBS extends \OBX_DBSimple {
 
 	protected $_arTableList = array(
 		'O'		=> 'obx_orders',
@@ -160,7 +156,7 @@ SQL
 		global $USER;
 		$this->_arTableFieldsDefault = array(
 			'STATUS_ID' => '1',
-			'CURRENCY' => OBX_Currency::getDefault(),
+			'CURRENCY' => Currency::getDefault(),
 			'USER_ID' => $USER->GetID(),
 			'MODIFIED_BY' => $USER->GetID(),
 		);
@@ -261,7 +257,7 @@ SQL
 
 	protected function _onAfterDelete(&$arOrder) {
 		$arFilter = array("ORDER_ID" => $arOrder["ID"]);
-		OBX_OrderPropertyValuesDBS::getInstance()->deleteByFilter($arFilter);
+		OrderPropertyValuesDBS::getInstance()->deleteByFilter($arFilter);
 		BasketItemDBS::getInstance()->deleteByFilter($arFilter);
 		return true;
 	}
@@ -275,9 +271,9 @@ SQL
  * Class OBX_OrderList
  * @method @static OBX_OrderDBS getInstance()
  */
-class OBX_OrderList extends OBX_DBSimpleStatic {
+class OrderList extends \OBX_DBSimpleStatic {
 	static public function add($arFields = array()) {
 		return parent::add($arFields);
 	}
 }
-OBX_OrderList::__initDBSimple(OBX_OrderDBS::getInstance());
+OrderList::__initDBSimple(OrderDBS::getInstance());

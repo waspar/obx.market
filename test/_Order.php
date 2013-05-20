@@ -8,12 +8,13 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\OrderList;
+use OBX\Market\OrderListDBS;
+
 OBX_Market_TestCase::includeLang(__FILE__);
 
 class OBX_Test_Lib_Order extends OBX_Market_TestCase
 {
-
-
 	static protected $_arOrderList = array();
 	static public function setUpBeforeClass() {
 		self::$_arOrderList = array(
@@ -33,9 +34,9 @@ class OBX_Test_Lib_Order extends OBX_Market_TestCase
 
 	public function _addOrder() {
 		$this->_getTestUser();
-		$orderID = OBX_OrderList::add(array('USER_ID' => self::$_arTestUser['ID']));
+		$orderID = OrderList::add(array('USER_ID' => self::$_arTestUser['ID']));
 		if($orderID<1) {
-			$arError = OBX_OrderList::popLastError('ARRAY');
+			$arError = OrderList::popLastError('ARRAY');
 			$this->assertGreaterThan(0, $orderID, 'Error: code: "'.$arError['CODE'].'"; test: "'.$arError['TEXT'].'"');
 		}
 		self::$_arOrderList[] = array(
@@ -45,7 +46,7 @@ class OBX_Test_Lib_Order extends OBX_Market_TestCase
 
 	public function _deleteOrder() {
 		foreach(self::$_arOrderList as &$arOrderDesc) {
-			OBX_OrderList::delete($arOrderDesc['ID']);
+			OrderList::delete($arOrderDesc['ID']);
 		} unset($arOrderDesc);
 	}
 }

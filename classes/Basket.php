@@ -40,7 +40,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 	static protected $_BasketItemDBS = null;
 
 	/**
-	 * @var OBX_OrderDBS
+	 * @var OrderDBS
 	 * @static
 	 * @access protected
 	 */
@@ -61,7 +61,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 	static protected function _initDBSimpleObjects() {
 		self::$_BasketDBS = BasketDBS::getInstance();
 		self::$_BasketItemDBS = BasketItemDBS::getInstance();
-		self::$_OrderDBS = \OBX_OrderDBS::getInstance();
+		self::$_OrderDBS = OrderDBS::getInstance();
 		self::$_PriceDBS = PriceDBS::getInstance();
 	}
 	static public function getByID($basketID) {

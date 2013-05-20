@@ -8,7 +8,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\OrderStatus;
+use OBX\Market\OrderStatus as OBX_OrderStatus;
+
 OBX_Market_TestCase::includeLang(__FILE__);
+
 
 final class OBX_Test_OrderStatus extends OBX_Market_TestCase
 {

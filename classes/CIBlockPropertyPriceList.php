@@ -10,9 +10,11 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_CIBlockPropertyPriceList extends CDBResult implements Iterator
+class CIBlockPropertyPriceList extends \CDBResult implements \Iterator
 {
 	// Переменные объекта
 	protected $_CDBResult;
@@ -44,7 +46,7 @@ class OBX_CIBlockPropertyPriceList extends CDBResult implements Iterator
 
 
 	// Конструктор - содаем список на базе выборки из ИБ
-	protected function __construct(CDBResult &$_CDBResult){
+	protected function __construct(\CDBResult &$_CDBResult){
 		$this->position = 0;
 		$this->_CDBResult = $_CDBResult;
 		parent::__construct($this->_CDBResult);
@@ -58,6 +60,6 @@ class OBX_CIBlockPropertyPriceList extends CDBResult implements Iterator
 		// TODO: Дописать механизм получения дополнительных данных о цене
 	}
 }
-class OBX_CIBEPrice {
+class CIBEPrice {
 	// TODO: Дописать механизм получения дополнительных данных о цене
 }

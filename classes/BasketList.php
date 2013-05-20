@@ -84,7 +84,7 @@ SQL
 
 	public function __check_ORDER_ID(&$value, &$arCheckData) {
 		if($value !== null) {
-			$rsOrder = \OBX_OrderDBS::getInstance()->getByID($value, null, true);
+			$rsOrder = OrderDBS::getInstance()->getByID($value, null, true);
 			if( ! ($arOrder = $rsOrder->Fetch()) ) {
 				if($arCheckData !== null) {
 					$this->addError(GetMessage('OBX_BASKET_LIST_ERROR_7'), 7);

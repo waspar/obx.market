@@ -10,12 +10,14 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  *
  */
-class OBX_OrderPropertyValuesDBS extends OBX_DBSimple {
+class OrderPropertyValuesDBS extends \OBX_DBSimple {
 	protected $_arTableList = array(
 		'O' => 'obx_orders',
 		'OP' => 'obx_order_property',
@@ -125,7 +127,7 @@ SQL
 	}
 
 	public function __check_ORDER_ID(&$fieldValue, &$arCheckData) {
-		$arOrder = OBX_OrderDBS::getInstance()->getByID($fieldValue);
+		$arOrder = OrderDBS::getInstance()->getByID($fieldValue);
 		if (empty($arOrder) || !is_array($arOrder)) {
 			return false;
 		}
@@ -134,7 +136,7 @@ SQL
 	}
 
 	public function __check_PROPERTY_ID(&$fieldValue, &$arCheckData) {
-		$arProp = OBX_OrderPropertyDBS::getInstance()->getByID($fieldValue);
+		$arProp = OrderPropertyDBS::getInstance()->getByID($fieldValue);
 		if (empty($arProp) || !is_array($arProp)) {
 			return false;
 		}
@@ -222,7 +224,7 @@ SQL
 				unset($arFields['VALUE_T']);
 				unset($arFields['VALUE_C']);
 
-				$arPropEnums = OBX_OrderPropertyEnumDBS::getInstance()->getListArray(null, array(
+				$arPropEnums = OrderPropertyEnumDBS::getInstance()->getListArray(null, array(
 					'PROPERTY_ID' => $arCheckResult['PROPERTY_ID']['CHECK_DATA']['ID']
 				));
 				$bFound = false;
@@ -272,5 +274,5 @@ SQL
 	}
 }
 
-class OBX_OrderPropertyValues extends OBX_DBSimpleStatic {}
-OBX_OrderPropertyValues::__initDBSimple(OBX_OrderPropertyValuesDBS::getInstance());
+class OrderPropertyValues extends \OBX_DBSimpleStatic {}
+OrderPropertyValues::__initDBSimple(OrderPropertyValuesDBS::getInstance());

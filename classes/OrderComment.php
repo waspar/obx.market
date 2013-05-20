@@ -10,9 +10,12 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_OrderCommentDBS extends OBX_DBSimple{
+class OrderCommentDBS extends \OBX_DBSimple
+{
 	protected $_arTableList = array(
 		"OC" => "obx_order_comments"
 	);
@@ -43,5 +46,5 @@ class OBX_OrderCommentDBS extends OBX_DBSimple{
 		);
 	}
 }
-class OBX_OrderComment extends OBX_DBSimpleStatic {}
-OBX_OrderComment::__initDBSimple(OBX_OrderCommentDBS::getInstance());
+class OrderComment extends \OBX_DBSimpleStatic {}
+OrderComment::__initDBSimple(OrderCommentDBS::getInstance());

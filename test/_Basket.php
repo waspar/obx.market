@@ -16,6 +16,8 @@ use OBX\Market\ECommerceIBlock;
 use OBX\Market\ECommerceIBlockDBS;
 use OBX\Market\CIBlockPropertyPrice;
 use OBX\Market\CIBlockPropertyPriceDBS;
+use OBX\Market\Order;
+use OBX\Market\OrderDBS;
 
 class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 {
@@ -139,7 +141,7 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 		self::$_BasketDBS = BasketDBS::getInstance();
 		self::$_BasketItemDBS = BasketItemDBS::getInstance();
 		self::$_PriceDBS = PriceDBS::getInstance();
-		self::$_OrderDBS = OBX_OrderDBS::getInstance();
+		self::$_OrderDBS = OrderDBS::getInstance();
 		self::$_ECommerceIBlockDBS = ECommerceIBlockDBS::getInstance();
 	}
 

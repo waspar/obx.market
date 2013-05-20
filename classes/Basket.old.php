@@ -10,6 +10,7 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+
 IncludeModuleLangFile(__FILE__);
 
 class OBX_BasketOLD extends OBX_CMessagePoolDecorator {
@@ -28,7 +29,8 @@ class OBX_BasketOLD extends OBX_CMessagePoolDecorator {
 
 	/**
 	 * @param $basketID
-	 * @return null|OBX_Basket
+	 * @param array &$arError
+	 * @return null | self
 	 */
 	static public function getInstance($basketID = self::defaultBasketID, &$arError = array()) {
 		$regBasketIDValid = '~^[a-zA-Z0-9\_\-\.]{1,10}$~';

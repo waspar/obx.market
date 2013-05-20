@@ -10,8 +10,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-class OBX_PaySystem
+namespace OBX\Market;
+
+class PaySystem
 {
 
 }
-?>

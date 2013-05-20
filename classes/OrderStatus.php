@@ -10,12 +10,14 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  *
  */
-class OBX_OrderStatusDBS extends OBX_DBSimple {
+class OrderStatusDBS extends \OBX_DBSimple {
 	// TODO: Проверка на права
 	const ALLOW_CHANGE_ITEMS 		=	1;
 	const ALLOW_CHANGE_STATUS		=	2;
@@ -151,6 +153,5 @@ class OBX_OrderStatusDBS extends OBX_DBSimple {
 	}
 }
 
-class OBX_OrderStatus extends OBX_DBSimpleStatic {}
-OBX_OrderStatus::__initDBSimple(OBX_OrderStatusDBS::getInstance());
-?>
+class OrderStatus extends \OBX_DBSimpleStatic {}
+OrderStatus::__initDBSimple(OrderStatusDBS::getInstance());

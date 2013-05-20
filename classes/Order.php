@@ -10,10 +10,12 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
 
-class OBX_Order extends OBX_CMessagePoolDecorator {
+class Order extends \OBX_CMessagePoolDecorator {
 	protected $_OrderDBS = null;
 	protected $_BasketItemDBS = null;
 	protected $_OrderStatusDBS = null;
@@ -29,25 +31,25 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 
 	// Кострутор объекта из БД или из ID заказа
 	protected function __construct() {
-		$this->_OrderDBS = OBX_OrderDBS::getInstance();
-		$this->_OrderStatusDBS = OBX_OrderStatusDBS::getInstance();
-		$this->_OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
-		$this->_OrderPropertyValuesDBS = OBX_OrderPropertyValuesDBS::getInstance();
-		$this->_OrderCommentDBS = OBX_OrderCommentDBS::getInstance();
-		$this->_BasketItemDBS = OBX_BasketItemDBS::getInstance();
-		$this->_EComIBlockDBS = OBX_ECommerceIBlockDBS::getInstance();
-		$this->_PriceDBS = OBX_PriceDBS::getInstance();
-		$this->_CIBlockPropertyPriceDBS = OBX_CIBlockPropertyPriceDBS::getInstance();
-		$this->_Basket = OBX_Basket::getInstance();
+		$this->_OrderDBS = OrderDBS::getInstance();
+		$this->_OrderStatusDBS = \OBX_OrderStatusDBS::getInstance();
+		$this->_OrderPropertyDBS = \OBX_OrderPropertyDBS::getInstance();
+		$this->_OrderPropertyValuesDBS = \OBX_OrderPropertyValuesDBS::getInstance();
+		$this->_OrderCommentDBS = \OBX_OrderCommentDBS::getInstance();
+		$this->_BasketItemDBS = BasketItemDBS::getInstance();
+		$this->_EComIBlockDBS = ECommerceIBlockDBS::getInstance();
+		$this->_PriceDBS = PriceDBS::getInstance();
+		$this->_CIBlockPropertyPriceDBS = CIBlockPropertyPriceDBS::getInstance();
+		$this->_Basket = Basket::getInstance();
 	}
 
 	protected function __clone() {
 	}
 
 	public static function getList($arSort = null, $arFilter = null, $arGroupBy = null, $arPagination = null, $arSelect = null, $bShowNullFields = true) {
-		$OrderList = OBX_OrderDBS::getInstance();
+		$OrderList = OrderDBS::getInstance();
 		$res = $OrderList->getList($arSort, $arFilter, $arGroupBy, $arPagination, $arSelect, $bShowNullFields);
-		$OrderDBResult = new OBX_OrderDBResult($res, $arSelect);
+		$OrderDBResult = new OrderDBResult($res, $arSelect);
 
 		return $OrderDBResult;
 	}
@@ -62,7 +64,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public static function getByID($orderID, $arSelect = null) {
-		$OrderDBS = OBX_OrderDBS::getInstance();
+		$OrderDBS = OrderDBS::getInstance();
 		$rsOrder = $OrderDBS->getList(null, array('ID' => $orderID), null, null, $arSelect, false);
 		$arOrder = $rsOrder->Fetch();
 		if (empty($arOrder)) {
@@ -89,7 +91,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public static function delete($orderID) {
-		$OrderDBS = OBX_OrderDBS::getInstance();
+		$OrderDBS = OrderDBS::getInstance();
 		$OrderDBS->delete($orderID);
 	}
 
@@ -104,7 +106,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	protected function read($orderID) {
-		if ($orderID instanceof OBX_OrderDBResult) {
+		if ($orderID instanceof OrderDBResult) {
 			$arOrder = $orderID->Fetch();
 			if (isset($arOrder['ID'])) {
 				$arOrder = $this->_OrderDBS->getByID($arOrder['ID']);
@@ -127,7 +129,7 @@ class OBX_Order extends OBX_CMessagePoolDecorator {
 	}
 
 	public function setBasketID($basketID) {
-		$Basket = OBX_Basket::getInstance($basketID);
+		$Basket = Basket::getInstance($basketID);
 		if ($Basket !== null) {
 			$this->_Basket = $Basket;
 		}

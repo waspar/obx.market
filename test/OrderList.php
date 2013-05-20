@@ -8,6 +8,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\OrderList;
+use OBX\Market\OrderListDBS;
+
 require_once dirname(__FILE__).'/_Order.php';
 
 OBX_Market_TestCase::includeLang(__FILE__);
@@ -26,7 +29,7 @@ class OBX_Test_OrderList extends OBX_Test_Lib_Order
 			$arFilter[] = $arOrderDesc['ID'];
 		} unset($arOrderDesc);
 		//print_r($arFilter);
-		$arOrderList = OBX_OrderList::getListArray(null, $arFilter);
+		$arOrderList = OrderList::getListArray(null, $arFilter);
 		//print_r($arOrderList);
 	}
 

@@ -8,15 +8,17 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+namespace OBX\Market;
+
 IncludeModuleLangFile(__FILE__);
 
-class OBX_OrderDBResult extends OBX_DBSResult {
+class OrderDBResult extends \OBX_DBSResult {
 
 	function __construct($DBResult = null) {
 		parent::__construct($DBResult);
 	}
 
 	function getNextOrder() {
-		return OBX_Order::getOrder($this);
+		return Order::getOrder($this);
 	}
 }

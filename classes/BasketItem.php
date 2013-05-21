@@ -55,9 +55,18 @@ class BasketItemDBS extends \OBX_DBSimple {
 	protected $_arTableFields = array(
 		'ID'						=> array('I'	=> 'ID'),
 		'BASKET_ID'					=> array('I'	=> 'BASKET_ID'),
-		'ORDER_ID'					=> array('B'	=> 'ORDER_ID', 'REQUIRED_FIELDS' => 'BASKET_ID'),
+		'ORDER_ID'					=> array('B'	=> 'ORDER_ID'),
 		'BASKET_USER_ID'			=> array('B'	=> 'USER_ID'),
 		'ORDER_USER_ID'				=> array('O'	=> 'USER_ID'),
+		'USER_ID'					=> array('B'	=> <<<SQL
+			(SELECT
+				IF B.ORDER_ID IS NULL
+				THEN B.USER_ID
+				ELSE O.USER_ID
+			)
+SQL
+			, 'REQUIRED_TABLES' => 'O'
+		),
 		'PRODUCT_ID'				=> array('I'	=> 'PRODUCT_ID'),
 		'PRODUCT_NAME'				=> array('I'	=> 'PRODUCT_NAME'),
 		'QUANTITY'					=> array('I'	=> 'QUANTITY'),

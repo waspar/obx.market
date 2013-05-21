@@ -112,11 +112,13 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		 * @var Basket $Basket
 		 */
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
-		$newQuantity = $Basket->addProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
+		$newQuantity = $Basket->addItem(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
 		$this->assertLessThan(0, $newQuantity, GetMessage('OBX_MARKET_TEST_BASKET_ERROR_7'));
 		$arError = $Basket->popLastError('ARRAY');
+		$arErrorBefore = $Basket->popLastError('ARRAY');
 		// Обрабатываем ошибку. Нельзя добавить в корзину элемент из инфоблока не являющегося торговым каталогом
-		$this->assertEquals(309, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		$this->assertEquals(5, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		$this->assertEquals(309, $arErrorBefore['CODE'], 'Error: returned not expected error: '.$arErrorBefore['TEXT'].'; code: '.$arErrorBefore['CODE']);
 	}
 
 	/**
@@ -136,11 +138,13 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		 * @var Basket $Basket
 		 */
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
-		$newQuantity = $Basket->addProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
-		$this->assertLessThan(0, $newQuantity, $bSuccess, GetMessage('OBX_MARKET_TEST_BASKET_ERROR_71'));
+		$newQuantity = $Basket->addItem(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
+		$this->assertLessThan(0, $newQuantity, GetMessage('OBX_MARKET_TEST_BASKET_ERROR_71'));
 		$arError = $Basket->popLastError('ARRAY');
+		$arErrorBefore = $Basket->popLastError('ARRAY');
 		// Обрабатываем ошибку. Цена не указана явно и получить её из элемента не удастся. Код ошибки 10
-		$this->assertEquals(310, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		$this->assertEquals(5, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		$this->assertEquals(310, $arErrorBefore['CODE'], 'Error: returned not expected error: '.$arErrorBefore['TEXT'].'; code: '.$arErrorBefore['CODE']);
 	}
 
 	/**
@@ -164,7 +168,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$Basket = &self::$_BasketArray['CURRENT_USER'];
 		$addQuantity = rand(1, 9);
 		foreach(self::$_arPoductList as $arElement) {
-			$newQuantity = $Basket->addProduct($arElement['ID'], $addQuantity);
+			$newQuantity = $Basket->addItem($arElement['ID'], $addQuantity);
 			if( $newQuantity < 0 ) {
 				$arError = $Basket->popLastError('ARRAY');
 				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
@@ -187,7 +191,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
 		$addQuantity = rand(0, 9);
 		foreach(self::$_arPoductList as $arElement) {
-			$newQuantity = $Basket->addProduct($arElement['ID'], $addQuantity);
+			$newQuantity = $Basket->addItem($arElement['ID'], $addQuantity);
 			if( $newQuantity < 0 ) {
 				$arError = $Basket->popLastError('ARRAY');
 				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
@@ -210,7 +214,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$Basket = &self::$_BasketArray['ORDER_BASKET'];
 		$addQuantity = rand(0, 9);
 		foreach(self::$_arPoductList as $arElement) {
-			$newQuantity = $Basket->addProduct($arElement['ID'], $addQuantity);
+			$newQuantity = $Basket->addItem($arElement['ID'], $addQuantity);
 			if( $newQuantity < 0 ) {
 				$arError = $Basket->popLastError('ARRAY');
 				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);

@@ -56,7 +56,8 @@ class BasketItemDBS extends \OBX_DBSimple {
 		'ID'						=> array('I'	=> 'ID'),
 		'BASKET_ID'					=> array('I'	=> 'BASKET_ID'),
 		'ORDER_ID'					=> array('B'	=> 'ORDER_ID', 'REQUIRED_FIELDS' => 'BASKET_ID'),
-		'USER_ID'					=> array('O'	=> 'USER_ID'),
+		'BASKET_USER_ID'			=> array('B'	=> 'USER_ID'),
+		'ORDER_USER_ID'				=> array('O'	=> 'USER_ID'),
 		'PRODUCT_ID'				=> array('I'	=> 'PRODUCT_ID'),
 		'PRODUCT_NAME'				=> array('I'	=> 'PRODUCT_NAME'),
 		'QUANTITY'					=> array('I'	=> 'QUANTITY'),
@@ -123,12 +124,11 @@ class BasketItemDBS extends \OBX_DBSimple {
 			'DELAYED'			=> self::FLD_T_BCHAR | self::FLD_NOT_NULL,
 			'WEIGHT'			=> self::FLD_T_INT | self::FLD_NOT_NULL,
 			'PRICE_ID'			=> self::FLD_T_PK_ID
-									| self::FLD_REQUIRED
 									| self::FLD_CUSTOM_CK
 									| self::FLD_BRK_INCORR,
 
-			'PRICE_VALUE'		=> self::FLD_T_FLOAT | self::FLD_NOT_NULL,
-			'DISCOUNT_VALUE'	=> self::FLD_T_FLOAT | self::FLD_NOT_NULL,
+			'PRICE_VALUE'		=> self::FLD_T_FLOAT | self::FLD_NOT_ZERO,
+			'DISCOUNT_VALUE'	=> self::FLD_T_FLOAT | self::FLD_NOT_ZERO,
 			'VAT_ID'			=> self::FLD_T_INT,
 			'VAT_VALUE'			=> self::FLD_T_FLOAT
 		);
@@ -240,6 +240,13 @@ class BasketItemDBS extends \OBX_DBSimple {
 			return false;
 		}
 		$arCheckData = $arOrder;
+		return true;
+	}
+
+	protected function _onStartAdd(&$arFields) {
+		if( array_key_exists('PRICE_ID', $arFields) && $arFields['PRICE_ID'] == null) {
+			unset($arFields['PRICE_ID']);
+		}
 		return true;
 	}
 

@@ -8,9 +8,9 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-use OBX\Market\Price as Price;
+use OBX\Market\Price;
 use OBX\Market\Price as OBX_Price;
-use OBX\Market\PriceDBS as PriceDBS;
+use OBX\Market\PriceDBS;
 use OBX\Market\PriceDBS as OBX_PriceDBS;
 use OBX\Market\ECommerceIBlock;
 use OBX\Market\ECommerceIBlockDBS;

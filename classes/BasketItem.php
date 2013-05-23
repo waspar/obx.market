@@ -260,32 +260,6 @@ SQL
 	}
 
 	protected function _onBeforeAdd(&$arFields, &$arCheckData) {
-		if( empty($arFields['BASKET_ID']) && empty($arFields['ORDER_ID']) ) {
-			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_1'), 1);
-			return false;
-		}
-		elseif(empty($arFields['BASKET_ID']) && !empty($arFields['ORDER_ID'])) {
-			$BasketDBS = BasketDBS::getInstance();
-			$arBasketList = $BasketDBS->getListArray(null, array('ORDER_ID' => $arFields['ORDER_ID']));
-			if( empty($arBasketList) ) {
-				$basketOrderID = $BasketDBS->add(array(
-					'ORDER_ID' => $arFields['ORDER_ID']
-				));
-				if(!$basketOrderID) {
-					$arError = $BasketDBS->popLastError('ARRAY');
-					$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_11', array(
-						'#ERROR_TEXT#' => $arError['TEXT'].'; код ошибки: '.$arError['CODE'].'.'
-					)), 11);
-					return false;
-				}
-				$arFields['BASKET_ID'] = $basketOrderID;
-			}
-			else {
-				$arFields['BASKET_ID'] = $arBasketList[0]['ID'];
-			}
-			unset($arFields['ORDER_ID']);
-			unset($arCheckData['ORDER_ID']);
-		}
 		if($arCheckData['PRODUCT_ID']['IS_CORRECT']) {
 			$arECommerceIBlocks = ECommerceIBlock::getCachedList();
 			if( !array_key_exists($arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'], $arECommerceIBlocks) ) {
@@ -296,6 +270,7 @@ SQL
 				$arFields['PRODUCT_NAME'] = $arCheckData['PRODUCT_ID']['CHECK_DATA']['NAME'];
 			}
 		}
+		$defaultCurrency = null;
 		if(
 			!array_key_exists('PRICE_VALUE', $arFields)
 			||
@@ -326,6 +301,37 @@ SQL
 				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_10'), 10);
 				return false;
 			}
+			$defaultCurrency = $arPriceProp['CURRENCY'];
+		}
+		if( empty($arFields['BASKET_ID']) && empty($arFields['ORDER_ID']) ) {
+			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_1'), 1);
+			return false;
+		}
+		elseif(empty($arFields['BASKET_ID']) && !empty($arFields['ORDER_ID'])) {
+			if($defaultCurrency === null) {
+				$defaultCurrency = Currency::getDefault();
+			}
+			$BasketDBS = BasketDBS::getInstance();
+			$arBasketList = $BasketDBS->getListArray(null, array('ORDER_ID' => $arFields['ORDER_ID']));
+			if( empty($arBasketList) ) {
+				$basketOrderID = $BasketDBS->add(array(
+					'ORDER_ID' => $arFields['ORDER_ID'],
+					'CURRENCY' => $defaultCurrency
+				));
+				if(!$basketOrderID) {
+					$arError = $BasketDBS->popLastError('ARRAY');
+					$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_11', array(
+						'#ERROR_TEXT#' => $arError['TEXT'].'; код ошибки: '.$arError['CODE'].'.'
+					)), 11);
+					return false;
+				}
+				$arFields['BASKET_ID'] = $basketOrderID;
+			}
+			else {
+				$arFields['BASKET_ID'] = $arBasketList[0]['ID'];
+			}
+			unset($arFields['ORDER_ID']);
+			unset($arCheckData['ORDER_ID']);
 		}
 		return true;
 	}

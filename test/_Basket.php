@@ -214,7 +214,9 @@ class OBX_Test_Lib_Basket extends OBX_Market_TestCase
 				'IBLOCK_ID' => self::$_arTestIBlock['ID']
 			), false, array('nTopCount' => '20'));
 			while($arProduct = $rsProducts->GetNext()) {
-				self::$_arPoductList[] = $arProduct;
+				if( !array_key_exists($arProduct['ID'], self::$_arPoductList) ) {
+					self::$_arPoductList[$arProduct['ID']] = $arProduct;
+				}
 			}
 			$this->assertEquals(20, count(self::$_arPoductList));
 		}

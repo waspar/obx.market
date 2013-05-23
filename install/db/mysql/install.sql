@@ -123,6 +123,7 @@ create table if not exists obx_basket (
 	USER_ID int(18) NULL,
 	ORDER_ID int(11) NULL,
 	HASH_STRING char(32) NULL,
+	CURRENCY char(3) not null,
 	TIMESTAMP_X timestamp on update current_timestamp not null default current_timestamp,
 	DATE_CREATED timestamp not null,
 	primary key (ID),

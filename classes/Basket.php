@@ -12,6 +12,19 @@ namespace OBX\Market;
 
 IncludeModuleLangFile(__FILE__);
 
+/**
+ * Class Basket
+ * @package OBX\Market
+ *
+ * TODO: Написать методы взаимодействия с валютами
+ * setCurrency
+ * getCurrency
+ * Методы будут добавлять основную валюту корзины.
+ * в конструкторе будем брать дефолтную Currency::getDefault()
+ * если попытаться добавить товар с валютой отличной от валюты корзины, сгененрировать ошибку.
+ * В дальнейшем, когда будет механизм курса валют, просто делать пересчет по курсу.
+ */
+
 class Basket extends \OBX_CMessagePoolDecorator
 {
 	const COOKIE_NAME = 'OBX_BASKET_HASH';
@@ -58,10 +71,29 @@ class Basket extends \OBX_CMessagePoolDecorator
 	protected $_arFields = array(
 		'ID' => null
 	);
+
+	/**
+	 * Содержит массив элементов, полученных из корзины
+	 * в качестве ключей используется ID
+	 * @var array
+	 */
 	protected $_arProductList = array();
+
+	/**
+	 * Массив ссылок на элементы $_arProductList
+	 * в качестве ключей используется PRODUCT_ID
+	 * @var array
+	 */
 	protected $_arProductListIndex = array();
-	protected $_arProductListIDIndex = array();
-	protected $_arItemsList = array();
+
+
+
+	/**
+	 * Массив содержит количества элементов корзины
+	 * в качестве ключей используется PRODUCT_ID
+	 * @var array
+	 */
+	protected $_arItemsQuantity = array();
 
 	static protected function _initDBSimpleObjects() {
 		self::$_BasketDBS = BasketDBS::getInstance();
@@ -82,7 +114,10 @@ class Basket extends \OBX_CMessagePoolDecorator
 			'ORDER_ID' => null
 		));
 		if( $rsBasket->SelectedRowsCount() < 1 ) {
-			$newBasketID = self::$_BasketDBS->add(array('HASH_STRING'	=> $hash));
+			$newBasketID = self::$_BasketDBS->add(array(
+				'HASH_STRING' => $hash,
+				'CURRENCY' => Currency::getDefault()
+			));
 			$rsBasket = self::$_BasketDBS->getByID($newBasketID, null, true);
 		}
 		return new self($rsBasket);
@@ -94,18 +129,22 @@ class Basket extends \OBX_CMessagePoolDecorator
 			'ORDER_ID' => null
 		));
 		if( $rsBasket->SelectedRowsCount() < 1 ) {
-			$newBasketID = self::$_BasketDBS->add(array('USER_ID'	=> $userID));
+			$newBasketID = self::$_BasketDBS->add(array(
+				'USER_ID' => $userID,
+				'CURRENCY' => Currency::getDefault()
+			));
 			$rsBasket = self::$_BasketDBS->getByID($newBasketID, null, true);
 		}
 		return new self($rsBasket);
 	}
 	static public function getByOrderID($orderID) {
 		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
-		$rsBasket = self::$_BasketDBS->getList(null, array(
-			'ORDER_ID' => $orderID
-		));
+		$rsBasket = self::$_BasketDBS->getList(null, array('ORDER_ID' => $orderID));
 		if( $rsBasket->SelectedRowsCount() < 1 ) {
-			$newBasketID = self::$_BasketDBS->add(array('ORDER_ID'	=> $orderID));
+			$newBasketID = self::$_BasketDBS->add(array(
+				'ORDER_ID'	=> $orderID,
+				'CURRENCY' => Currency::getDefault()
+			));
 			$rsBasket = self::$_BasketDBS->getByID($newBasketID, null, true);
 		}
 		return new self($rsBasket);
@@ -115,32 +154,37 @@ class Basket extends \OBX_CMessagePoolDecorator
 	 * @return null | self
 	 */
 	static public function getCurrent() {
-		global $USER, $APPLICATION;
+		global $USER;
 		$BasketByUser = null;
 		if( $USER->IsAuthorized() ) {
 			$BasketByUser = self::getByUserID($USER->GetID());
 		}
 		else {
-			$currenctCookieID = trim($APPLICATION->get_cookie(self::COOKIE_NAME));
-			if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
-			if( ! self::$_BasketDBS->__check_HASH_STRING($currenctCookieID) ) {
-				$currenctCookieID = self::generateHash();
-			}
-			// Данный код нужен для выполнения автоматического тестирования в cli-режиме
-			// +++ cookie hack [pr0n1x:2013-05-01]
-			// простой hack для эмулирвоания наличия кукисов.
-			// Если задать хотя бы одно значение в $_COOKIE в cli-режиме,
-			// массив так и сотается суперглобальным
-			// $APPLICATION->set_cookie() не поможет ибо использует встроенную ф-ию php setcookie(),
-			// а та в свою очередь не модифицирует $_COOKIE, а просто формирует header http-ответа
-			// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
-			$_COOKIE[\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".self::COOKIE_NAME] = $currenctCookieID;
-			// ^^^ cookie hack
-			$APPLICATION->set_cookie(Basket::COOKIE_NAME, $currenctCookieID);
-
-			$BasketByUser = self::getByHash($currenctCookieID);
+			$currentCookieID = self::getCurrentHash();
+			$BasketByUser = self::getByHash($currentCookieID);
 		}
 		return $BasketByUser;
+	}
+
+	static public function getCurrentHash(){
+		global $APPLICATION;
+		$currentCookieID = trim($APPLICATION->get_cookie(self::COOKIE_NAME));
+		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
+		if( ! self::$_BasketDBS->__check_HASH_STRING($currentCookieID) ) {
+			$currentCookieID = self::generateHash();
+		}
+		// Данный код нужен для выполнения автоматического тестирования в cli-режиме
+		// +++ cookie hack [pr0n1x:2013-05-01]
+		// простой hack для эмулирвоания наличия кукисов.
+		// Если задать хотя бы одно значение в $_COOKIE в cli-режиме,
+		// массив так и сотается суперглобальным
+		// $APPLICATION->set_cookie() не поможет ибо использует встроенную ф-ию php setcookie(),
+		// а та в свою очередь не модифицирует $_COOKIE, а просто формирует header http-ответа
+		// потому нужно вручную модифицировать $_COOKIE в cli-режиме, что бы отработала ф-ия $APPLICATION->get_cookie()
+		$_COOKIE[\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_".self::COOKIE_NAME] = $currentCookieID;
+		// ^^^ cookie hack
+		$APPLICATION->set_cookie(Basket::COOKIE_NAME, $currentCookieID);
+		return $currentCookieID;
 	}
 
 	public function __construct(\OBX_DBSResult $rsBasket) {
@@ -148,6 +192,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 			$abstractionName = get_class(self::$_BasketDBS);
 			if($rsBasket->getAbstractionName() != $abstractionName) {
 				$this->addError('Error: Basket must be constructed from the result of '.$abstractionName.'::getList()');
+				return;
 			}
 			$this->_arFields = $rsBasket->Fetch();
 			$this->syncProductList();
@@ -194,80 +239,178 @@ class Basket extends \OBX_CMessagePoolDecorator
 	/**
 	 * Получить общую стоимость корзины
 	 */
-	public function getBasketCost(){
+	public function getCost($bFormat = false) {
+		$cost = 0;
+		foreach($this->_arProductList as &$arItem) {
+			$cost += $arItem['PRICE_VALUE'] * $arItem['QUANTITY'];
+		}
+		return $cost;
+	}
 
+	/**
+	 * @deprecated
+	 */
+	public function getBasketCost($bFormat = false) {
+		return $this->getCost($bFormat);
 	}
 
 	/**
 	 * Проверить корзину или наличие товара
 	 * @param null $productID - проверить наличие конкретного продукта
+	 * @return bool
 	 */
 	public function isEmpty($productID = null){
-
+		if($productID !== null) {
+			return (
+				! array_key_exists($productID, $this->_arItemsQuantity)
+				||
+				$this->_arItemsQuantity[$productID]<1
+			);
+		}
+		else {
+			return (count($this->_arItemsQuantity)<1);
+		}
 	}
 
 	/**
 	 * Очистить корзину
 	 */
+	public function clear() {
+		$bResultSuccess = true;
+		$failCount = 0;
+		foreach($this->_arItemsQuantity as $productID => $quantity) {
+			$bSuccess = $this->removeProduct($productID);
+			if(!$bSuccess) $failCount++;
+			$bResultSuccess = $bResultSuccess && $bSuccess;
+		}
+		return $bResultSuccess;
+	}
+	/**
+	 * @deprecated
+	 */
 	public function clearBasket() {
-
+		return $this->clear();
 	}
 
 
 	/**
 	 * Получить список продуктов
-	 * @param bool $bReturnIndex
+	 * @param bool $bReturnIndexedByProductID
 	 * @return array
 	 */
-	public function getProductList($bReturnIndex = false) {
-		if($bReturnIndex) {
-			return $this->_arProductListIndex;
+	public function getProductsList($bReturnIndexedByProductID = false) {
+		if($bReturnIndexedByProductID) {
+			$arIndexedByProductID = array();
+			foreach($this->_arProductList as &$arItem) {
+				$arIndexedByProductID[$arItem['PRODUCT_ID']] = $arItem;
+			}
+			return $arIndexedByProductID;
 		}
 		return $this->_arProductList;
 	}
+
 	/**
-	 * @deprecated
-	 * @param bool $bReturnIndex
-	 * @return array
+	 * Получить стоимость определенного товара
+	 * @param $productID
+	 * @param bool $bFormat
+	 * @return float | null
 	 */
-	public function getProductsList($bReturnIndex = false){
-		return $this->getProductList($bReturnIndex = false);
+	public function getProductCost($productID, $bFormat = false){
+		if( array_key_exists($productID, $this->_arProductListIndex) ) {
+			return ($this->_arProductListIndex[$productID]['PRICE_VALUE'] * $this->_arItemsQuantity[$productID]);
+		}
+		return null;
 	}
 
-	// Получить стоимость определенного товара
-	public function getProductCost($productID){
 
+
+	/**
+	 * Получить цену продукта
+	 * @param $productID
+	 * @return float | null
+	 */
+	public function getProductPriceValue($productID){
+		if( !array_key_exists($productID, $this->_arProductListIndex) ) {
+			return $this->_arProductListIndex[$productID]['PRICE_VALUE'];
+		}
+		return null;
 	}
 
+	public function setProductPriceValue($productID, $priceValue) {
+		$priceValue = floatval($priceValue);
+		if($priceValue <= 0) {
+			$this->addError(GetMessage('OBX_BASKET_ERROR_10'), 10);
+			return false;
+		}
+		if( !array_key_exists($productID, $this->_arProductListIndex) ) {
+			$this->addError(GetMessage('OBX_BASKET_ERROR_9'), 9);
+			return false;
+		}
+		$bSuccess = self::$_BasketItemDBS->update(array(
+			'ID' => $this->_arProductListIndex[$productID]['ID'],
+			'PRICE_VALUE' => $priceValue,
+		));
+		if(!$bSuccess) {
+			$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+			$this->addError(GetMessage('OBX_BASKET_ERROR_1100').' '.$arError['TEXT'], (1100 + $arError['CODE']));
+			return false;
+		}
+		$this->_arProductListIndex[$productID]['PRICE_VALUE'] = $priceValue;
+		return true;
+	}
 
-	// Получить цену продукта
-	public function getProductPrice($productID){
-
+	public function getProductPrice($productID) {
+		if( !array_key_exists($productID, $this->_arProductListIndex) ) {
+			$priceValue = $this->_arProductListIndex[$productID]['PRICE_VALUE'];
+			$priceID = intval($this->_arProductListIndex[$productID]['PRICE_ID']);
+			$arPrice = array();
+			if($priceID<1) {
+				// TODO: вернуть массив c данными о типе цены, а так же PRICE_VALUE_FORMATTED
+			}
+		}
+		return null;
 	}
 
 	/**
 	 * Получить число позиций номенклатуры
 	 * @return int
 	 */
-	public function getProductCount() {
+	public function getProductsCount() {
 		return count($this->_arProductListIndex);
 	}
+
 	/**
-	 * @deprecated
-	 * @return int
+	 * Получить количество единиц данного продукта
+	 * @param int $productID
+	 * @return float
 	 */
-	public function getProductsCount(){
-		return count($this->_arProductListIndex);
+	public function getProductQuantity($productID){
+		if( !array_key_exists($productID, $this->_arItemsQuantity) ) {
+			return 0;
+		}
+		return $this->_arItemsQuantity[$productID];
 	}
 
-	// Получить количество единиц данного продукта
-	public function getProductItemsCount($productID){
-
-	}
-
-	// Удалить товар из корзины
+	/**
+	 * Удалить товар из корзины
+	 * @param int $productID
+	 * @return bool
+	 */
 	public function removeProduct($productID){
-
+		if( ! array_key_exists($productID, $this->_arProductListIndex) ) {
+			$this->addWarning(GetMessage('OBX_BASKET_WARNING_2'));
+			return true;
+		}
+		$bSuccess = self::$_BasketItemDBS->delete($this->_arProductListIndex[$productID]['ID']);
+		if(!$bSuccess) {
+			$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+			$this->addError(GetMessage('OBX_BASKET_ERROR_600').' '.$arError['TEXT'], (600 + $arError['CODE']));
+			return false;
+		}
+		unset($this->_arProductList[$this->_arProductListIndex[$productID]['ID']]);
+		unset($this->_arProductListIndex[$productID]);
+		unset($this->_arItemsQuantity[$productID]);
+		return true;
 	}
 
 
@@ -279,9 +422,9 @@ class Basket extends \OBX_CMessagePoolDecorator
 	 * @param null $priceID - идентификатор цены
 	 * @return int
 	 */
-	public function addItem($productID, $quantity = 1, $priceValue = null, $priceID = null){
-		$quantity = intval($quantity);
-		$quantity = ($quantity<1)?1:$quantity;
+	public function addProduct($productID, $quantity = 1, $priceValue = null, $priceID = null){
+		$quantity = floatval($quantity);
+		$quantity = ($quantity<=0)?1:$quantity;
 		$productID = intval($productID);
 		if($productID<1) {
 			return -1;
@@ -312,11 +455,12 @@ class Basket extends \OBX_CMessagePoolDecorator
 				$priceID = $arOptimalPrice['ID'];
 			}
 		}
-		if( array_key_exists($productID, $this->_arItemsList) ) {
+		if( array_key_exists($productID, $this->_arItemsQuantity) ) {
+			$newQuantity = $this->_arItemsQuantity[$productID] + $quantity;
 			$bSuccess = self::$_BasketItemDBS->update(array(
 				'BASKET_ID' => $this->_arFields['ID'],
 				'PRODUCT_ID' => $productID,
-				'QUANTITY' => $this->_arItemsList[$productID]
+				'QUANTITY' => $newQuantity
 			));
 			if(!$bSuccess) {
 				$arError = self::$_BasketItemDBS->popLastError('ARRAY');
@@ -326,8 +470,8 @@ class Basket extends \OBX_CMessagePoolDecorator
 				}
 				return -1;
 			}
-			$this->_arItemsList[$productID] = $this->_arItemsList[$productID] + $quantity;
-			$this->_arProductListIndex[$productID]['QUANTITY'] = $this->_arItemsList[$productID];
+			$this->_arItemsQuantity[$productID] = $newQuantity;
+			$this->_arProductListIndex[$productID]['QUANTITY'] = $newQuantity;
 		}
 		else {
 			$newID = self::$_BasketItemDBS->add(array(
@@ -346,37 +490,58 @@ class Basket extends \OBX_CMessagePoolDecorator
 				return -1;
 			}
 			$this->syncProductList();
-			$this->_arItemsList[$productID] = $quantity;
 		}
-		return $this->_arItemsList[$productID];
+		return $this->_arItemsQuantity[$productID];
 	}
-
 
 	/**
-	 * Получить общее число товаров (с учетом количесва каждой позиции номенклатуры)
+	 * Прибавить (отнять) к количеству определенного товара разницу (delta)
+	 * Возвращает новое количество продукта в корзине
+	 * @param $productID
+	 * @param $delta
 	 * @return int
 	 */
-	public function getItemsCount() {
-		$itemsCount = 0;
-		foreach($this->_arItemsList as &$quantity) {
-			$itemsCount += $quantity;
+	public function changeProductQuantity($productID, $delta){
+		$delta = floatval($delta);
+		$newQuantity = $this->_arItemsQuantity[$productID] + $delta;
+		return $this->setProductQuantity($productID, $newQuantity);
+	}
+
+	/**
+	 * Установить определенное количество единиц товара в корзине
+	 * @param $productID
+	 * @param $quantity
+	 * @return float
+	 */
+	public function setProductQuantity($productID, $quantity){
+		$quantity = floatval($quantity);
+		if($quantity <= 0) {
+			if( ! $this->removeProduct($productID) ) {
+				return -1;
+			}
+			return 0;
 		}
-		return 0;
-	}
-
-	// Прибавить (отнять) к количеству определенного товара разницу (delta)
-	public function changeItemCount($productID, $delta = 1){
-
-	}
-
-	// Установить определенное количество единиц товара в корзине
-	public function setItemCount($productID, $quantity = null){
-
+		if( !array_key_exists($productID, $this->_arProductListIndex) ) {
+			$this->addError(GetMessage('OBX_BASKET_ERROR_8'), 8);
+			return -1;
+		}
+		$bSuccess = self::$_BasketItemDBS->update(array(
+			'ID' => $this->_arProductListIndex[$productID]['ID'],
+			'QUANTITY' => $quantity,
+		));
+		if(!$bSuccess) {
+			$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+			$this->addError(GetMessage('OBX_BASKET_ERROR_700').' '.$arError['TEXT'], (700 + $arError['CODE']));
+			return -1;
+		}
+		$this->_arProductListIndex[$productID]['QUANTITY'] = $quantity;
+		$this->_arItemsQuantity[$productID] = $quantity;
 	}
 
 	public function syncProductList() {
-		$userID = intval($this->_arFields['USER_ID']);
-		$orderID = intval($this->_arFields['ORDER_ID']);
+		if( $this->_arFields['ID'] < 1 ) {
+			return false;
+		}
 		$arSelect = array(
 			'ID',
 			'BASKET_ID',
@@ -412,32 +577,42 @@ class Basket extends \OBX_CMessagePoolDecorator
 			//'IB_ELT_SITE_ID',
 			//'IB_ELT_SITE_DIR',
 		);
-		if( $userID > 0 ) {
-			$arBasketItems = self::$_BasketItemDBS->getListArray(null, array('BASKET_USER_ID' => $userID), null, null, $arSelect);
-		}
-		elseif( $orderID > 0 ) {
-			$arBasketItems = self::$_BasketItemDBS->getListArray(null, array('ORDER_ID' => $orderID), null, null, $arSelect);
-		}
-		elseif( strlen($this->_arFields['HASH_STRING']) == 32 ) {
-			$arBasketItems = self::$_BasketItemDBS->getListArray(null, array('HASH_STRING' => $this->_arFields['HASH_STRING']));
-		}
-		else {
+		$arBasketItems = self::$_BasketItemDBS->getListArray(null, array('BASKET_ID' => $this->_arFields['ID']), null, null, $arSelect);
+		if( empty($arBasketItems) ) {
 			$this->addError(GetMessage('OBX_BASKET_ERROR_1'));
 			return false;
 		}
 		if( count($arBasketItems)>0 ) {
 			foreach($arBasketItems as $key => &$arItem) {
-				$this->_arProductList[$key] = $arItem;
-				$this->_arProductListIndex[$arItem['PRODUCT_ID']] = &$this->_arProductList[$key];
-				$this->_arProductListIDIndex[$arItem['ID']] = &$this->_arProductList[$key];
-				$this->_arItemsList[$arItem['PRODUCT_ID']] = $arItem['QUANTITY'];
+				if($arItem['BASKET_ID'] != $this->_arFields['ID']) continue;
+				$this->_arProductList[$arItem['ID']] = $arItem;
+				$this->_arProductListIndex[$arItem['PRODUCT_ID']] = &$this->_arProductList[$arItem['ID']];
+				$this->_arItemsQuantity[$arItem['PRODUCT_ID']] = $arItem['QUANTITY'];
 			}
 		}
 		return true;
 	}
 
 
-	public function mergeBasket(self $Basket, $bClearMergedBasket = false) {
-
+	/**
+	 * Объединить корзины
+	 * @param Basket $Basket4Merge - корзина, товары которой будут скопированы
+	 * @param bool $bClearMergedBasket - очистить корзину $Basket4Merge
+	 */
+	public function mergeBasket(self $Basket4Merge, $bClearMergedBasket = false) {
+		$arBasket4MergeProducts = $Basket4Merge->getProductsList();
+		foreach($arBasket4MergeProducts as &$arItem) {
+			if( array_key_exists($arItem['PRODUCT_ID'], $this->_arProductListIndex) ) {
+				if($arItem['QUANTITY'] > $this->_arItemsQuantity[$arItem['PRODUCT_ID']]) {
+					$this->setProductQuantity($arItem['PRODUCT_ID'], $arItem['QUANTITY']);
+				}
+			}
+			else {
+				$this->addProduct($arItem['PRODUCT_ID'], $arItem['QUANTITY'], $arItem['PRICE_VALUE'], $arItem['PRICE_ID']);
+			}
+		}
+		if($bClearMergedBasket) {
+			$Basket4Merge->clear();
+		}
 	}
 }

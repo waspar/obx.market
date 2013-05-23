@@ -8,6 +8,8 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Market\Currency;
+
 require_once dirname(__FILE__).'/_Basket.php';
 
 class OBX_Test_BasketList extends OBX_Test_Lib_Basket
@@ -37,11 +39,13 @@ class OBX_Test_BasketList extends OBX_Test_Lib_Basket
 		self::$_BasketDBS->deleteByFilter(array(
 			'HASH_STRING' => md5('__TEST_BASKET_4_DELETION__')
 		));
+		self::$_BasketDBS->clearMessagePool();
 	}
 
 	public function testAddAnonBasket() {
 		$newBasketID = self::$_BasketDBS->add(array(
 			'HASH_STRING' => md5('__TEST_BASKET_4_DELETION__'),
+			'CURRENCY' => Currency::getDefault()
 		));
 		if( $newBasketID < 1 ) {
 			$arError = self::$_BasketDBS->popLastError('ARRAY');
@@ -56,6 +60,7 @@ class OBX_Test_BasketList extends OBX_Test_Lib_Basket
 	public function testTryAddBasketWithHashDuplicate() {
 		$newBasketID = self::$_BasketDBS->add(array(
 			'HASH_STRING' => md5('__TEST_BASKET_4_DELETION__'),
+			'CURRENCY' => Currency::getDefault()
 		));
 		$this->assertLessThan(1, $newBasketID, 'Error: method add() passed duplicate basket HASH_STRING');
 		$arError = self::$_BasketDBS->popLastError('ARRAY');
@@ -68,6 +73,7 @@ class OBX_Test_BasketList extends OBX_Test_Lib_Basket
 	public function testAddBasket4User() {
 		$newBasketID = self::$_BasketDBS->add(array(
 			'USER_ID' => self::$_arTestUser['ID'],
+			'CURRENCY' => Currency::getDefault()
 		));
 		if( $newBasketID < 1 ) {
 			$arError = self::$_BasketDBS->popLastError('ARRAY');
@@ -82,6 +88,7 @@ class OBX_Test_BasketList extends OBX_Test_Lib_Basket
 	public function testAddBasket4UserDuplicate() {
 		$newBasketID = self::$_BasketDBS->add(array(
 			'USER_ID' => self::$_arTestUser['ID'],
+			'CURRENCY' => Currency::getDefault()
 		));
 		$this->assertLessThan(1, $newBasketID, 'Error: method add() passed duplicate basket ORDER_ID');
 		$arError = self::$_BasketDBS->popLastError('ARRAY');
@@ -93,6 +100,7 @@ class OBX_Test_BasketList extends OBX_Test_Lib_Basket
 	public function testAddBasket4Order() {
 		$newBasketID = self::$_BasketDBS->add(array(
 			'ORDER_ID' => self::$_arTestOrder['ID'],
+			'CURRENCY' => Currency::getDefault()
 		));
 		if( $newBasketID < 1 ) {
 			$arError = self::$_BasketDBS->popLastError('ARRAY');
@@ -107,6 +115,7 @@ class OBX_Test_BasketList extends OBX_Test_Lib_Basket
 	public function testAddBasket4OrderDuplicate() {
 		$newBasketID = self::$_BasketDBS->add(array(
 			'ORDER_ID' => self::$_arTestOrder['ID'],
+			'CURRENCY' => Currency::getDefault()
 		));
 		$this->assertLessThan(1, $newBasketID, 'Error: method add() passed duplicate basket ORDER_ID');
 		$arError = self::$_BasketDBS->popLastError('ARRAY');

@@ -24,6 +24,7 @@ class BasketDBS extends \OBX_DBSimple
 		'ORDER_ID'			=> array('B' => 'ORDER_ID'),
 		'USER_ID'			=> array('B' => 'USER_ID'),
 		'HASH_STRING'		=> array('B' => 'HASH_STRING'),
+		'CURRENCY'			=> array('B' => 'CURRENCY'),
 		'ITEMS_JSON' => array('BI' => <<<SQL
 				concat(
 					'{ ',
@@ -64,7 +65,8 @@ SQL
 			'ID' => self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_NOT_ZERO,
 			'ORDER_ID' => self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_NOT_ZERO | self::FLD_CUSTOM_CK,
 			'USER_ID' => self::FLD_T_USER_ID | self::FLD_NOT_NULL | self::FLD_NOT_ZERO,
-			'HASH_STRING' => self::FLD_T_IDENT | self::FLD_CUSTOM_CK
+			'HASH_STRING' => self::FLD_T_IDENT | self::FLD_CUSTOM_CK,
+			'CURRENCY' => self::FLD_T_NO_CHECK | self::FLD_CUSTOM_CK | self::FLD_REQUIRED | self::FLD_BRK_INCORR
 		);
 	}
 
@@ -92,6 +94,15 @@ SQL
 			}
 			$arCheckData = $arOrder;
 		}
+		return true;
+	}
+
+	public function __check_CURRENCY(&$value, &$arCheckData) {
+		$arCurrency = Currency::getByID($value);
+		if( empty($arCurrency) ) {
+			return false;
+		}
+		$arCheckData = $arCurrency;
 		return true;
 	}
 

@@ -38,7 +38,6 @@ class OrderDBS extends \OBX_DBSimple {
 		'STATUS_CODE'			=> array('S' => 'CODE'),
 		'STATUS_NAME'			=> array('S' => 'NAME'),
 		'STATUS_DESCRIPTION'	=> array('S' => 'DESCRIPTION'),
-		'CURRENCY'				=> array('O' => 'CURRENCY'),
 
 //		'DELIVERY_ID'			=> array('O' => 'DELIVERY_ID'),
 //		'DELIVERY_COST'			=> array('O' => 'DELIVERY_COST'),
@@ -46,6 +45,8 @@ class OrderDBS extends \OBX_DBSimple {
 //		'PAY_TAX_VALUE'			=> array('O' => 'PAY_TAX_VALUE'),
 //		'DISCOUNT_ID'			=> array('O' => 'DISCOUNT_ID'),
 //		'DISCOUNT_VALUE'		=> array('O' => 'DISCOUNT_VALUE'),
+
+		'CURRENCY'				=> array('B' => 'CURRENCY'),
 		'ITEMS_JSON' => array('BI' => <<<SQL
 				concat(
 					'{ ',
@@ -167,7 +168,7 @@ SQL
 			'TIMESTAMP_X' => self::FLD_T_NO_CHECK,
 			'USER_ID' => self::FLD_T_USER_ID | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
 			'STATUS_ID' => self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
-			'CURRENCY' => self::FLD_T_CODE | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
+			//'CURRENCY' => self::FLD_T_CODE | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
 			'DELIVERY_ID' => self::FLD_T_INT,
 			'DELIVERY_COST' => self::FLD_T_FLOAT,
 			'PAY_ID' => self::FLD_T_INT,
@@ -182,11 +183,11 @@ SQL
 				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_1'),
 				'CODE' => 1
 			),
-			'REQ_FLD_CURRENCY' => array(
-				'TYPE' => 'E',
-				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_2'),
-				'CODE' => 2
-			),
+//			'REQ_FLD_CURRENCY' => array(
+//				'TYPE' => 'E',
+//				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_2'),
+//				'CODE' => 2
+//			),
 			'NOTHING_TO_DELETE' => array(
 				'TYPE' => 'E',
 				'TEXT' => GetMessage('OBX_ORDER_LIST_ERROR_3'),
@@ -219,10 +220,10 @@ SQL
 				"NAME" => GetMessage("OBX_ORDERLIST_STATUS_ID_NAME"),
 				"DESCR" => GetMessage("OBX_ORDERLIST_STATUS_ID_DESCR"),
 			),
-			'CURRENCY' => array(
-				"NAME" => GetMessage("OBX_ORDERLIST_CURRENCY_NAME"),
-				"DESCR" => GetMessage("OBX_ORDERLIST_CURRENCY_DESCR"),
-			),
+//			'CURRENCY' => array(
+//				"NAME" => GetMessage("OBX_ORDERLIST_CURRENCY_NAME"),
+//				"DESCR" => GetMessage("OBX_ORDERLIST_CURRENCY_DESCR"),
+//			),
 			'ITEMS' => array(
 				"NAME" => GetMessage("OBX_ORDERLIST_ITEMS_NAME"),
 				"DESCR" => GetMessage("OBX_ORDERLIST_ITEMS_DESCR"),

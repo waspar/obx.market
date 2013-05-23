@@ -22,6 +22,14 @@ require_once dirname(__FILE__).'/_Basket.php';
  */
 final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 {
+	public static function getBaskets() {
+		return array(
+			array('USER_BASKET'),
+			array('ANON_BASKET'),
+			array('ORDER_BASKET')
+		);
+	}
+
 	public function testAuthUser() {
 		global $USER;
 		$USER->Authorize(1);
@@ -38,7 +46,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$this->assertEquals($USER->GetID(), $Basket->getFields('USER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_21'));
 		$this->assertNull($Basket->getFields('ORDER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_3'));
 		$this->assertNull($Basket->getFields('HASH_STRING'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_4'));
-		self::$_BasketArray['CURRENT_USER'] = $Basket;
+		self::$_BasketArray['USER_BASKET'] = $Basket;
 	}
 
 	public function testLogoutUser() {
@@ -112,7 +120,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		 * @var Basket $Basket
 		 */
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
-		$newQuantity = $Basket->addItem(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
+		$newQuantity = $Basket->addProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
 		$this->assertLessThan(0, $newQuantity, GetMessage('OBX_MARKET_TEST_BASKET_ERROR_7'));
 		$arError = $Basket->popLastError('ARRAY');
 		$arErrorBefore = $Basket->popLastError('ARRAY');
@@ -138,7 +146,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		 * @var Basket $Basket
 		 */
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
-		$newQuantity = $Basket->addItem(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
+		$newQuantity = $Basket->addProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
 		$this->assertLessThan(0, $newQuantity, GetMessage('OBX_MARKET_TEST_BASKET_ERROR_71'));
 		$arError = $Basket->popLastError('ARRAY');
 		$arErrorBefore = $Basket->popLastError('ARRAY');
@@ -156,19 +164,21 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 
 
 	/**
-	 * Добавление товара в корзину пользвоателя
+	 * Добавление товара в корзину
+	 * @param string $basketName
 	 * @depends testGetCurrentBasketFromAuthUser
 	 * @depends testAddTestPrice
 	 * @depends testGetTestIBlockData
+	 * @dataProvider getBaskets
 	 */
-	public function testAddItems2UserBasket() {
+	public function testAddItems2Basket($basketName) {
 		/**
 		 * @var Basket $Basket
 		 */
-		$Basket = &self::$_BasketArray['CURRENT_USER'];
+		$Basket = &self::$_BasketArray[$basketName];
 		$addQuantity = rand(1, 9);
-		foreach(self::$_arPoductList as $arElement) {
-			$newQuantity = $Basket->addItem($arElement['ID'], $addQuantity);
+		foreach(self::$_arPoductList as &$arElement) {
+			$newQuantity = $Basket->addProduct($arElement['ID'], $addQuantity);
 			if( $newQuantity < 0 ) {
 				$arError = $Basket->popLastError('ARRAY');
 				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
@@ -179,69 +189,162 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 	}
 
 	/**
-	 * Добавление товара в корзину посетителя
-	 * @depends testGetCurrentBasketFromCookieHash
-	 * @depends testAddTestPrice
-	 * @depends testGetTestIBlockData
+	 * @dataProvider getBaskets
+	 * @depends testAddItems2Basket
+	 * @param string $basketName
+	 * @param int $expectProductCount
 	 */
-	public function testAddItems2AnonBasket() {
+	public function testGetBasketData($basketName, $expectProductCount = null) {
+		/**
+		 * @var Basket $Basket
+		 */
+		$Basket = &self::$_BasketArray[$basketName];
+		if($expectProductCount===null) $expectProductCount = 20;
+		$this->assertFalse($Basket->isEmpty());
+		$this->assertGreaterThan(0, $Basket->getCost());
+		$this->assertEquals($expectProductCount, $Basket->getProductsCount());
+		$this->assertNull($Basket->getProductCost(686868686868));
+		$this->assertEquals(0, $Basket->getProductQuantity(686868686868));
+		$this->assertTrue($Basket->isEmpty(68686868686868));
+
+		$arItemsListRaw = self::$_BasketItemDBS->getListArray(null, array(
+			'BASKET_ID' => $Basket->getFields('ID')
+		));
+		$arItemsList = \OBX_Tools::getListIndex($arItemsListRaw, 'PRODUCT_ID', false, true);
+		$this->assertNotEmpty($arItemsList);
+
+		$dbCheckBasketCost = 0;
+		foreach(self::$_arPoductList as &$arIBElement) {
+			if( array_key_exists('__DELETED', $arIBElement) ) {
+				continue;
+			}
+			$quantity = $Basket->getProductQuantity($arIBElement['ID']);
+			$isEmpty = $Basket->isEmpty($arIBElement['ID']);
+			$productCost = $Basket->getProductCost($arIBElement['ID']);
+			$this->assertFalse($isEmpty);
+			$this->assertGreaterThan(0, $quantity);
+			$this->assertGreaterThan(0, $productCost);
+			// теперь сравним с содержимым БД
+			$this->assertArrayHasKey($arIBElement['ID'], $arItemsList);
+			$this->assertArrayHasKey('QUANTITY', $arItemsList[$arIBElement['ID']]);
+			$this->assertEquals($arItemsList[$arIBElement['ID']]['QUANTITY'], $quantity);
+			$itemCostDB = $arItemsList[$arIBElement['ID']]['QUANTITY'] * $arItemsList[$arIBElement['ID']]['PRICE_VALUE'];
+			$dbCheckBasketCost += $itemCostDB;
+			$this->assertEquals($itemCostDB, $productCost);
+		}
+		$this->assertEquals($dbCheckBasketCost, $Basket->getCost());
+	}
+
+
+	/**
+	 * @dataProvider getBaskets
+	 * @param string $basketName
+	 * @depends testGetBasketData
+	 */
+	public function testUpdateBasketItems($basketName) {
+		/**
+		 * @var Basket $Basket
+		 */
+		$Basket = &self::$_BasketArray[$basketName];
+		foreach(self::$_arPoductList as $arIBElement) {
+			$Basket->setProductPriceValue($arIBElement['ID'], 268);
+			$Basket->setProductQuantity($arIBElement['ID'], 68);
+		}
+		$this->testGetBasketData($basketName);
+	}
+
+	/**
+	 * @param string $basketName
+	 * @dataProvider getBaskets
+	 * @depends testGetBasketData
+	 */
+	public function testDeleteSomeOfItem($basketName) {
+		/**
+		 * @var Basket $Basket
+		 */
+		$Basket = &self::$_BasketArray[$basketName];
+		$iItem = 0;
+		foreach(self::$_arPoductList as &$arIBElement) {
+			$iItem++;
+			if($iItem == 6) {
+				break;
+			}
+			$bSuccess = $Basket->removeProduct($arIBElement['ID']);
+			if(!$bSuccess) {
+				$arError = $Basket->popLastError('ARRAY');
+				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+			}
+			$arIBElement['__DELETED'] = true;
+		}
+		$this->assertEquals(15, $Basket->getProductsCount());
+		$this->testGetBasketData($basketName, 15);
+	}
+
+	public function testClearBasket() {
 		/**
 		 * @var Basket $Basket
 		 */
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
-		$addQuantity = rand(0, 9);
-		foreach(self::$_arPoductList as $arElement) {
-			$newQuantity = $Basket->addItem($arElement['ID'], $addQuantity);
-			if( $newQuantity < 0 ) {
-				$arError = $Basket->popLastError('ARRAY');
-				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
-			}
-			$this->assertGreaterThanOrEqual($addQuantity, $newQuantity);
-
+		$bSuccess = $Basket->clear();
+		$this->assertTrue($bSuccess);
+		$this->assertTrue($Basket->isEmpty());
+		$this->assertEquals(0, $Basket->getProductsCount());
+		$this->assertEquals(0, $Basket->getCost());
+		foreach(self::$_arPoductList as &$arIBElement) {
+			$this->assertTrue($Basket->isEmpty($arIBElement['ID']));
+			$this->assertEquals(0, $Basket->getProductCost($arIBElement['ID']));
+			$this->assertEquals(0, $Basket->getProductQuantity($arIBElement['ID']));
 		}
 	}
 
 	/**
-	 * Добавления товаров в корзину
-	 * @depends testGetBasketFromOrder
-	 * @depends testAddTestPrice
-	 * @depends testGetTestIBlockData
+	 * @depends testClearBasket
 	 */
-	public function testAddItems2Order() {
+	public function testMergeBaskets() {
 		/**
-		 * @var Basket $Basket
+		 * @var Basket $AnonBasket
+		 * @var Basket $UserBasket
 		 */
-		$Basket = &self::$_BasketArray['ORDER_BASKET'];
-		$addQuantity = rand(0, 9);
-		foreach(self::$_arPoductList as $arElement) {
-			$newQuantity = $Basket->addItem($arElement['ID'], $addQuantity);
-			if( $newQuantity < 0 ) {
-				$arError = $Basket->popLastError('ARRAY');
-				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
-			}
-			$this->assertGreaterThanOrEqual($addQuantity, $newQuantity);
-
+		$AnonBasket = &self::$_BasketArray['ANON_BASKET'];
+		$UserBasket = &self::$_BasketArray['USER_BASKET'];
+		$AnonBasket->mergeBasket($UserBasket);
+		$arAnonBasketItems = $AnonBasket->getProductsList(true);
+		$this->assertNotEmpty($arAnonBasketItems);
+		$arUserBasketItems = $UserBasket->getProductsList(true);
+		foreach($arUserBasketItems as $productID => &$arUserBasketItem) {
+			$this->assertEquals($arUserBasketItem['PRODUCT_ID'], $arAnonBasketItems[$productID]['PRODUCT_ID']);
+			$this->assertEquals($arUserBasketItem['QUANTITY'], $arAnonBasketItems[$productID]['QUANTITY']);
+			$this->assertEquals($arUserBasketItem['PRICE_VALUE'], $arAnonBasketItems[$productID]['PRICE_VALUE']);
 		}
+		// clear after merge
+		$UserBasket->clear();
+		$this->assertTrue($UserBasket->isEmpty());
+		$UserBasket->mergeBasket($AnonBasket, true);
+		$this->assertFalse($UserBasket->isEmpty());
+		$this->assertTrue($AnonBasket->isEmpty());
+		$arAnonBasketItems = $AnonBasket->getProductsList(true);
+		$arUserBasketItems = $UserBasket->getProductsList(true);
+		$this->assertEmpty($arAnonBasketItems);
+		$this->assertNotEmpty($arUserBasketItems);
+
+		// merge to anonBasket back
+		$AnonBasket->mergeBasket($UserBasket);
+		$this->assertFalse($AnonBasket->isEmpty());
 	}
 
-	public function testGetUserBasketItems() {
-
-	}
-
-	public function testGetAnonBasketItems() {
-
-	}
-
-	public function testGetOrderItems() {
-
-	}
-
-
-	public function testUpdateItems() {
-
-	}
-
-	public function testMergeBasket() {
-
+	public function testNotALink() {
+		/**
+		 * @var Basket $AnonBasket
+		 * @var Basket $UserBasket
+		 */
+		$AnonBasket = &self::$_BasketArray['ANON_BASKET'];
+		$arProductList = $AnonBasket->getProductsList(true);
+		foreach($arProductList as &$arItem) {
+			$arItem['QUANTITY'] = 67;
+		}
+		$arProductList1 = $AnonBasket->getProductsList(true);
+		foreach($arProductList1 as $key => &$arItem) {
+			$this->assertEquals(68, $arItem['QUANTITY']);
+		}
 	}
 }

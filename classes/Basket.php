@@ -10,6 +10,8 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
@@ -65,6 +67,13 @@ class Basket extends \OBX_CMessagePoolDecorator
 	static protected $_PriceDBS = null;
 
 	/**
+	 * @var CurrencyFormatDBS
+	 * @static
+	 * @access protected
+	 */
+	static protected $_CurrencyFormatDBS = null;
+
+	/**
 	 * @var null | \OBX_DBSResult
 	 */
 	protected $_rsBasket = null;
@@ -100,6 +109,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 		self::$_BasketItemDBS = BasketItemDBS::getInstance();
 		self::$_OrderDBS = OrderDBS::getInstance();
 		self::$_PriceDBS = PriceDBS::getInstance();
+		self::$_CurrencyFormatDBS = CurrencyFormatDBS::getInstance();
 	}
 	static public function getByID($basketID) {
 		if( ! self::$_bDBSimpleObjectInitialized ) self::_initDBSimpleObjects();
@@ -559,6 +569,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 			//'VAT_ID',
 			//'VAT_VALUE',
 			'IB_ELT_ID',
+			'IB_ELT_IBLOCK_ID',
 			'IB_ELT_NAME',
 			'IB_ELT_CODE',
 			'IB_ELT_SECTION_ID',
@@ -585,6 +596,70 @@ class Basket extends \OBX_CMessagePoolDecorator
 		if( count($arBasketItems)>0 ) {
 			foreach($arBasketItems as $key => &$arItem) {
 				if($arItem['BASKET_ID'] != $this->_arFields['ID']) continue;
+				$arItemPriceList = Price::getProductPriceList($arItem['PRODUCT_ID'], $this->getFields('USER_ID'));
+				$arItemPriceListIndex = Tools::getListIndex($arItemPriceList, 'PRICE_ID', true, true);
+				$arBasketItem['PRICE_LIST'] = $arItemPriceListIndex;
+				$arBasketItem['PRICE'] = array();
+				if($arItem['PRICE_ID'] > 0) {
+					$arItem['PRICE'] = $arItemPriceListIndex[$arItem['PRICE_ID']];
+					if(
+						$arItem['PRICE']['VALUE'] != $arItem['PRICE_VALUE']
+						||
+						$arItem['PRICE']['DISCOUNT_VALUE'] != $arItem['DISCOUNT_VALUE']
+					) {
+						$arFormat = array(
+							'DEC_PRECISION' => $arItem['PRICE']['CURRENCY_DEC_PRECISION'],
+							'DEC_POINT' => $arItem['PRICE']['CURRENCY_DEC_POINT'],
+							'THOUSANDS_SEP' => $arItem['PRICE']['CURRENCY_THOUSANDS_SEP']
+						);
+						$arItem['PRICE']['VALUE'] = $arItem['PRICE_VALUE'];
+						$arItem['PRICE']['VALUE_FORMATTED'] = self::$_CurrencyFormatDBS->formatPrice(
+							$arItem['PRICE']['VALUE'],
+							$arItem['PRICE']['CURRENCY'],
+							$arItem['PRICE']['CURRENCY_LANG_ID'],
+							$arFormat
+						);
+						$arItem['PRICE']['DISCOUNT_VALUE'] = $arItem['DISCOUNT_VALUE'];
+						$arItem['PRICE']['DISCOUNT_VALUE_FORMATTED'] = self::$_CurrencyFormatDBS->formatPrice(
+							$arItem['PRICE']['DISCOUNT_VALUE'],
+							$arItem['PRICE']['CURRENCY'],
+							$arItem['PRICE']['CURRENCY_LANG_ID'],
+							$arFormat
+						);
+						$arItem['PRICE']['TOTAL_VALUE'] = $arItem['TOTAL_VALUE'];
+						$arItem['PRICE']['TOTAL_VALUE_FORMATTED'] = self::$_CurrencyFormatDBS->formatPrice(
+							$arItem['PRICE']['TOTAL_VALUE'],
+							$arItem['PRICE']['CURRENCY'],
+							$arItem['PRICE']['CURRENCY_LANG_ID'],
+							$arFormat
+						);
+					}
+				}
+				else {
+					$basketCurrency = $this->getFields('CURRENCY');
+					$arItem['PRICE']['VALUE'] = $arItem['PRICE_VALUE'];
+					$arItem['PRICE']['CURRENCY'] = $basketCurrency;
+					$arItem['PRICE']['VALUE_FORMATTED'] = CurrencyFormatDBS::getInstance()->formatPrice(
+						$arItem['PRICE']['VALUE'],
+						$basketCurrency
+					);
+					$arItem['PRICE']['DISCOUNT_VALUE_FORMATTED'] = CurrencyFormatDBS::getInstance()->formatPrice(
+						$arItem['PRICE']['DISCOUNT_VALUE'],
+						$basketCurrency
+					);
+					$arItem['PRICE']['TOTAL_VALUE_FORMATTED'] = CurrencyFormatDBS::getInstance()->formatPrice(
+						$arItem['PRICE']['TOTAL_VALUE'],
+						$basketCurrency
+					);
+				}
+				$arItem['IB_ELEMENT'] = array();
+				foreach($arItem as $fldName => &$fldValue) {
+					if( strpos($fldName, 'IB_ELT_') !== false ) {
+						$arItem['IB_ELEMENT'][substr($fldName, 7)] = $fldValue;
+						unset($arItem[$fldName]);
+					}
+				}
+
 				$this->_arProductList[$arItem['ID']] = $arItem;
 				$this->_arProductListIndex[$arItem['PRODUCT_ID']] = &$this->_arProductList[$arItem['ID']];
 				$this->_arItemsQuantity[$arItem['PRODUCT_ID']] = $arItem['QUANTITY'];
@@ -592,6 +667,41 @@ class Basket extends \OBX_CMessagePoolDecorator
 		}
 		return true;
 	}
+
+	public function getProductIBlockPropertyValues($productID, $bExcludePriceProps = true) {
+		$arPropValues = array();
+		if( ! array_key_exists($productID, $this->_arProductListIndex) ) {
+			return $arPropValues;
+		}
+		if($bExcludePriceProps) {
+			/**
+			 * @var CIBlockPropertyPriceDBS $CIBPriceProp
+			 */
+			$CIBPriceProp = CIBlockPropertyPriceDBS::getInstance();
+			$arPricePropLinksPlain = $CIBPriceProp->getListArray(array('IBLOCK_ID' => 'ASC'), array('!IBLOCK_ECOM_ID' => null));
+			$arPricePropLinks = Tools::getListIndex($arPricePropLinksPlain, array('IBLOCK_PROP_ID'), true, true);
+		}
+
+
+		if( count($this->_arProductList)<1 ) return $arPropValues;
+
+		$arItem = &$this->_arProductListIndex[$productID];
+		$rsProps = \CIBlockElement::GetProperty($arItem['IB_ELEMENT']['IBLOCK_ID'], $arItem['IB_ELEMENT']['ID'], array("sort" => "asc"));
+		while( $arProp = $rsProps->Fetch() ) {
+			if( $bExcludePriceProps && array_key_exists($arProp['ID'], $arPricePropLinks) ) {
+				continue;
+			}
+			if( !empty($arProp['CODE']) ) {
+				$code = $arProp['CODE'];
+			}
+			else {
+				$code = $arProp['ID'];
+			}
+			$arPropValues[$code] = $arProp;
+		}
+		return $arPropValues;
+	}
+
 
 
 	/**

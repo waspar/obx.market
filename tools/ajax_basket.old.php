@@ -1,16 +1,5 @@
 <?php
 
-use OBX\Core\Tools;
-use OBX\Market\Basket;
-use OBX\Market\Price;
-use OBX\Market\CurrencyFormatDBS;
-
-
-//Заголовки для предотвращения кеширования и указания типа данных JSON
-header('Cache-Control: no-cache, must-revalidate');
-
-header('Content-type: application/json');
-
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 IncludeModuleLangFile(__FILE__);
 
@@ -28,7 +17,7 @@ for($oneCycle = 0; $oneCycle < 1; $oneCycle++)
 		break;
 	}
 
-	$Basket = Basket::getCurrent();
+	$Basket = OBX_BasketOLD::getInstance();
 
 	if( is_array($_REQUEST['add']) && count($_REQUEST['add'])>0 ) {
 		foreach($_REQUEST['add'] as $productID => $quantity) {
@@ -36,10 +25,10 @@ for($oneCycle = 0; $oneCycle < 1; $oneCycle++)
 			$quantity = intval($quantity);
 
 			if( $Basket->isEmpty($productID) ) {
-				$bSuccess = $Basket->addProduct($productID, $quantity);
+				$bSuccess = $Basket->addItem($productID, $quantity);
 			}
 			else {
-				$bSuccess = $Basket->setProductQuantity($productID, $quantity);
+				$bSuccess = $Basket->setItemCount($productID, $quantity);
 			}
 			if(!$bSuccess) {
 				$arJSON['messages'][] = $Basket->popLastError('ARRAY');
@@ -54,10 +43,10 @@ for($oneCycle = 0; $oneCycle < 1; $oneCycle++)
 		$quantity = intval($_REQUEST['update']['qty']);
 		if($productID>0) {
 			if( $Basket->isEmpty($productID) ) {
-				$bSuccess = $Basket->addProduct($productID, $quantity);
+				$bSuccess = $Basket->addItem($productID, $quantity);
 			}
 			else {
-				$bSuccess = $Basket->setProductQuantity($productID, $quantity);
+				$bSuccess = $Basket->setItemCount($productID, $quantity);
 			}
 			if(!$bSuccess) {
 				$arJSON['messages'][] = $Basket->popLastError('ARRAY');
@@ -71,29 +60,27 @@ for($oneCycle = 0; $oneCycle < 1; $oneCycle++)
 		}
 	}
 
-	$arJSON['basket_cost'] = $Basket->getCost();
+	$arJSON['basket_count'] = $Basket->getBasketCost();
+	$arJSON['items_count'] = $Basket->getItemsCount();
+	$arJSON['items_list'] = $Basket->getItemsList();
 	$arJSON['products_count'] = $Basket->getProductsCount();
-	$arJSON['product_list'] = array();
-
-	$arProductList = $Basket->getProductsList(true);
-	foreach($arProductList as &$arBasketItem) {
-
-		$arProperties = $Basket->getProductIBlockPropertyValues($arBasketItem['PRODUCT_ID']);
+	$arProductList = $Basket->getProductsList();
+	foreach($arProductList as &$arProduct) {
 		$arJsonProduct = array(
-			'id' => $arBasketItem['ID'],
-			'href' => $arBasketItem['IB_ELEMENT']['DETAIL_PAGE_URL'],
-			'name' => $arBasketItem['IB_ELEMENT']['NAME'],
+			'id' => $arProduct['ID'],
+			'href' => $arProduct['DETAIL_PAGE_URL'],
+			'name' => $arProduct['NAME'],
 			'value' => '1',
-			'price_type' => '',
-			'price_value' => '',
-			'section_id' => $arBasketItem['IB_ELEMENT']['SECTION_ID']
+			'price_type' => $arProduct['OPTIMAL_PRICE'],
+			'price' => $arProduct['PRICE_LIST'][$arProduct['OPTIMAL_PRICE']]['TOTAL_VALUE'],
+			'section_id' => $arProduct['IBLOCK_SECTION_ID']
 		);
-		foreach($arProperties as &$arProperty) {
-			if($arProperty['PROPERTY_TYPE']=='L') {
-				$arJsonProduct['prop_'.$arProperty['ID']] = $arProperty['VALUE_ENUM_ID'];
+		foreach($arProduct['PROPERTIES'] as &$arProperty) {
+			if($arProperty["PROPERTY_TYPE"]=="L") {
+				$arJsonProduct["prop_".$arProperty["ID"]] = $arProperty["VALUE_ENUM_ID"];
 			}
 			else {
-				$arJsonProduct['prop_'.$arProperty['ID']] = $arProperty['VALUE'];
+				$arJsonProduct["prop_".$arProperty["ID"]] = $arProperty["VALUE"];
 			}
 		}
 		$arJSON['products_list'][] = $arJsonProduct;
@@ -101,7 +88,6 @@ for($oneCycle = 0; $oneCycle < 1; $oneCycle++)
 
 
 }
-print_r($arJSON);
 echo json_encode($arJSON);
 
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');

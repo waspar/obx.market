@@ -201,6 +201,19 @@ SQL;
 				array(
 					"ID" => $arPrice["IBLOCK_PROP_ID"]
 				));
+			$arNullResultDefault = CurrencyFormatDBS::getInstance()->getTableJoinNullFieldDefaults();
+			if($arPrice['CURRENCY_FORMAT'] == null) {
+				$arPrice['CURRENCY_FORMAT'] = $arNullResultDefault['FORMAT'];
+			}
+			if($arPrice['CURRENCY_THOUSANDS_SEP'] == null) {
+				$arPrice['CURRENCY_THOUSANDS_SEP'] = $arNullResultDefault['THOUSANDS_SEP'];
+			}
+			if($arPrice['CURRENCY_DEC_PRECISION'] == null) {
+				$arPrice['CURRENCY_DEC_PRECISION'] = $arNullResultDefault['DEC_PRECISION'];
+			}
+			if($arPrice['CURRENCY_DEC_POINT'] == null) {
+				$arPrice['CURRENCY_DEC_POINT'] = $arNullResultDefault['DEC_POINT'];
+			}
 			if( $arPriceProp = $resProp->Fetch() ) {
 				if( floatval($arPriceProp["VALUE"]) < 0.001) {
 					$rsProduct = \CIBlockElement::GetByID($productID);
@@ -491,7 +504,7 @@ SQL;
 }
 
 /**
- * @method @static OBX_PriceDBS getInstance()
+ * @method @static PriceDBS getInstance()
  */
 class Price extends \OBX_DBSimpleStatic {
 	static public function getOptimalProductPrice($productID, $userID = null, $langID = LANGUAGE_ID) {

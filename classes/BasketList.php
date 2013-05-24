@@ -57,7 +57,7 @@ SQL
 	);
 
 	protected $_arSelectDefault = array(
-		'ID', 'ORDER_ID', 'USER_ID', 'HASH_STRING'
+		'ID', 'ORDER_ID', 'USER_ID', 'HASH_STRING', 'CURRENCY'
 	);
 
 	function __construct() {

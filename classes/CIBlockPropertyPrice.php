@@ -21,61 +21,71 @@ class CIBlockPropertyPriceDBS extends \OBX_DBSimple
 {
 	protected $_arTableDefaultFields = array();
 	protected $_arTableList = array(
-		'L'		=> 'obx_price_ibp',
 		'P'		=> 'obx_price',
 		'IB'	=> 'b_iblock',
-		'IBP'	=> 'b_iblock_property'
+		'IBP'	=> 'b_iblock_property',
+		'L'		=> 'obx_price_ibp',
+		'IBE'	=> 'obx_ecom_iblock',
 	);
 	protected $_mainTable = 'L';
 	public $_arTableLinks = array(
 		0 => array(
-			array("L" => "PRICE_ID"),
-			array("P" => "ID")
+			array('L' => 'PRICE_ID'),
+			array('P' => 'ID')
 		),
 		1 => array(
-			array("L"	=> "IBLOCK_PROP_ID"),
-			array("IBP"	=> "ID")
+			array('L'	=> 'IBLOCK_PROP_ID'),
+			array('IBP'	=> 'ID')
 		),
 		2 => array(
-			array("L"	=> "IBLOCK_ID"),
-			array("IB"	=> "ID")
+			array('L'	=> 'IBLOCK_ID'),
+			array('IB'	=> 'ID')
+		),
+		3 => array(
+			array('L'	=> 'IBLOCK_ID'),
+			array('IBE' => 'IBLOCK_ID')
 		)
 	);
 	protected $_arTableFields = array(
-		//"ID"					=> array("L"	=> "ID"),
-		"PRICE_ID"				=> array("L"	=> "PRICE_ID"),
-		"PRICE_NAME"			=> array("P"	=> "NAME"),
-		"PRICE_CODE"			=> array("P"	=> "CODE"),
-		"CURRENCY"				=> array("P"	=> "CURRENCY"),
-		"IBLOCK_ID"				=> array("L"	=> "IBLOCK_ID"),
-		"IBLOCK_CODE"			=> array("IB"	=> "CODE"),
-		"IBLOCK_NAME"			=> array("IB"	=> "NAME"),
-		"IBLOCK_PROP_ID"		=> array("L"	=> "IBLOCK_PROP_ID"),
-		"IBLOCK_PROP_CODE"		=> array("IBP"	=> "CODE"),
-		"IBLOCK_PROP_NAME"		=> array("IBP"	=> "NAME"),
-		"IBLOCK_PROP_ACTIVE"	=> array("IBP"	=> "ACTIVE"),
-		"IBLOCK_PROP_REQUIRED"	=> array("IBP"	=> "IS_REQUIRED")
+		//'ID'					=> array('L'	=> 'ID'),
+		'PRICE_ID'				=> array('L'	=> 'PRICE_ID'),
+		'PRICE_NAME'			=> array('P'	=> 'NAME'),
+		'PRICE_CODE'			=> array('P'	=> 'CODE'),
+		'CURRENCY'				=> array('P'	=> 'CURRENCY'),
+		'IBLOCK_ID'				=> array('L'	=> 'IBLOCK_ID'),
+		'IBLOCK_CODE'			=> array('IB'	=> 'CODE'),
+		'IBLOCK_NAME'			=> array('IB'	=> 'NAME'),
+		'IBLOCK_PROP_ID'		=> array('L'	=> 'IBLOCK_PROP_ID'),
+		'IBLOCK_PROP_CODE'		=> array('IBP'	=> 'CODE'),
+		'IBLOCK_PROP_NAME'		=> array('IBP'	=> 'NAME'),
+		'IBLOCK_PROP_ACTIVE'	=> array('IBP'	=> 'ACTIVE'),
+		'IBLOCK_PROP_REQUIRED'	=> array('IBP'	=> 'IS_REQUIRED'),
+		'IBLOCK_ECOM_ID'		=> array('IBE'	=> 'IBLOCK_ID'),
 	);
 	protected $_arTableUnique = array(
-		"obx_price_ibpr" => array("IBLOCK_ID", "PRICE_ID"),
-		"obx_price_ibpp" => array("IBLOCK_ID", "IBLOCK_PROP_ID")
+		'obx_price_ibpr' => array('IBLOCK_ID', 'PRICE_ID'),
+		'obx_price_ibpp' => array('IBLOCK_ID', 'IBLOCK_PROP_ID')
 	);
+	protected $_arTableLeftJoin = array(
+		'IBE' => 'L.IBLOCK_ID = IBE.IBLOCK_ID'
+	);
+
 	protected $_mainTablePrimaryKey = null;
 	protected $_mainTableAutoIncrement = null;
 //	protected $_arSelectDefault = array(
-//		"ID",
-//		"PRICE_ID",
-//		"PRICE_CODE",
-//		"PRICE_NAME",
-//		"IBLOCK_ID",
-//		"IBLOCK_CODE",
-//		"IBLOCK_NAME",
-//		"IBLOCK_PROP_ID",
-//		"IBLOCK_PROP_CODE",
-//		"IBLOCK_PROP_NAME"
+//		'ID',
+//		'PRICE_ID',
+//		'PRICE_CODE',
+//		'PRICE_NAME',
+//		'IBLOCK_ID',
+//		'IBLOCK_CODE',
+//		'IBLOCK_NAME',
+//		'IBLOCK_PROP_ID',
+//		'IBLOCK_PROP_CODE',
+//		'IBLOCK_PROP_NAME'
 //	);
 	protected $_arSortDefault = array(
-		"ID" => "ASC"
+		'ID' => 'ASC'
 	);
 	protected $_arDBSimpleLangMessages = array();
 	protected $_arTableFieldsCheck = array();
@@ -94,68 +104,74 @@ class CIBlockPropertyPriceDBS extends \OBX_DBSimple
 			$arCheckData = $arCommenctIBlock;
 			return true;
 		}
-		$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_6"), 6);
+		$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_6'), 6);
 		return false;
 	}
 	public function __construct() {
 		$this->_arTableFieldsCheck = array(
-			//"ID"				=> self::FLD_T_INT | self::FLD_NOT_NULL,
-			"PRICE_ID"			=> self::FLD_T_INT
+			//'ID'				=> self::FLD_T_INT | self::FLD_NOT_NULL,
+			'PRICE_ID'			=> self::FLD_T_INT
 									| self::FLD_NOT_NULL
 									| self::FLD_NOT_ZERO
 									| self::FLD_REQUIRED
 									| self::FLD_CUSTOM_CK,
 
-			"IBLOCK_ID"			=> self::FLD_T_IBLOCK_ID
+			'IBLOCK_ID'			=> self::FLD_T_IBLOCK_ID
 									| self::FLD_NOT_NULL
 									| self::FLD_NOT_ZERO
 									| self::FLD_REQUIRED
 									| self::FLD_CUSTOM_CK
 									| self::FLD_BRK_INCORR,
 
-			"IBLOCK_PROP_ID"	=> self::FLD_T_IBLOCK_PROP_ID
+			'IBLOCK_PROP_ID'	=> self::FLD_T_IBLOCK_PROP_ID
 									| self::FLD_NOT_NULL
 									| self::FLD_REQUIRED,
 		);
 		$this->_arDBSimpleLangMessages = array(
-			"REQ_FLD_IBLOCK_ID" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_1"),
-				"CODE" => 1
+			'REQ_FLD_IBLOCK_ID' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_1'),
+				'CODE' => 1
 			),
-			"REQ_FLD_IBLOCK_PROP_ID" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_2"),
-				"CODE" => 2
+			'REQ_FLD_IBLOCK_PROP_ID' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_2'),
+				'CODE' => 2
 			),
-			"REQ_FLD_PRICE_ID" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_3"),
-				"CODE" => 3
+			'REQ_FLD_PRICE_ID' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_3'),
+				'CODE' => 3
 			),
-			"DUP_ADD_obx_price_ibpr" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_4"),
-				"CODE" => 4
+			'DUP_ADD_obx_price_ibpr' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_4'),
+				'CODE' => 4
 			),
-			"DUP_UPD_obx_price_ibpr" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_7"),
-				"CODE" => 7
+			'DUP_UPD_obx_price_ibpr' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_7'),
+				'CODE' => 7
 			),
-			"DUP_ADD_obx_price_ibpp" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_10"),
-				"CODE" => 10
+			'DUP_ADD_obx_price_ibpp' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_10'),
+				'CODE' => 10
 			),
-			"DUP_UPD_obx_price_ibpp" => array(
-				"TYPE" => "E",
-				"TEXT" => GetMessage("OBX_MARKET_PRICE_PROP_ERROR_11"),
-				"CODE" => 11
+			'DUP_UPD_obx_price_ibpp' => array(
+				'TYPE' => 'E',
+				'TEXT' => GetMessage('OBX_MARKET_PRICE_PROP_ERROR_11'),
+				'CODE' => 11
 			),
 		);
 	}
 
+	/**
+	 * Возвращает полный список цен для каталога(ов)
+	 * @param int $IBLOCK_ID
+	 * @param bool $bResultCDBResult
+	 * @return array|bool|\CDBResult
+	 */
 	public function getFullPriceList($IBLOCK_ID = 0, $bResultCDBResult = false) {
 		global $DB;
 		$IBLOCK_ID = intval($IBLOCK_ID);
@@ -194,7 +210,7 @@ SQL;
 			$sqlList .= ' WHERE IB.ID = '.$IBLOCK_ID;
 		}
 		$sqlList .= ' ORDER BY IB.ID ASC, PR.ID ASC';
-		$res = $DB->Query($sqlList, false, "File: ".__FILE__."<br />\nLine: ".__LINE__);
+		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
 		if($bResultCDBResult) {
 			return $res;
 		}
@@ -205,6 +221,15 @@ SQL;
 		return $arList;
 	}
 
+	/**
+	 * Возвращает список свойств каталога(ов)/инфоблока(ов), которые связаны с ценами
+	 * примечение:
+	 * для цен, для которых нет связок со свойствами элементов
+	 * не вернет строк, в отличие от getFullPriceList, которые вернет строки с null
+	 * @param int $IBLOCK_ID
+	 * @param bool $bResultCDBResult
+	 * @return array|bool|\CDBResult
+	 */
 	public function getFullPropList($IBLOCK_ID = 0, $bResultCDBResult = false) {
 		global $DB;
 		$IBLOCK_ID = intval($IBLOCK_ID);
@@ -239,7 +264,7 @@ SQL;
 		if($IBLOCK_ID>0) {
 			$sqlList .= ' AND B.ID = '.$IBLOCK_ID;
 		}
-		$res = $DB->Query($sqlList, false, "File: ".__FILE__."<br />\nLine: ".__LINE__);
+		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
 		if($bResultCDBResult) {
 			return $res;
 		}
@@ -252,77 +277,77 @@ SQL;
 
 	public function addIBlockPriceProperty($arFields) {
 		$arFieldsPrepared = array(
-			"PRICE_ID" => null,
-			"PRICE_CODE" => null,
-			"IBLOCK_ID" => null,
-			"NAME" => null,
-			"CODE" => null,
-			"SORT" => 500,
-			"PROPERTY_TYPE" => "N",
-			"ACTIVE" => "Y"
+			'PRICE_ID' => null,
+			'PRICE_CODE' => null,
+			'IBLOCK_ID' => null,
+			'NAME' => null,
+			'CODE' => null,
+			'SORT' => 500,
+			'PROPERTY_TYPE' => 'N',
+			'ACTIVE' => 'Y'
 		);
 		
 		foreach($arFieldsPrepared as $fieldName => &$fieldValue) {
 			$bPriceIDAlreadySet = false;
-			if($fieldName=="PRICE_ID") {
-				$fieldValue = intval($arFields["PRICE_ID"]);
+			if($fieldName=='PRICE_ID') {
+				$fieldValue = intval($arFields['PRICE_ID']);
 				$arPrice = Price::getByID($fieldValue);
 				if( empty($arPrice) ) {
-					$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_3"), 3);
+					$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_3'), 3);
 					return 0;
 				}
-				unset($arFieldsPrepared["PRICE_CODE"]);
+				unset($arFieldsPrepared['PRICE_CODE']);
 				$bPriceIDAlreadySet = true;
 				continue;
 			}
-			if($fieldName=="PRICE_CODE") {
+			if($fieldName=='PRICE_CODE') {
 				if(!$bPriceIDAlreadySet) {
-					$fieldValue = trim($arFields["PRICE_CODE"]);
+					$fieldValue = trim($arFields['PRICE_CODE']);
 					if( strlen($fieldValue)<1 ) {
-						$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_3"), 3);
+						$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_3'), 3);
 						return 0;
 					}
 					$arPrice = OBX_Price::getByCode($fieldValue, null);
 					if( empty($arPrice) ) {
-						$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_3"), 3);
+						$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_3'), 3);
 						return 0;
 					}
 				}
 				continue;
 			}
-			if($fieldName=="IBLOCK_ID") {
-				$fieldValue = intval($arFields["IBLOCK_ID"]);
+			if($fieldName=='IBLOCK_ID') {
+				$fieldValue = intval($arFields['IBLOCK_ID']);
 				if(!$fieldValue) {
-					$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_1"), 1);
+					$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_1'), 1);
 					return 0;
 				}
 				$arCommerceIBlock = OBX_ECommerceIBlock::getByID($fieldValue);
 				if( empty($arCommerceIBlock) ) {
-					$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_6"), 6);
+					$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_6'), 6);
 					return 0;
 				}
 				continue;
 			}
-			if($fieldName=="NAME") {
-				$fieldValue = htmlspecialcharsEx($arFields["NAME"]);
+			if($fieldName=='NAME') {
+				$fieldValue = htmlspecialcharsEx($arFields['NAME']);
 				if( strlen($fieldValue)<1 ) {
-					$fieldValue = $arPrice["NAME"];
+					$fieldValue = $arPrice['NAME'];
 				}
 				continue;
 			}
-			if($fieldName=="CODE") {
-				$fieldValue = trim($arFields["CODE"]);
+			if($fieldName=='CODE') {
+				$fieldValue = trim($arFields['CODE']);
 				if( strlen($arPrice)<1 ) {
-					$fieldValue = $arPrice["CODE"];
+					$fieldValue = $arPrice['CODE'];
 				}
 				elseif( !preg_match('~^[a-zA-Z\_][a-z0-9A-Z\_]{0,15}$~', $fieldValue) ) {
-					$this->addError(GetMessage("OBX_MARKET_PRICE_PROP_ERROR_9"), 9);
+					$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_9'), 9);
 					return false;
 				}
 				continue;
 			}
-			if($fieldName=="SORT") {
-				$fieldValue = intval($arFields["SORT"]);
+			if($fieldName=='SORT') {
+				$fieldValue = intval($arFields['SORT']);
 				continue;
 			}
 			
@@ -333,9 +358,9 @@ SQL;
 				return 0;
 			}
 			$newPricePropID = $this->add(array(
-				"IBLOCK_ID" => $arFields["IBLOCK_ID"],
-				"IBLOCK_PROP_ID" => $newID,
-				"PRICE_ID" => $arPrice["ID"]
+				'IBLOCK_ID' => $arFields['IBLOCK_ID'],
+				'IBLOCK_PROP_ID' => $newID,
+				'PRICE_ID' => $arPrice['ID']
 			));
 			return $newPricePropID;
 		}
@@ -351,18 +376,18 @@ SQL;
 
 	protected function _onAfterDelete(&$arExists) {
 		if( $this->_bDeleteIBlockPropOnDeletePrice ) {
-				return \CIBlockProperty::Delete($arExists["IBLOCK_PROP_ID"]);
+				return \CIBlockProperty::Delete($arExists['IBLOCK_PROP_ID']);
 		}
 		return true;
 	}
 
 	static public function onIBlockPropertyDelete($ID) {
 		$that = self::getInstance();
-		$that->deleteByFilter(array("IBLOCK_PROP_ID" => $ID));
+		$that->deleteByFilter(array('IBLOCK_PROP_ID' => $ID));
 	}
 	static public function onIBlockDelete($ID) {
 		$that = self::getInstance();
-		$that->deleteByFilter(array("IBLOCK_ID" => $ID));
+		$that->deleteByFilter(array('IBLOCK_ID' => $ID));
 	}
 
 	public function getValue($IBLOCK_ID, $PRICE_ID, $bFormat = true) {
@@ -371,19 +396,19 @@ SQL;
 
 	public function registerModuleDependencies() {
 		RegisterModuleDependences(
-				"iblock", "OnBeforeIBlockPropertyDelete",
-				"obx.market", __CLASS__, "onIBlockPropertyDelete", 510);
+				'iblock', 'OnBeforeIBlockPropertyDelete',
+				'obx.market', __CLASS__, 'onIBlockPropertyDelete', 510);
 		RegisterModuleDependences(
-				"iblock", "OnIBlockDelete",
-				"obx.market", __CLASS__, "onIBlockDelete", 520);
+				'iblock', 'OnIBlockDelete',
+				'obx.market', __CLASS__, 'onIBlockDelete', 520);
 	}
 	public function unRegisterModuleDependencies() {
 		UnRegisterModuleDependences(
-				"iblock", "OnBeforeIBlockPropertyDelete",
-				"obx.market", __CLASS__, "onIBlockPropertyDelete");
+				'iblock', 'OnBeforeIBlockPropertyDelete',
+				'obx.market', __CLASS__, 'onIBlockPropertyDelete');
 		UnRegisterModuleDependences(
-				"iblock", "OnIBlockDelete",
-				"obx.market", __CLASS__, "onIBlockDelete");
+				'iblock', 'OnIBlockDelete',
+				'obx.market', __CLASS__, 'onIBlockDelete');
 	}
 }
 

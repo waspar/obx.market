@@ -79,6 +79,7 @@ SQL
 		'VAT_ID'					=> array('I'	=> 'VAT_ID'),
 		'VAT_VALUE'					=> array('I'	=> 'VAT_VALUE'),
 		'IB_ELT_ID'					=> array('IBE'	=> 'ID'),
+		'IB_ELT_IBLOCK_ID'			=> array('IBE'	=> 'IBLOCK_ID'),
 		'IB_ELT_NAME'				=> array('IBE'	=> 'NAME'),
 		'IB_ELT_CODE'				=> array('IBE'	=> 'CODE'),
 		'IB_ELT_SECTION_ID'			=> array('IBE'	=> 'IBLOCK_SECTION_ID'),

@@ -56,7 +56,7 @@ $TabControl = new CAdminTabControl("tabSettings", $arTabsList);
  * Шаблоны
  */
 
-$APPLICATION->AddHeadScript("/bitrix/js/obx.market/jquery-1.8.2.min.js");
+$APPLICATION->AddHeadScript("/bitrix/js/obx.market/jquery-1.9.1.min.js");
 $APPLICATION->AddHeadScript("/bitrix/js/obx.market/tools.js");
 $APPLICATION->AddHeadScript("/bitrix/js/obx.market/settings.js");
 $APPLICATION->AddHeadScript("/bitrix/js/obx.market/jquery-cookie.js");

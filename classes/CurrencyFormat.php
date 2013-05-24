@@ -15,7 +15,8 @@ IncludeModuleLangFile(__FILE__);
 
 /**
  * Class OBX_CurrencyFormatDBS
- * @method @static OBX_CurrencyFormatDBS getInstance()
+ * @package OBX\Market
+ * @static @method CurrencyFormatDBS getInstance()
  */
 class CurrencyFormatDBS extends \OBX_DBSimple
 {
@@ -186,7 +187,7 @@ class CurrencyFormatDBS extends \OBX_DBSimple
 		}
 		else {
 			if( $currencyCode == null ) {
-				$currencyCode = \OBX_Currency::getDefault();
+				$currencyCode = Currency::getDefault();
 			}
 			$CurrencyInfo = CurrencyInfo::getInstance($currencyCode);
 			if($CurrencyInfo == null) {
@@ -206,6 +207,12 @@ class CurrencyFormatDBS extends \OBX_DBSimple
 			$arFormat['FORMAT']);
 	}
 }
+
+/**
+ * Class CurrencyFormat
+ * @package OBX\Market
+ * @static @method CurrencyFormatDBS getInstance()
+ */
 class CurrencyFormat extends \OBX_DBSimpleStatic {
 	static public function getListGroupedByLang($arSort = null) {
 		return self::getInstance()->getListGroupedByLang($arSort);

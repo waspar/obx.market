@@ -152,9 +152,20 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		};
 
 		// private vars
-		var basket ={items:{}, total:0, count: 0},
+		var basket = {
+				currency: {
+					 code: 'RUB'
+					,name: obx.lang.ru.market.basket
+					,format: {
+						 string: '# руб.'
+						,dec_precision: 2
+						,dec_point: ','
+						,thousands_sep: ' '
+					}
+				}, items:{}, total:0, count: 0
+			},
 			items = [],
-			keys = {}, // ratio of ids with the keys of the items array
+			itemsIDIndex = {}, // ratio of ids with the keys of the items array
 			jq = {},
 			keyboardKeyControl = true,
 			itemTemplateSetup = false,
@@ -169,18 +180,18 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				id = parseInt(oItems.id, 10);
 				i = items.length;
 				items.push(oItems);
-				keys[id] = i;
+				itemsIDIndex[id] = i;
 				return self;
 			}
 			,removePageItem : function(id){
 				if(!id) return false;
-				if(keys.hasOwnProperty(id)){
-					var key = keys[id];
+				if(itemsIDIndex.hasOwnProperty(id)){
+					var key = itemsIDIndex[id];
 
 					if(basket.items[id]) self.removeBasketItem(id); // remove from basket
 
 					delete(items[key]);
-					delete(keys[id]);
+					delete(itemsIDIndex[id]);
 					return self;
 				}
 				return false;
@@ -191,10 +202,10 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					case ($.obx.tools.isArray(aoItems)): // add from array
 						for(var k in aoItems){
 							id = parseInt(aoItems[k].id, 10);
-							if(!id || keys.hasOwnProperty(id)) continue;
+							if(!id || itemsIDIndex.hasOwnProperty(id)) continue;
 							i = items.length;
 							items.push(aoItems[k]);
-							keys[id] = i;
+							itemsIDIndex[id] = i;
 						}
 					break;
 					case ($.obx.tools.isObject(aoItems)):
@@ -204,10 +215,10 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 						}
 						for(var p in aoItems){ // multiple item object
 							if(!aoItems[p].id) continue;
-							if(keys.hasOwnProperty(p)) continue;
+							if(itemsIDIndex.hasOwnProperty(p)) continue;
 							i = items.length;
 							items.push(aoItems[p]);
-							keys[p] = i;
+							itemsIDIndex[p] = i;
 						}
 					break;
 					default:
@@ -218,7 +229,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			,setPageItems : function(aoItems){
 				if($.obx.tools.isArray(aoItems) || $.obx.tools.isObject(aoItems)){
 					items = []; // zeroing
-					keys = {};
+					itemsIDIndex = {};
 					self.addPageItems(aoItems);
 					return self;
 				}
@@ -229,11 +240,14 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			}
 			,getPageItem : function(id){
 				if(!id) return false;
-				if(keys.hasOwnProperty(id)) return items[keys[id]];
+				if(itemsIDIndex.hasOwnProperty(id)) return items[itemsIDIndex[id]];
 				else return false;
 			}
 			,countPageItems : function(){
 				return items.length;
+			}
+			,setBasketCurrency: function() {
+
 			}
 			,add2Basket : function(item, bAnimate){ // item - id or array or object , bAnimate - animate basket total cost?
 				if(!item || !jq.template || !jq.container || itemTemplateSetup!==true) return false; // error!
@@ -259,13 +273,13 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				var item, key, qty, price, from;
 				for(var id  in filling){ // item id
 					if(basket.items[id]) continue; // already added
-					key = keys[id]-0; // key
+					key = itemsIDIndex[id]-0; // key
 						if(!(key>=0)) continue;
 					item = items[key]; // item object
 						if(!item) continue;
 					qty = parseInt(filling[id], 10); // item quality
 						if(!qty) qty=1;
-					price = parseFloat(item.price.toFixed(conf.round)); // item price
+					price = parseFloat(item.price).toFixed(conf.round); // item price
 						if(!price) continue;
 					// basket
 					basket.items[id] = {qty:qty, price:price, cost:price*qty}; // basket item set
@@ -511,7 +525,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		var ajaxTimeoutID = 0;
 		var ajaxQuery = function(qdata, ajaxQueryConf){ // qdata is a query post params!
 			if(conf.ajaxSend!==true) return true;
-			if(conf.ajaxUrl){
+			if(conf.ajaxUrl) {
 				if(ajaxTimeoutID) clearTimeout(ajaxTimeoutID); // clear previous ajax waiting
 				ajaxTimeoutID = setTimeout(function(){ // take a pause
 					if( typeof(ajaxQueryConf) == 'undefined' ) {
@@ -559,7 +573,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 								if( data.messages.length>0 ) {
 									for(keyMessage in data.messages) {
-										if(data.messages[keyMessage].TYPE == 'E') {
+										if( data.messages[keyMessage] && data.messages[keyMessage].TYPE == 'E') {
 											alert(data.messages[keyMessage].TEXT);
 											self.clearBasket();
 											self.add2Basket(data.items_list, false);
@@ -633,8 +647,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				if(!this.data.id ||
 				   !this.data.price ||
 				   !this.data.name) return false;
-
-				this.data.price = parseFloat(this.data.price.toFixed(conf.round)); // preparation price
+				this.data.price = parseFloat(this.data.price).toFixed(conf.round); // preparation price
 				return true;
 			},
 			has : function (property){
@@ -669,14 +682,16 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					if(basket.items[id]){
 
 						if(basket.items[id].qty == conf.qtyLimit) return false; // limit
+						// +++ что-то не понятное
 						// item
-						if(items[id]>=0) return false;
+						//if(items[id]>=0) return false;
+						// ^^^ что-то не понятное
 						// basket
 						basket.items[id].qty++;
-						price = parseFloat(basket.items[id].price.toFixed(conf.round));
+						price = parseFloat(parseFloat(basket.items[id].price).toFixed(conf.round));
 						basket.items[id].cost = basket.items[id].qty*price;
 						from = basket.total;
-						basket.total = basket.total + price;
+						basket.total = parseFloat(parseFloat(basket.total + price).toFixed(conf.round));
 						// item re-render
 						tmplItem.update();
 						// basket cost update
@@ -696,7 +711,10 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				if($item.length && tmplItem.key){
 					var id = $item.attr('data-id');
 					if(basket.items[id]){
-						if(items[id]>=0) return false; // item
+						// +++ что-то не понятное
+						// item
+						//if(items[id]>=0) return false;
+						// ^^^ что-то не понятное
 
 						// remove?
 						if(basket.items[id].qty==1){
@@ -707,7 +725,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 						}
 						// basket
 						basket.items[id].qty--;
-						price = parseFloat(basket.items[id].price.toFixed(conf.round));
+						price = parseFloat(basket.items[id].price).toFixed(conf.round);
 						basket.items[id].cost = basket.items[id].qty*price;
 						from = basket.total;
 						basket.total = basket.total - price;

@@ -73,36 +73,30 @@ for($oneCycle = 0; $oneCycle < 1; $oneCycle++)
 
 	$arJSON['basket_cost'] = $Basket->getCost();
 	$arJSON['products_count'] = $Basket->getProductsCount();
-	$arJSON['product_list'] = array();
+	$arJSON['products_list'] = array();
+	$arJSON['items_list'] = $Basket->getQuantityList();
 
 	$arProductList = $Basket->getProductsList(true);
 	foreach($arProductList as &$arBasketItem) {
 
 		$arProperties = $Basket->getProductIBlockPropertyValues($arBasketItem['PRODUCT_ID']);
 		$arJsonProduct = array(
-			'id' => $arBasketItem['ID'],
+			'id' => $arBasketItem['PRODUCT_ID'],
 			'href' => $arBasketItem['IB_ELEMENT']['DETAIL_PAGE_URL'],
 			'name' => $arBasketItem['IB_ELEMENT']['NAME'],
-			'value' => '1',
-			'price_type' => '',
-			'price_value' => '',
+			'price_id' => $arBasketItem['PRICE_ID'],
+			'price' => $arBasketItem['PRICE']['VALUE'],
 			'section_id' => $arBasketItem['IB_ELEMENT']['SECTION_ID']
 		);
 		foreach($arProperties as &$arProperty) {
-			if($arProperty['PROPERTY_TYPE']=='L') {
-				$arJsonProduct['prop_'.$arProperty['ID']] = $arProperty['VALUE_ENUM_ID'];
-			}
-			else {
-				$arJsonProduct['prop_'.$arProperty['ID']] = $arProperty['VALUE'];
-			}
+			$arJsonProduct['prop_'.$arProperty['ID']] = $arProperty['VALUE'];
 		}
 		$arJSON['products_list'][] = $arJsonProduct;
 	}
 
 
 }
-print_r($arJSON);
+//rint_r($arJSON);
 echo json_encode($arJSON);
 
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
-?>

@@ -401,6 +401,10 @@ class Basket extends \OBX_CMessagePoolDecorator
 		return $this->_arItemsQuantity[$productID];
 	}
 
+	public function getQuantityList() {
+		return $this->_arItemsQuantity;
+	}
+
 	/**
 	 * Удалить товар из корзины
 	 * @param int $productID
@@ -462,7 +466,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 			}
 			else {
 				$priceValue = $arOptimalPrice['VALUE'];
-				$priceID = $arOptimalPrice['ID'];
+				$priceID = $arOptimalPrice['PRICE_ID'];
 			}
 		}
 		if( array_key_exists($productID, $this->_arItemsQuantity) ) {
@@ -668,23 +672,8 @@ class Basket extends \OBX_CMessagePoolDecorator
 		return true;
 	}
 
-	public function getProductIBlockPropertyValues($productID, $bExcludePriceProps = true) {
+	protected function _getProductIBlockPropertyValues(&$productID, &$bExcludePriceProps, &$arPricePropLinks) {
 		$arPropValues = array();
-		if( ! array_key_exists($productID, $this->_arProductListIndex) ) {
-			return $arPropValues;
-		}
-		if($bExcludePriceProps) {
-			/**
-			 * @var CIBlockPropertyPriceDBS $CIBPriceProp
-			 */
-			$CIBPriceProp = CIBlockPropertyPriceDBS::getInstance();
-			$arPricePropLinksPlain = $CIBPriceProp->getListArray(array('IBLOCK_ID' => 'ASC'), array('!IBLOCK_ECOM_ID' => null));
-			$arPricePropLinks = Tools::getListIndex($arPricePropLinksPlain, array('IBLOCK_PROP_ID'), true, true);
-		}
-
-
-		if( count($this->_arProductList)<1 ) return $arPropValues;
-
 		$arItem = &$this->_arProductListIndex[$productID];
 		$rsProps = \CIBlockElement::GetProperty($arItem['IB_ELEMENT']['IBLOCK_ID'], $arItem['IB_ELEMENT']['ID'], array("sort" => "asc"));
 		while( $arProp = $rsProps->Fetch() ) {
@@ -698,6 +687,37 @@ class Basket extends \OBX_CMessagePoolDecorator
 				$code = $arProp['ID'];
 			}
 			$arPropValues[$code] = $arProp;
+		}
+		return $arPropValues;
+	}
+
+	public function getProductIBlockPropertyValues($productID = null, $bExcludePriceProps = true) {
+		$arPropValues = array();
+		if(
+			count($this->_arProductList)<1
+			|| ($productID === null
+				&& !array_key_exists($productID, $this->_arProductListIndex)
+			)
+		) {
+			return $arPropValues;
+		}
+		if($bExcludePriceProps) {
+			/**
+			 * @var CIBlockPropertyPriceDBS $CIBPriceProp
+			 */
+			$CIBPriceProp = CIBlockPropertyPriceDBS::getInstance();
+			$arPricePropLinksPlain = $CIBPriceProp->getListArray(array('IBLOCK_ID' => 'ASC'), array('!IBLOCK_ECOM_ID' => null));
+			$arPricePropLinks = Tools::getListIndex($arPricePropLinksPlain, array('IBLOCK_PROP_ID'), true, true);
+		}
+
+		if($productID !== null) {
+			$arPropValues = $this->_getProductIBlockPropertyValues($productID, $bExcludePriceProps, $arPricePropLinks);
+		}
+		else {
+			foreach($this->_arProductListIndex as &$arItem) {
+				$arPropValues[$arItem['PRODUCT_ID']] = $this->_getProductIBlockPropertyValues(
+					$arItem['PRODUCT_ID'], $bExcludePriceProps, $arPricePropLinks);
+			}
 		}
 		return $arPropValues;
 	}

@@ -12,7 +12,7 @@
 
 namespace OBX\Market;
 
-class OrderProfile extends OBX_CMessagePoolStatic
+class OrderProfile extends \OBX_CMessagePoolStatic
 {
 	// Возвращает профайл для текущего пользователя
 	static function getProfile($USER_ID) {

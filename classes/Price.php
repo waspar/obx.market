@@ -234,7 +234,7 @@ SQL;
 			$arResult[$i]["VALUE"] = $arPriceProp["VALUE"];
 			// +++ TODO : Добавить поддрежку дисконта
 			$discountValue = 0;
-			$arResult[$i]["DISCONT_VALUE"] = $discountValue;
+			$arResult[$i]["DISCOUNT_VALUE"] = $discountValue;
 			$arResult[$i]["TOTAL_VALUE"] = $arPriceProp["VALUE"] - $discountValue;
 			// ^^^
 			$arResult[$i]["AVAILABLE"] = (in_array($arPrice["PRICE_ID"], $arAvailPricesForUser)) ? "Y" : "N";
@@ -254,6 +254,19 @@ SQL;
 
 			$arResult[$i]["VALUE_FORMATTED"] = CurrencyFormatDBS::getInstance()->formatPrice(
 				$arResult[$i]['VALUE'],
+				$arResult[$i]['PRICE_CURRENCY'],	// передавая формат, тут можно и null поставить, не важно
+				$langID,							// передавая формат, тут можно и null поставить, не важно
+				// Сразу пишем формат, что бы метод OBX_CurrencyFormatDBS::formatPrice()
+				// заново не получал эти данные из БД
+				array(
+					'FORMAT' => $arResult[$i]['CURRENCY_FORMAT'],
+					'DEC_PRECISION' => $arResult[$i]['CURRENCY_DEC_PRECISION'],
+					'DEC_POINT' => $arResult[$i]['CURRENCY_DEC_POINT'],
+					'THOUSANDS_SEP' => $arResult[$i]['CURRENCY_THOUSANDS_SEP']
+				)
+			);
+			$arResult[$i]["TOTAL_VALUE_FORMATTED"] = CurrencyFormatDBS::getInstance()->formatPrice(
+				$arResult[$i]['TOTAL_VALUE'],
 				$arResult[$i]['PRICE_CURRENCY'],	// передавая формат, тут можно и null поставить, не важно
 				$langID,							// передавая формат, тут можно и null поставить, не важно
 				// Сразу пишем формат, что бы метод OBX_CurrencyFormatDBS::formatPrice()

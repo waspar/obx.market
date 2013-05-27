@@ -26,11 +26,11 @@ $DBType = strtolower($DB->type);
 
 $USER->Authorize(1);
 if( !CModule::IncludeModule('iblock') ) {
-	die('Module iblock not installed');
+	echo('Warning: Module iblock not installed!!!');
 }
 
 if( !CModule::IncludeModule('obx.market') ) {
-	die('Module OBX: Market not installed');
+	echo('Warning: Module OBX: Market not installed!!!');
 }
 
 /**

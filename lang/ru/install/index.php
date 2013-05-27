@@ -1,5 +1,5 @@
 <?
-$MESS['OBX_MODULE_INSTALL_NAME'] = 'А68:Маркет-Старт';
+$MESS['OBX_MODULE_INSTALL_NAME'] = 'DevTop:: Открытые решения: «Маркет-Старт»';
 $MESS['OBX_MODULE_INSTALL_DESCRIPTION'] = 'Модуль реализует базовые возможности интернет-магазина на редактции 1С-Битрикс: Управление сайтом "Старт"';
 $MESS['OBX_PARTNER_NAME'] = 'Студия A68';
 $MESS['OBX_PARTNER_URI'] = 'http://www.a-68.ru';

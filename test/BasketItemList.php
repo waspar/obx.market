@@ -135,7 +135,7 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 				'QUANTITY' => rand(1, 9),
 				'PRICE_ID' => $arOptimalPrice['PRICE_ID'],
 				'PRICE_VALUE' => $arOptimalPrice['VALUE'],
-				'DISCOUNT_VALUE' => $arOptimalPrice['DISCONT_VALUE']
+				'DISCOUNT_VALUE' => $arOptimalPrice['DISCOUNT_VALUE']
 			));
 			if($newBasketITemID < 1) {
 				$arError = self::$_BasketItemDBS->popLastError('ARRAY');
@@ -165,7 +165,7 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 				'QUANTITY' => rand(1, 9),
 				'PRICE_ID' => $arOptimalPrice['PRICE_ID'],
 				'PRICE_VALUE' => $arOptimalPrice['VALUE'],
-				'DISCOUNT_VALUE' => $arOptimalPrice['DISCONT_VALUE']
+				'DISCOUNT_VALUE' => $arOptimalPrice['DISCOUNT_VALUE']
 			));
 			if($newBasketITemID < 1) {
 				$arError = self::$_BasketItemDBS->popLastError('ARRAY');

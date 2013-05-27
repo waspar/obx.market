@@ -14,6 +14,7 @@ namespace OBX\Market;
 
 use OBX\Market\Price as OBX_Price;
 use OBX\Market\PriceDBS as OBX_PriceDBS;
+use OBX\Market\ECommerceIBlock;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -321,7 +322,7 @@ SQL;
 					$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_1'), 1);
 					return 0;
 				}
-				$arCommerceIBlock = OBX_ECommerceIBlock::getByID($fieldValue);
+				$arCommerceIBlock = ECommerceIBlock::getByID($fieldValue);
 				if( empty($arCommerceIBlock) ) {
 					$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_6'), 6);
 					return 0;

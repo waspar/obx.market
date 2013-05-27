@@ -15,6 +15,9 @@
 //	.add2Basket({5:5, 3:3}, false)
 //	.add2Basket([{6:6}, {4:4}], false);
 //	.add2Basket({20:1, 19:1, 18:1}, false);
+// или даже так:
+ .add2Basket({20:1, 19:1, 18:1}, false);
+
 
 примерно так добавлять события
  basket.onBeforeItemAdd(function(event, item, bAnimate) {
@@ -153,16 +156,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 		// private vars
 		var basket = {
-				currency: {
-					 code: 'RUB'
-					,name: obx.lang.ru.market.basket
-					,format: {
-						 string: '# руб.'
-						,dec_precision: 2
-						,dec_point: ','
-						,thousands_sep: ' '
-					}
-				}, items:{}, total:0, count: 0
+				currency: {}, items:{}, total:0, count: 0
 			},
 			items = [],
 			itemsIDIndex = {}, // ratio of ids with the keys of the items array
@@ -174,7 +168,10 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 		// api
 		$.extend(self, {
-			addPageItem : function(oItems){ // add from 1 object
+			setCurrency: function(currency) {
+				basket.currency = currency;
+			}
+			,addPageItem : function(oItems){ // add from 1 object
 				var id = 0, i=0;
 				if(!$.obx.tools.isObject(oItems) || !oItems.id) return false;
 				id = parseInt(oItems.id, 10);
@@ -245,9 +242,6 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			}
 			,countPageItems : function(){
 				return items.length;
-			}
-			,setBasketCurrency: function() {
-
 			}
 			,add2Basket : function(item, bAnimate){ // item - id or array or object , bAnimate - animate basket total cost?
 				if(!item || !jq.template || !jq.container || itemTemplateSetup!==true) return false; // error!
@@ -868,7 +862,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			var $this = $(this);
 			el = new OBX_Basket($this, conf);
 			el.activateJScrollPane();
-			el.setBasketItemsFromServer();
+			//el.setBasketItemsFromServer();
 			$this.data("obxbasket", el);
 		});
 		return conf.api ? el: this;

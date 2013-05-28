@@ -25,7 +25,7 @@ class BasketDBS extends \OBX_DBSimple
 		'USER_ID'			=> array('B' => 'USER_ID'),
 		'HASH_STRING'		=> array('B' => 'HASH_STRING'),
 		'CURRENCY'			=> array('B' => 'CURRENCY'),
-		'ITEMS_JSON' => array('BI' => <<<SQL
+		'ITEMS_JSON' => array('BI' => <<<SQLCHUNK
 				concat(
 					'{ ',
 						'"items": [',
@@ -45,7 +45,7 @@ class BasketDBS extends \OBX_DBSimple
 						'"cost": "', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,'"'
 					' }'
 				)
-SQL
+SQLCHUNK
 		),
 		'ITEMS_COST' => array('BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)'),
 	);

@@ -197,6 +197,9 @@ class Basket extends \OBX_CMessagePoolDecorator
 		return $currentCookieID;
 	}
 
+	/**
+	 * @param \OBX_DBSResult $rsBasket
+	 */
 	public function __construct(\OBX_DBSResult $rsBasket) {
 		if($rsBasket != null && $rsBasket->SelectedRowsCount() > 0) {
 			$abstractionName = get_class(self::$_BasketDBS);

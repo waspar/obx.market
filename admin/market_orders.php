@@ -236,7 +236,7 @@ if( ($arID = $lAdmin->GroupAction()) ) {
  * Выборка
  */
 $rsData = $OrderDBS->getList(array($by=>$order), $arFilter, null, null, array(
-	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS', 'PROPERTIES_JSON'
+	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS_JSON', 'PROPERTIES_JSON'
 ));
 $rsData = new CAdminResult($rsData, $tableID);
 
@@ -252,8 +252,8 @@ $aHeaders = array(
 	array('id'=>'TIMESTAMP_X', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_TIMESTAMP_X'), 'sort'=>'TIMESTAMP_X', 'default'=>true),
 	array('id'=>'CURRENCY', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_CURRENCY'), 'sort'=>'CURRENCY', 'default'=>true),
 	array('id'=>'COST', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_COST'), 'sort'=>'ITEMS_COST', 'default'=>true),
-	array('id'=>'ITEMS', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_ITEMS'), 'default'=>true),
-	array('id'=>'PROPERTIES_JSON', 'content'=> 'PROPERTIES_JSON', 'default'=>true),
+	array('id'=>'ITEMS_JSON', 'content'=>GetMessage('OBX_MARKET_ORDERS_F_ITEMS'), 'default'=>true),
+	array('id'=>'PROPERTIES_JSON', 'content'=> GetMessage('OBX_MARKET_ORDERS_F_PROPERTIES_JSON'), 'default'=>false),
 );
 
 foreach($arOrderProperties as $propertyID => &$arProperty) {
@@ -275,10 +275,29 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	$row->AddSelectField('STATUS_ID', $arOrderStatusList4Select);
 	$row->AddViewField('CURRENCY', $arCurrencyList[$f_CURRENCY]['LANG'][LANGUAGE_ID]['NAME']);
 	$row->AddViewField("COST", ($f_DELIVERY_COST + $f_ITEMS_COST + $f_PAY_TAX_VALUE - $f_DISCOUNT_VALUE));
-	$f_ITEMS = str_replace(array("\n", " "), array("<br/>\n", "&nbsp;"), $f_ITEMS);
-	$row->AddViewField("ITEMS", $f_ITEMS);
 
-	$row->AddViewField("PROPERTIES_JSON", $f_PROPERTIES_JSON);
+
+	$itemsView = '';
+	if(floatval($f_ITEMS_COST) > 0) {
+		$arItemsFromJSON = json_decode(htmlspecialcharsback($f_ITEMS_JSON), true);
+		if(!empty($arItemsFromJSON)) {
+			foreach($arItemsFromJSON as &$arItemFromJSON) {
+				$arItemFromJSON;
+			}
+		}
+		$debug=1;
+	}
+	$row->AddViewField("ITEMS_JSON", $itemsView);
+
+	$arPropertyValues = json_decode(htmlspecialcharsback($f_PROPERTIES_JSON), true);
+	$propertyView = '';
+	foreach($arPropertyValues as &$arPropValue) {
+		if($arPropValue['TYPE'] == 'C') {
+			$arPropValue['VALUE'] = ($arPropValue['VALUE']=='Y')?GetMessage('YES'):GetMessage('NO');
+		}
+		$propertyView .= $arPropValue['NAME'].': <b>'.$arPropValue['VALUE']."</b><br /><br />";
+	}
+	$row->AddViewField("PROPERTIES_JSON", $propertyView);
 
 	$arPropValues = $OrderPropertyValuesDBS->getListArray(
 		null,

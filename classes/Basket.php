@@ -252,7 +252,10 @@ class Basket extends \OBX_CMessagePoolDecorator
 	public function getCost($bFormat = false) {
 		$cost = 0;
 		foreach($this->_arProductList as &$arItem) {
-			$cost += $arItem['PRICE_VALUE'] * $arItem['QUANTITY'];
+			$cost += (floatVal($arItem['PRICE_VALUE']) * floatVal($arItem['QUANTITY']));
+		}
+		if($bFormat) {
+			return self::$_CurrencyFormatDBS->formatPrice($cost, $this->_arFields['CURRENCY']);
 		}
 		return $cost;
 	}

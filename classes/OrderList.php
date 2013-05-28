@@ -57,13 +57,13 @@ class OrderDBS extends \OBX_DBSimple {
 											'"PRODUCT_ID": "',		BI.PRODUCT_ID,		'", ',
 											'"PRODUCT_NAME": "',	BI.PRODUCT_NAME,	'", ',
 											'"QUANTITY": "',		BI.QUANTITY,		'", ',
+											'"PRICE_ID": "',		BI.PRICE_ID,		'", ',
 											'"PRICE_VALUE": "',		BI.PRICE_VALUE,		'"',
-									'" }'
+									' }'
 								)
 							),
 						' ], ',
 						'"product_count": "', SUM(1) ,'", '
-						'"items_count": "', SUM(BI.QUANTITY) ,'", '
 						'"cost": "', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,'"'
 					' }'
 				)
@@ -79,11 +79,11 @@ SQL
 					'[ ',
 					group_concat(
 						concat('{ ',
-									'"PROPERTY_ID": "',		OP.ID,				'", ',
-									'"PROPERTY_TYPE": "',	OP.PROPERTY_TYPE,	'", ',
-									'"PROPERTY_NAME": "',	OP.NAME,			'", ',
-									'"PROPERTY_CODE": "',	OP.CODE,			'", ',
-									'"PROPERTY_VALUE": "',	(SELECT CASE OP.PROPERTY_TYPE
+									'"ID": "',		OP.ID,				'", ',
+									'"TYPE": "',	OP.PROPERTY_TYPE,	'", ',
+									'"NAME": "',	OP.NAME,			'", ',
+									'"CODE": "',	OP.CODE,			'", ',
+									'"VALUE": "',	(SELECT CASE OP.PROPERTY_TYPE
 																WHEN 'S' THEN OPV.VALUE_S
 																WHEN 'N' THEN OPV.VALUE_N
 																WHEN 'T' THEN OPV.VALUE_T

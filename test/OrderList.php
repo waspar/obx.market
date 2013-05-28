@@ -25,8 +25,9 @@ class OBX_Test_OrderList extends OBX_Test_Lib_Order
 
 	public function testGetOrderList() {
 		$arFilter = array('ID' => array());
+		//print_r(self::$_arOrderList);
 		foreach(self::$_arOrderList as &$arOrderDesc) {
-			$arFilter[] = $arOrderDesc['ID'];
+			$arFilter['ID'][] = $arOrderDesc['ID'];
 		} unset($arOrderDesc);
 		//print_r($arFilter);
 		$arOrderList = OrderList::getListArray(null, $arFilter);

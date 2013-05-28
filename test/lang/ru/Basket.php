@@ -11,5 +11,6 @@ $MESS['OBX_MARKET_TEST_BASKET_ERROR_71'] = 'Error: Корзина пропуст
 $MESS['OBX_MARKET_TEST_BASKET_ERROR_8'] = 'Error: Корзина заказа не может содержать HASH_STRING';
 $MESS['OBX_MARKET_TEST_BASKET_ERROR_9'] = 'Error: Корзина заказа не должна быть привязана к пользователю, принадлежность к пользователю определяет заказ';
 $MESS['OBX_MARKET_TEST_BASKET_ERROR_10'] = 'Error: Корзина заказа не содержит привязку к заказу o_0';
+$MESS['OBX_MARKET_TEST_BASKET_RUB'] = 'руб.';
 //$MESS['OBX_MARKET_TEST_BASKET_ERROR_1'] = '';
 //$MESS['OBX_MARKET_TEST_BASKET_ERROR_1'] = '';

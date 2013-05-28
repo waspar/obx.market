@@ -17,12 +17,7 @@ class OBX_Test_Lib_Order extends OBX_Market_TestCase
 {
 	static protected $_arOrderList = array();
 	static public function setUpBeforeClass() {
-		self::$_arOrderList = array(
-			0 => array(),
-			1 => array(),
-			2 => array(),
-			3 => array()
-		);
+		self::$_arOrderList = array();
 	}
 
 	/**
@@ -37,8 +32,8 @@ class OBX_Test_Lib_Order extends OBX_Market_TestCase
 		$orderID = OrderList::add(array('USER_ID' => self::$_arTestUser['ID']));
 		if($orderID<1) {
 			$arError = OrderList::popLastError('ARRAY');
-			$this->assertGreaterThan(0, $orderID, 'Error: code: "'.$arError['CODE'].'"; test: "'.$arError['TEXT'].'"');
 		}
+		$this->assertGreaterThan(0, $orderID, 'Error: code: "'.$arError['CODE'].'"; test: "'.$arError['TEXT'].'"');
 		self::$_arOrderList[] = array(
 			'ID' => $orderID
 		);
@@ -46,7 +41,11 @@ class OBX_Test_Lib_Order extends OBX_Market_TestCase
 
 	public function _deleteOrder() {
 		foreach(self::$_arOrderList as &$arOrderDesc) {
-			OrderList::delete($arOrderDesc['ID']);
+			$bSuccess = OrderList::delete($arOrderDesc['ID']);
+			if(!$bSuccess) {
+				$arError = OrderList::popLastError('ARRAY');
+				$this->fail('Error: can\'t delete order: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+			}
 		} unset($arOrderDesc);
 	}
 }

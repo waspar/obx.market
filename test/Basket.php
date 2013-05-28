@@ -30,9 +30,13 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		);
 	}
 
+	public function testGetTestUser(){
+		$this->_getTestUser();
+	}
+
 	public function testAuthUser() {
 		global $USER;
-		$USER->Authorize(1);
+		$USER->Authorize(self::$_arSomeOtherTestUser['ID']);
 	}
 
 	/**
@@ -47,6 +51,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$this->assertNull($Basket->getFields('ORDER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_3'));
 		$this->assertNull($Basket->getFields('HASH_STRING'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_4'));
 		self::$_BasketArray['USER_BASKET'] = $Basket;
+		$Basket->clear();
 	}
 
 	public function testLogoutUser() {
@@ -64,10 +69,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$this->assertNull($Basket->getFields('USER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_6'));
 		$this->assertNull($Basket->getFields('ORDER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_3'));
 		self::$_BasketArray['ANON_BASKET'] = $Basket;
-	}
-
-	public function testGetTestUser(){
-		$this->_getTestUser();
+		$Basket->clear();
 	}
 
 	/**
@@ -88,6 +90,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$this->assertNull($Basket->getFields('USER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_9'));
 		$this->assertGreaterThan(0, $Basket->getFields('ORDER_ID'), GetMessage('OBX_MARKET_TEST_BASKET_ERROR_10'));
 		self::$_BasketArray['ORDER_BASKET'] = $Basket;
+		$Basket->clear();
 	}
 
 
@@ -202,7 +205,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		if($expectProductCount===null) $expectProductCount = 20;
 		$this->assertFalse($Basket->isEmpty());
 		$this->assertGreaterThan(0, $Basket->getCost());
-		$this->assertEquals($expectProductCount, $Basket->getProductsCount());
+		$this->assertGreaterThanOrEqual($expectProductCount, $Basket->getProductsCount());
 		$this->assertNull($Basket->getProductCost(686868686868));
 		$this->assertEquals(0, $Basket->getProductQuantity(686868686868));
 		$this->assertTrue($Basket->isEmpty(68686868686868));
@@ -228,11 +231,12 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 			$this->assertArrayHasKey($arIBElement['ID'], $arItemsList);
 			$this->assertArrayHasKey('QUANTITY', $arItemsList[$arIBElement['ID']]);
 			$this->assertEquals($arItemsList[$arIBElement['ID']]['QUANTITY'], $quantity);
-			$itemCostDB = $arItemsList[$arIBElement['ID']]['QUANTITY'] * $arItemsList[$arIBElement['ID']]['PRICE_VALUE'];
+			$itemCostDB = floatVal($arItemsList[$arIBElement['ID']]['QUANTITY']) * floatVal($arItemsList[$arIBElement['ID']]['PRICE_VALUE']);
 			$dbCheckBasketCost += $itemCostDB;
 			$this->assertEquals($itemCostDB, $productCost);
 		}
 		$this->assertEquals($dbCheckBasketCost, $Basket->getCost());
+		$this->assertTrue( (strpos($Basket->getCost(true), GetMessage('OBX_MARKET_TEST_BASKET_RUB')) !==false) );
 	}
 
 
@@ -340,6 +344,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$AnonBasket = &self::$_BasketArray['ANON_BASKET'];
 		$arProductList = $AnonBasket->getProductsList(true);
 		foreach($arProductList as &$arItem) {
+			$AnonBasket->setProductQuantity($arItem['PRODUCT_ID'], 68);
 			$arItem['QUANTITY'] = 67;
 		}
 		$arProductList1 = $AnonBasket->getProductsList(true);

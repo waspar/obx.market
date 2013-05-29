@@ -8,6 +8,7 @@ $MESS['OBX_ORDER_LIST_DEL'] = 'Удалить заказ';
 $MESS['OBX_ORDER_LIST_DEL_CONF'] = 'Удалить заказ?';
 $MESS['YES'] = 'Да';
 $MESS['NO'] = 'Нет';
+$MESS['OBX_MARKET_ORDER_LIST_UNIT'] = 'шт.';
 
 $MESS['OBX_MARKET_ORDERS_F_USER'] = 'Пользовтель';
 $MESS['OBX_MARKET_ORDERS_F_STATUS'] = 'Статус';

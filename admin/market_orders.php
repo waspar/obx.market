@@ -281,8 +281,10 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	if(floatval($f_ITEMS_COST) > 0) {
 		$arItemsFromJSON = json_decode(htmlspecialcharsback($f_ITEMS_JSON), true);
 		if(!empty($arItemsFromJSON)) {
-			foreach($arItemsFromJSON as &$arItemFromJSON) {
-				$arItemFromJSON;
+			foreach($arItemsFromJSON['items'] as &$arItemFromJSON) {
+				$itemsView .= '<b>'.$arItemFromJSON['PRODUCT_NAME']
+							.'&nbsp;('.$arItemFromJSON['PRODUCT_ID'].'):'
+							.GetMessage('OBX_MARKET_ORDER_LIST_UNIT')."<br />\n";
 			}
 		}
 		$debug=1;

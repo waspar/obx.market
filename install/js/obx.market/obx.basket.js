@@ -498,7 +498,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			}
 			,removeBasketItem : function(id, bAnimate){
 				if(itemTemplateSetup!==true) return false; // error!
-				id = parseInt(id);
+				id = id|0;
 				if(bAnimate!==false) bAnimate = true;
 				if(basket.items[id]){
 					self.$.on('onBeforeItemRemove', [id, bAnimate]);
@@ -540,7 +540,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				jq.container.text('');
 			}
 			,getBasketItem : function(id){
-				id = parseInt(id);
+				id = id|0;
 				if(basket.items[id]){
 					return jq.container.find(conf.itemClass+'[data-id='+id+']');
 				}

@@ -94,6 +94,7 @@ $arResult['CURRENCY'] = array(
 	)
 );
 $JSLang = JSLang::getInstance('obx.market');
+$JSLang->addMessage('basket.currency.currency', $arResult['CURRENCY']['CURRENCY']);
 $JSLang->addMessage('basket.currency.name', $arResult['CURRENCY']['NAME']);
 $JSLang->addMessage('basket.currency.format.string', $arResult['CURRENCY']['FORMAT']['STRING']);
 $JSLang->addMessage('basket.currency.format.dec_point', $arResult['CURRENCY']['FORMAT']['DEC_POINT']);
@@ -104,6 +105,7 @@ Tools::addDeferredJS("/bitrix/js/obx.market/obx.basket.js");
 
 
 $arResult['BASKET_COST'] = $Basket->getCost();
+$arResult['BASKET_COST_FORMATTED'] = $Basket->getCost(true);
 $arResult['PRODUCTS_COUNT'] = $Basket->getProductsCount();
 $arResult['PRODUCTS_LIST'] = $Basket->getProductsList();
 

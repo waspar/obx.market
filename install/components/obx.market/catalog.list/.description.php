@@ -13,7 +13,7 @@ require $_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/obx.market/includes/'.LANGUA
 $arComponentDescription = array(
 	'NAME' => GetMessage('OBX_MARKET_CATALOG_LIST_CMP_NAME'),
 	'DESCRIPTION' => GetMessage('OBX_MARKET_CATALOG_LIST_CMP_DESCRIPTION'),
-	'ICON' => '',
+	'ICON',
 	'CACHE_PATH' => 'Y',
 	'SORT' => 10,
 	'PATH' => array(

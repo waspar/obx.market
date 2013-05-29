@@ -53,7 +53,7 @@ IncludeModuleLangFile(__FILE__);
 
 $ID = intval($ID); // идентификатор редактируемой записи
 
-$APPLICATION->AddHeadScript("/bitrix/js/obx.market/jquery-1.8.2.min.js");
+$APPLICATION->AddHeadScript("/bitrix/js/obx.market/jquery-1.9.1.min.js");
 
 // Заголовок
 if ($ID > 0) {
@@ -462,29 +462,30 @@ $TabControl->BeginNextTab();
 						<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput<?=$i?>">
 							<tr>
 								<td class="item-name">
-									<span class="not noedit" id="sp_TABLE[<?=$i?>]" ><?=$arItem['PRODUCT_NAME']?></span>
-									<input type="hidden" name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
-									<input type="button" class="change_button" style="display: none;" value="..."
-											onclick="jsUtils.OpenWindow('/bitrix/admin/iblock_element_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[<?=$i?>]&amp;k=PRODUCT_ID', 600, 500);">
+									<span class="name not noedit" id="sp_TABLE[<?=$i?>]" ><?=$arItem['PRODUCT_NAME']?></span>
+									<input type="hidden" class="product_id" name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
+<!--									<input type="button" class="change_button" style="display: none;" value="..."-->
+<!--											onclick="jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[--><?//=$i?><!--]&amp;k=PRODUCT_ID', 600, 500);">-->
 								</td>
 							</tr>
 						</table>
 					</td>
 					<td>
 						<select name=TABLE[<?=$i?>][PRICE_ID] class="not" disabled >
+							<option value="null"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
 							<?foreach($arPriceTypes as $arPrice){?>
 							<option value="<?=$arPrice['ID']?>" <?if($arItem['PRICE_ID'] == $arPrice['ID'] ){?>selected<?}?>><?=$arPrice['NAME']?></option>
 							<?}?>
 						</select>
 					</td>
 					<td>
-						<input type="text" class="not" readonly name="TABLE[<?=$i?>][WEIGHT]" value="<?=$arItem['WEIGHT']?>">
+						<input type="text" class="not" class="weight" readonly name="TABLE[<?=$i?>][WEIGHT]" value="<?=$arItem['WEIGHT']?>">
 					</td>
 					<td>
-						<input type="text" class="not" readonly name="TABLE[<?=$i?>][QUANTITY]" value="<?=$arItem['QUANTITY']?>">
+						<input type="text" class="not" class="quantity" readonly name="TABLE[<?=$i?>][QUANTITY]" value="<?=$arItem['QUANTITY']?>">
 					</td>
 					<td align="right">
-						<input type="text" class="not" readonly name="TABLE[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
+						<input type="text" class="not" class="price_value" readonly name="TABLE[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
 					</td>
 					<td class="action-row" align="center">
 						<a href="javascript:void(0)" class="delete_item" data="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
@@ -549,29 +550,30 @@ $TabControl->BeginNextTab();
 		<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput#ID#">
 			<tr>
 				<td class="item-name">
-					<span class="not noedit" id="sp_TABLE[#ID#]"> --- </span>
-					<input type="hidden" name="TABLE[#ID#][PRODUCT_ID]" id="TABLE[#ID#][PRODUCT_ID]" value="NULL">
-					<input type="button" class="change_button" value="..."
-						   onclick="jsUtils.OpenWindow('/bitrix/admin/iblock_element_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[#ID#]&amp;k=PRODUCT_ID', 600, 500);">
+					<span class="name not noedit" id="sp_TABLE[#ID#]"> --- </span>
+					<input type="hidden" class="product_id" name="TABLE[#ID#][PRODUCT_ID]" id="TABLE[#ID#][PRODUCT_ID]" value="NULL">
+<!--					<input type="button" class="change_button" value="..."-->
+<!--						   onclick="jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[#ID#]&amp;k=PRODUCT_ID', 600, 500);">-->
 				</td>
 			</tr>
 		</table>
 	</td>
 	<td>
-		<select name=TABLE[#ID#][PRICE_ID]>
+		<select name="TABLE[#ID#][PRICE_ID]" class="price_id">
+				<option value="null" selected="selected"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
 			<?foreach($arPriceTypes as $arPrice){?>
 				<option value="<?=$arPrice['ID']?>"><?=$arPrice['NAME']?></option>
 			<?}?>
 		</select>
 	</td>
 	<td>
-		<input type='text' name='TABLE[#ID#][WEIGHT]' value='0.00'>
+		<input type='text' class="weight" name="TABLE[#ID#][WEIGHT]" value="0.00">
 	</td>
 	<td>
-		<input type='text' name='TABLE[#ID#][QUANTITY]' value='0'>
+		<input type='text' class="quantity" name='TABLE[#ID#][QUANTITY]' value='0'>
 	</td>
 	<td align='right'>
-		<input type='text' name='TABLE[#ID#][PRICE_VALUE]' value='0'>
+		<input type='text' class="price_value" name='TABLE[#ID#][PRICE_VALUE]' value='0'>
 	</td>
 	<td class='action-row' align='center'>
 		<a href="javascript:void(0)" class="delete_item" data="#ID#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
@@ -583,18 +585,62 @@ $TabControl->BeginNextTab();
 </script>
 
 <script type="text/javascript">
-	if (typeof(jQuery) == 'undefined') jQuery = false;
+	if( typeof(obx) == 'undefined' ) { obx = {}; }
+	if( typeof(obx.admin) == 'undefined' ) { obx.admin = {}; }
+	if( typeof(obx.admin.order_list) == 'undefined' ) { obx.admin.order_list = {}; }
 	(function ($) {
+		if (typeof($) == 'undefined') return false;
 		var rowtempl = $("#products-row-template").html();
 		var editHrefTempl = $("#edit-href-template").html();
 		var cancelDeleteHrefTempl = $("#cancel-delete-item").html();
 		var startDeleteHrefTempl = $("#start-delete-item").html();
 
-		$("#add_item").on("click",function(){
+
+
+		obx.admin.order_list.addNewRow = function() {
 			var $lastrow = $("#items_list tr.item-row:last-child");
-			var newid = Number($lastrow.attr("data-id"))+1;
-			var newtempl = rowtempl.replace(/\#ID\#/g,newid);
+			var newRowID = Number($lastrow.attr("data-id"))+1;
+			var newtempl = rowtempl.replace(/#ID#/g,newRowID);
 			$lastrow.after(newtempl);
+			return newRowID;
+		}
+		obx.admin.order_list.addProductToOrder = function(oItem) {
+			if( typeof(oItem.product_id) == 'undefined' || oItem.product_id <1 ) return false;
+			if( typeof(oItem.price_id) == 'undefined' || oItem.price_id <1) return false;
+			if( typeof(oItem.price_value) == 'undefined' || oItem.price_value < 0) return false;
+			if( typeof(oItem.weight) == 'undefined' || oItem.weight < 0) oItem.weight = 0.00;
+			if( typeof(oItem.quantity) == 'undefined' || oItem.quantity <= 0) oItem.quantity = 1;
+			if( typeof(oItem.name) == 'undefined' ) oItem.name = 'New product: ' + oItem.product_id;
+			//find exists row
+			var $itemRow = $('tr.item-row input[type=hidden][value="'+oItem.product_id+'"]').closest('tr.item-row');
+			if($itemRow.length < 1) {
+				var newRowID = obx.admin.order_list.addNewRow();
+				$itemRow = $('tr[data-id='+newRowID+']')
+				$itemRow.find('input[type=hidden]').attr('value', oItem.product_id);
+			}
+			if($itemRow.length < 1) {
+				return false;
+			}
+			var $selectPriceID = $itemRow.find('select.price_id');
+			var $selectedOptionPriceID = $selectPriceID.find('option[value='+oItem.price_id+']');
+			if($selectedOptionPriceID.length > 0) {
+				$selectPriceID.find('options').removeAttr('selected');
+				$selectedOptionPriceID.attr('selected', 'selected');
+			}
+			var $inputWeight = $itemRow.find('input.weight');
+			var $inputPriceValue = $itemRow.find('input.price_value');
+			var $inputQuantity = $itemRow.find('input.quantity');
+			var $spanName = $itemRow.find('span.name');
+
+			$inputWeight.attr('value', oItem.weight);
+			$inputPriceValue.attr('value', oItem.price_value);
+			$inputQuantity.attr('value', parseFloat($inputQuantity.attr('value')) + parseFloat(oItem.quantity));
+			$spanName.text(oItem.name);
+		};
+
+
+		$("#add_item").on("click",function(){
+			jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;&amp;k=PRODUCT_ID', 600, 500);
 		});
 		$("#items_list").on("click",".edit_item",function(){
 			var $this = $(this);
@@ -611,7 +657,7 @@ $TabControl->BeginNextTab();
 			$selects.removeClass("not");
 			$selects.removeAttr("disabled");
 
-			$thisRow.find(".change_button").show();
+			//$thisRow.find(".change_button").show();
 
 			$this.remove();
 		});
@@ -625,7 +671,7 @@ $TabControl->BeginNextTab();
 			$thisRow.find("#to_delete_"+id).val("Y");
 			$thisRow.addClass("deleted");
 
-			$this.after(cancelDeleteHrefTempl.replace(/\#ID\#/g,id));
+			$this.after(cancelDeleteHrefTempl.replace(/#ID#/g,id));
 			$this.remove();
 		});
 

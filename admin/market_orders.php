@@ -284,7 +284,8 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 			foreach($arItemsFromJSON['items'] as &$arItemFromJSON) {
 				$itemsView .= '<b>'.$arItemFromJSON['PRODUCT_NAME']
 							.'&nbsp;('.$arItemFromJSON['PRODUCT_ID'].'):'
-							.GetMessage('OBX_MARKET_ORDER_LIST_UNIT')."<br />\n";
+							.'&nbsp;'.$arItemFromJSON['QUANTITY']
+							.GetMessage('OBX_MARKET_ORDER_LIST_UNIT')."<hr />\n";
 			}
 		}
 		$debug=1;
@@ -297,7 +298,7 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 		if($arPropValue['TYPE'] == 'C') {
 			$arPropValue['VALUE'] = ($arPropValue['VALUE']=='Y')?GetMessage('YES'):GetMessage('NO');
 		}
-		$propertyView .= $arPropValue['NAME'].': <b>'.$arPropValue['VALUE']."</b><br /><br />";
+		$propertyView .= $arPropValue['NAME'].': <b>'.$arPropValue['VALUE']."</b><hr /><br />";
 	}
 	$row->AddViewField("PROPERTIES_JSON", $propertyView);
 

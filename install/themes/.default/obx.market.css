@@ -86,6 +86,14 @@
 .icon.obx-order-list-edit {
 	background: url(obx.market/item_edit.gif) center center no-repeat;
 }
+hr.min-items-column-width {
+	min-width: 250px;
+}
+
+/****** ORDER DETAIL ******/
+form[name=obx_order_edit_form] input[type=button].add_item.right {
+	float: right;
+}
 
 
 /****** MARKET SETTINGS *******/

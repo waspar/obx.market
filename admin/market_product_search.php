@@ -280,8 +280,9 @@ while($arRes = $rsData->GetNext())
 
 	$row =& $lAdmin->AddRow($arRes["ID"], $arRes);
 	$row->AddViewField("NAME", $arRes["NAME"]."<input type=hidden name='n".$arRes["ID"]."' id='name_".$arRes["ID"]."' value='".CUtil::JSEscape(htmlspecialchars($arRes["NAME"]))."'>");
+	$langIBLOCK_FIELD_SELECTED_PRODUCT_BTN = GetMessage('IBLOCK_FIELD_SELECTED_PRODUCT_BTN');
 	$row->AddViewField('SELECT_PRODUCT_BTN',
-		'<input type="button" onclick="addProduct('.$arRes['ID'].')"'
+		'<input type="button" onclick="addProduct('.$arRes['ID'].', this)"'
 		.' data-product-id="'.$arRes['ID'].'"'
 		.' value="'.GetMessage('IBLOCK_FIELD_SELECT_PRODUCT_BTN').'"'
 		.' />'
@@ -394,6 +395,9 @@ if($m)
 
 $lAdmin->AddAdminContextMenu(array(), false);
 
+$lAdmin->onLoadScript .= 'checkAddedProducts();'."\n";
+$lAdmin->onLoadScript .= 'arPageItems = '.json_encode($arProductJSON);
+
 $lAdmin->CheckListMode();
 
 /***************************************************************************
@@ -451,14 +455,28 @@ $oFilter = new CAdminFilter($sTableID."_filter", $arFindFields);
 $oFilter->Begin();
 
 ?>
+<script type="text/javascript" src="/bitrix/js/obx.market/jquery-1.9.1.min.js"></script>
 <script language="JavaScript">
 <!--
 
-arPageItems = <?=json_encode($arProductJSON);?>;
-function addProduct(id) {
-	if( typeof(arPageItems[id]) != 'undefined' ) {
-		window.opener.obx.admin.order_list.addProductToOrder(arPageItems[id]);
+function addProduct(id, domAddButton) {
+	if( typeof(window.opener.obx.admin.order_items.addProductToOrder) == 'function' ) {
+		window.opener.obx.admin.order_items.addProductToOrder(arPageItems[id], domAddButton);
 	}
+}
+
+function checkAddedProducts() {
+	var $ = jQuery;
+	if( typeof($) == 'undefined') {
+		return false;
+	}
+	$('input[data-product-id]').each(function() {
+		var $this = $(this);
+		var productID = parseInt($this.attr('data-product-id'));
+		if( typeof(window.opener.obx.admin.order_items.list[productID]) != 'undefined') {
+			$this.attr('value', '<?=GetMessage('IBLOCK_FIELD_SELECTED_PRODUCT_BTN')?>: ' + window.opener.obx.admin.order_items.list[productID]);
+		}
+	});
 }
 
 function SelEl(id, name)
@@ -676,6 +694,11 @@ $oFilter->Buttons(array(
 
 <?
 $lAdmin->DisplayList();
+?>
+<script type="text/javascript">
+	checkAddedProducts();
+</script>
+<?
 
 echo ShowError($strWarning);
 

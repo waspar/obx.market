@@ -449,11 +449,13 @@ $TabControl->BeginNextTab();
 			$summaryCost = 0;
 			$summaryWeight = 0;
 			$summaryQuant = 0;
+			$arItemsInOrderJSON = array();
 
 			foreach ($arOrderItems as $arItem) {
 				$summaryCost+= floatval($arItem['PRICE_VALUE']) * floatval($arItem['QUANTITY']);
 				$summaryWeight+= floatval($arItem['WEIGHT']);
 				$summaryQuant+= floatval($arItem['QUANTITY']);
+				$arItemsInOrderJSON[$arItem['PRODUCT_ID']] = floatVal($arItem['QUANTITY']);
 				?>
 
 				<tr class="item-row" id="row_<?=$i?>" data-id="<?=$i?>">
@@ -587,7 +589,8 @@ $TabControl->BeginNextTab();
 <script type="text/javascript">
 	if( typeof(obx) == 'undefined' ) { obx = {}; }
 	if( typeof(obx.admin) == 'undefined' ) { obx.admin = {}; }
-	if( typeof(obx.admin.order_list) == 'undefined' ) { obx.admin.order_list = {}; }
+	if( typeof(obx.admin.order_items) == 'undefined' ) { obx.admin.order_items = {}; }
+	obx.admin.order_items.list = <?=json_encode($arItemsInOrderJSON)?>;
 	(function ($) {
 		if (typeof($) == 'undefined') return false;
 		var rowtempl = $("#products-row-template").html();
@@ -597,14 +600,14 @@ $TabControl->BeginNextTab();
 
 
 
-		obx.admin.order_list.addNewRow = function() {
+		obx.admin.order_items.addNewRow = function() {
 			var $lastrow = $("#items_list tr.item-row:last-child");
 			var newRowID = Number($lastrow.attr("data-id"))+1;
 			var newtempl = rowtempl.replace(/#ID#/g,newRowID);
 			$lastrow.after(newtempl);
 			return newRowID;
 		}
-		obx.admin.order_list.addProductToOrder = function(oItem) {
+		obx.admin.order_items.addProductToOrder = function(oItem, domAddButton) {
 			if( typeof(oItem.product_id) == 'undefined' || oItem.product_id <1 ) return false;
 			if( typeof(oItem.price_id) == 'undefined' || oItem.price_id <1) return false;
 			if( typeof(oItem.price_value) == 'undefined' || oItem.price_value < 0) return false;
@@ -614,12 +617,18 @@ $TabControl->BeginNextTab();
 			//find exists row
 			var $itemRow = $('tr.item-row input[type=hidden][value="'+oItem.product_id+'"]').closest('tr.item-row');
 			if($itemRow.length < 1) {
-				var newRowID = obx.admin.order_list.addNewRow();
+				var newRowID = obx.admin.order_items.addNewRow();
 				$itemRow = $('tr[data-id='+newRowID+']')
 				$itemRow.find('input[type=hidden]').attr('value', oItem.product_id);
 			}
 			if($itemRow.length < 1) {
 				return false;
+			}
+			if( typeof(obx.admin.order_items.list[oItem.product_id]) == 'undefined' ) {
+				obx.admin.order_items.list[oItem.product_id] = parseFloat(oItem.quantity);
+			}
+			else {
+				obx.admin.order_items.list[oItem.product_id] += parseFloat(oItem.quantity);
 			}
 			var $selectPriceID = $itemRow.find('select.price_id');
 			var $selectedOptionPriceID = $selectPriceID.find('option[value='+oItem.price_id+']');
@@ -634,8 +643,18 @@ $TabControl->BeginNextTab();
 
 			$inputWeight.attr('value', oItem.weight);
 			$inputPriceValue.attr('value', oItem.price_value);
-			$inputQuantity.attr('value', parseFloat($inputQuantity.attr('value')) + parseFloat(oItem.quantity));
+			$inputQuantity.attr('value', obx.admin.order_items.list[oItem.product_id]);
 			$spanName.text(oItem.name);
+
+			var $domAddButton = $(domAddButton);
+			if( typeof($domAddButton.is('input[type=button]')) ) {
+				$domAddButton.attr('value', '<?=GetMessage('OBX_ORDER_PRODUCT_SEARCH_SELECTED_BUTTON')?>: '
+											+ obx.admin.order_items.list[oItem.product_id]);
+			}
+			else if( typeof($domAddButton.is('button')) ) {
+				$domAddButton.text('<?=GetMessage('OBX_ORDER_PRODUCT_SEARCH_SELECTED_BUTTON')?>: '
+										+ obx.admin.order_items.list[oItem.product_id]);
+			}
 		};
 
 

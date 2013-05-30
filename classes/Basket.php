@@ -226,7 +226,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 		if( !array_key_exists('HTTP_USER_AGENT', $_SERVER) ) {
 			$_SERVER['HTTP_USER_AGENT'] = 'local test user agent';
 		}
-		return md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].microtime().mt_rand());
+		return md5($_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].microtime().mt_rand().SITE_ID);
 	}
 
 	public function getFields($fieldName = null) {

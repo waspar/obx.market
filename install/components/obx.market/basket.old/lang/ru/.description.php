@@ -9,6 +9,6 @@
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
-$MESS['OBX_MARKET_BASKET_CMP_NAME'] = 'Корзина';
+$MESS['OBX_MARKET_BASKET_CMP_NAME'] = 'Корзина старая';
 $MESS['OBX_MARKET_BASKET_CMP_DESCRIPTION'] = 'Корзина товаров от Студии А68';
 ?>

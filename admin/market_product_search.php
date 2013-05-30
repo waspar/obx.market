@@ -1,6 +1,12 @@
 <?
+use \OBX\Market\ECommerceIBlock;
+use \OBX\Market\ECommerceIBlockDBS;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/iblock.php");
+
+CModule::IncludeModule('obx.market');
+
 IncludeModuleLangFile(__FILE__);
 
 //Init variables
@@ -405,6 +411,10 @@ $lAdmin->CheckListMode();
 				HTML form
 ****************************************************************************/
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
+
+$arEComIBlockList = ECommerceIBlockDBS::getInstance()->getCachedList();
+$arEComIBlockFilter = array('ID' => array_keys($arEComIBlockList));
+
 ?>
 <form name="form1" method="GET" action="<?echo $APPLICATION->GetCurPage()?>">
 <?
@@ -559,7 +569,7 @@ function SelAll()
 </script>
 	<tr>
 		<td><b><?echo GetMessage("IBLOCK_ELSEARCH_IBLOCK")?></b></td>
-		<td><?echo GetIBlockDropDownList($IBLOCK_ID, "filter_type", "filter_iblock_id");?></td>
+		<td><?echo GetIBlockDropDownList($IBLOCK_ID, "filter_type", "filter_iblock_id", $arEComIBlockFilter);?></td>
 	</tr>
 
 	<tr>

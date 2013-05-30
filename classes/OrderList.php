@@ -49,23 +49,23 @@ class OrderDBS extends \OBX_DBSimple {
 		'CURRENCY'				=> array('B' => 'CURRENCY'),
 		'ITEMS_JSON' => array('BI' => <<<SQL
 				concat(
-					'{ ',
+					'{',
 						'"items": [',
 							group_concat(
-								concat('{ ',
-											'"ID": "',				BI.ID,				'", ',
-											'"PRODUCT_ID": "',		BI.PRODUCT_ID,		'", ',
-											'"PRODUCT_NAME": "',	BI.PRODUCT_NAME,	'", ',
-											'"QUANTITY": "',		BI.QUANTITY,		'", ',
-											'"PRICE_ID": "',		BI.PRICE_ID,		'", ',
-											'"PRICE_VALUE": "',		BI.PRICE_VALUE,		'"',
-									' }'
+								concat('{',
+											'"ID":"',	BI.ID,				'",',
+											'"PID":"',	BI.PRODUCT_ID,		'",',
+											'"PN":"',	BI.PRODUCT_NAME,	'",',
+											'"Q":"',	BI.QUANTITY,		'",',
+											'"PRI":"',	BI.PRICE_ID,		'",',
+											'"PRV":"',	BI.PRICE_VALUE,		'"',
+									'}'
 								)
 							),
 						' ], ',
 						'"product_count": "', SUM(1) ,'", '
 						'"cost": "', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,'"'
-					' }'
+					'}'
 				)
 SQL
 				, 'REQUIRED_TABLES' => array('B')
@@ -76,14 +76,14 @@ SQL
 		'PROPERTIES_JSON' => array('O' => <<<SQL
 			(SELECT
 				concat(
-					'[ ',
+					'[',
 					group_concat(
-						concat('{ ',
-									'"ID": "',		OP.ID,				'", ',
-									'"TYPE": "',	OP.PROPERTY_TYPE,	'", ',
-									'"NAME": "',	OP.NAME,			'", ',
-									'"CODE": "',	OP.CODE,			'", ',
-									'"VALUE": "',	(SELECT CASE OP.PROPERTY_TYPE
+						concat('{',
+									'"ID":"',	OP.ID,				'",',
+									'"T":"',	OP.PROPERTY_TYPE,	'",',
+									'"N":"',	OP.NAME,			'",',
+									'"C":"',	OP.CODE,			'",',
+									'"V":"',	(SELECT CASE OP.PROPERTY_TYPE
 																WHEN 'S' THEN OPV.VALUE_S
 																WHEN 'N' THEN OPV.VALUE_N
 																WHEN 'T' THEN OPV.VALUE_T
@@ -98,10 +98,10 @@ SQL
 																ELSE NULL
 																END
 															), '"',
-								' }'
+								'}'
 						)
 					),
-					' ]'
+					']'
 				)
 			FROM
 				obx_order_property as OP

@@ -46,12 +46,36 @@ IncludeModuleLangFile(__FILE__);
 <?
 
 $tableID = 'tbl_obx_orders';
+/**
+ * @var OrderDBS $OrderDBS
+ */
 $OrderDBS = OBX_OrderDBS::getInstance();
+
+/**
+ * @var OrderStatusDBS $OrderStatusDBS
+ */
 $OrderStatusDBS = OBX_OrderStatusDBS::getInstance();
+
+/**
+ * @var OrderPropertyDBS $OrderPropertyDBS
+ */
 $OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
+
+/**
+ * @var OrderPropertyValuesDBS $OrderPropertyValuesDBS
+ */
 $OrderPropertyValuesDBS = OBX_OrderPropertyValuesDBS::getInstance();
+
+/**
+ * @var OrderPropertyEnumDBS $OrderPropertyEnumDBS
+ */
 $OrderPropertyEnumDBS = OBX_OrderPropertyEnumDBS::getInstance();
+
+/**
+ * @var CurrencyFormatDBS $CurrencyFormatDBS
+ */
 $CurrencyFormatDBS = OBX_CurrencyFormatDBS::getInstance();
+
 $oSort = new CAdminSorting($tableID, 'SORT', 'ASC');
 $lAdmin = new CAdminList($tableID, $oSort);
 
@@ -281,11 +305,15 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	if(floatval($f_ITEMS_COST) > 0) {
 		$arItemsFromJSON = json_decode(htmlspecialcharsback($f_ITEMS_JSON), true);
 		if(!empty($arItemsFromJSON)) {
+			$iItem = 0;
 			foreach($arItemsFromJSON['items'] as &$arItemFromJSON) {
-				$itemsView .= '<b>'.$arItemFromJSON['PRODUCT_NAME']
-							.'&nbsp;('.$arItemFromJSON['PRODUCT_ID'].'):'
-							.'&nbsp;'.$arItemFromJSON['QUANTITY']
-							.GetMessage('OBX_MARKET_ORDER_LIST_UNIT')."<hr />\n";
+				$itemsView .= (++$iItem).'.&nbsp;'.$arItemFromJSON['PN']
+							.'&nbsp;('.$arItemFromJSON['PID'].'):'
+							.'&nbsp;'.$CurrencyFormatDBS->formatPrice($arItemFromJSON['PRV'], $f_CURRENCY)
+							.'&nbsp;<span style="font-size: 0.8em; font-weight: bolder;">x</span>&nbsp;'.$arItemFromJSON['Q']
+							.GetMessage('OBX_MARKET_ORDER_LIST_UNIT')
+
+							."<hr class=\"min-items-column-width\" />\n";
 			}
 		}
 		$debug=1;
@@ -295,10 +323,10 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	$arPropertyValues = json_decode(htmlspecialcharsback($f_PROPERTIES_JSON), true);
 	$propertyView = '';
 	foreach($arPropertyValues as &$arPropValue) {
-		if($arPropValue['TYPE'] == 'C') {
-			$arPropValue['VALUE'] = ($arPropValue['VALUE']=='Y')?GetMessage('YES'):GetMessage('NO');
+		if($arPropValue['T'] == 'C') {
+			$arPropValue['V'] = ($arPropValue['V']=='Y')?GetMessage('YES'):GetMessage('NO');
 		}
-		$propertyView .= $arPropValue['NAME'].': <b>'.$arPropValue['VALUE']."</b><hr /><br />";
+		$propertyView .= $arPropValue['N'].': <b>'.$arPropValue['V']."</b><hr /><br />";
 	}
 	$row->AddViewField("PROPERTIES_JSON", $propertyView);
 

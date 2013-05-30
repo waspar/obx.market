@@ -47,8 +47,16 @@ class CurrencyInfo extends \OBX_CMessagePoolDecorator
 		return false;
 	}
 
+	/**
+	 * @var null|CurrencyDBS
+	 */
+
 	protected $_CurrencyDBS = null;
+	/**
+	 * @var null|CurrencyFormatDBS
+	 */
 	protected $_CurrencyFormatDBS = null;
+
 	protected $_arCurrencyFields = array();
 
 	public function __construct($currency) {

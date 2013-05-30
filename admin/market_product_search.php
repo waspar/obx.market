@@ -395,9 +395,10 @@ if($m)
 
 $lAdmin->AddAdminContextMenu(array(), false);
 
-$lAdmin->onLoadScript .= 'checkAddedProducts();'."\n";
-$lAdmin->onLoadScript .= 'arPageItems = '.json_encode($arProductJSON);
+$onLoadScript = 'checkAddedProducts();'."\n";
+$onLoadScript .= 'arPageItems = '.json_encode($arProductJSON);
 
+$lAdmin->onLoadScript .= $onLoadScript;
 $lAdmin->CheckListMode();
 
 /***************************************************************************
@@ -458,6 +459,9 @@ $oFilter->Begin();
 <script type="text/javascript" src="/bitrix/js/obx.market/jquery-1.9.1.min.js"></script>
 <script language="JavaScript">
 <!--
+
+<?=$onLoadScript?>
+
 
 function addProduct(id, domAddButton) {
 	if( typeof(window.opener.obx.admin.order_items.addProductToOrder) == 'function' ) {

@@ -419,7 +419,7 @@ $TabControl->BeginNextTab();
 				<td class="icon">
 					<div id="sale"></div>
 				</td>
-				<td class="title">Состав заказа</td>
+				<td class="title">Состав заказа <input type="button" class="add_item right" value="<?=GetMessage("OBX_ORDER_ACTION_ADD_PROD")?>" align="right"></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="delimiter">
@@ -464,16 +464,14 @@ $TabControl->BeginNextTab();
 						<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput<?=$i?>">
 							<tr>
 								<td class="item-name">
-									<span class="name not noedit" id="sp_TABLE[<?=$i?>]" ><?=$arItem['PRODUCT_NAME']?></span>
-									<input type="hidden" class="product_id" name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
-<!--									<input type="button" class="change_button" style="display: none;" value="..."-->
-<!--											onclick="jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[--><?//=$i?><!--]&amp;k=PRODUCT_ID', 600, 500);">-->
+									<input class="product_name" type="text" name="TABLE[<?=$i?>][PRODUCT_NAME]" value="<?=$arItem['PRODUCT_NAME']?>" />
+									<input class="product_id" type="hidden"  name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
 								</td>
 							</tr>
 						</table>
 					</td>
 					<td>
-						<select name=TABLE[<?=$i?>][PRICE_ID] class="not" disabled >
+						<select name=TABLE[<?=$i?>][PRICE_ID]>
 							<option value="null"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
 							<?foreach($arPriceTypes as $arPrice){?>
 							<option value="<?=$arPrice['ID']?>" <?if($arItem['PRICE_ID'] == $arPrice['ID'] ){?>selected<?}?>><?=$arPrice['NAME']?></option>
@@ -481,19 +479,16 @@ $TabControl->BeginNextTab();
 						</select>
 					</td>
 					<td>
-						<input type="text" class="not" class="weight" readonly name="TABLE[<?=$i?>][WEIGHT]" value="<?=$arItem['WEIGHT']?>">
+						<input type="text" class="weight" size="5" name="TABLE[<?=$i?>][WEIGHT]" value="<?=$arItem['WEIGHT']?>">
 					</td>
 					<td>
-						<input type="text" class="not" class="quantity" readonly name="TABLE[<?=$i?>][QUANTITY]" value="<?=$arItem['QUANTITY']?>">
+						<input type="text" class="quantity" size="5" name="TABLE[<?=$i?>][QUANTITY]" value="<?=$arItem['QUANTITY']?>">
 					</td>
 					<td align="right">
-						<input type="text" class="not" class="price_value" readonly name="TABLE[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
+						<input type="text" class="price_value" size="6" name="TABLE[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
 					</td>
 					<td class="action-row" align="center">
 						<a href="javascript:void(0)" class="delete_item" data="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
-						<br>
-						<br>
-						<a href="javascript:void(0)" class="edit_item" data="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_EDIT")?></a>
 						<input type="hidden" id="to_delete_<?=$i?>" name="TABLE[<?=$i?>][TO_DELETE]" value="N">
 					</td>
 				</tr>
@@ -505,7 +500,7 @@ $TabControl->BeginNextTab();
 </tr>
 <tr>
 	<td colspan="2" align="center">
-		<input type="button" id="add_item" value="<?=GetMessage("OBX_ORDER_ACTION_ADD_PROD")?>" align="center">
+		<input type="button" class="add_item" value="<?=GetMessage("OBX_ORDER_ACTION_ADD_PROD")?>" align="center">
 	</td>
 </tr>
 
@@ -552,10 +547,8 @@ $TabControl->BeginNextTab();
 		<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput#ID#">
 			<tr>
 				<td class="item-name">
-					<span class="name not noedit" id="sp_TABLE[#ID#]"> --- </span>
-					<input type="hidden" class="product_id" name="TABLE[#ID#][PRODUCT_ID]" id="TABLE[#ID#][PRODUCT_ID]" value="NULL">
-<!--					<input type="button" class="change_button" value="..."-->
-<!--						   onclick="jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[#ID#]&amp;k=PRODUCT_ID', 600, 500);">-->
+					<input class="product_name" type="text" name="TABLE[#ID#][PRODUCT_NAME]" />
+					<input class="product_id" type="hidden"  name="TABLE[#ID#][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" />
 				</td>
 			</tr>
 		</table>
@@ -569,15 +562,15 @@ $TabControl->BeginNextTab();
 		</select>
 	</td>
 	<td>
-		<input type='text' class="weight" name="TABLE[#ID#][WEIGHT]" value="0.00">
+		<input type='text' class="weight" size="5" name="TABLE[#ID#][WEIGHT]" value="0.00">
 	</td>
 	<td>
-		<input type='text' class="quantity" name='TABLE[#ID#][QUANTITY]' value='0'>
+		<input type='text' class="quantity" size="5" name='TABLE[#ID#][QUANTITY]' value='0'>
 	</td>
-	<td align='right'>
-		<input type='text' class="price_value" name='TABLE[#ID#][PRICE_VALUE]' value='0'>
+	<td align="right">
+		<input type='text' class="price_value" name="TABLE[#ID#][PRICE_VALUE]" value="0">
 	</td>
-	<td class='action-row' align='center'>
+	<td class="action-row" align="center">
 		<a href="javascript:void(0)" class="delete_item" data="#ID#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
 		<br>
 		<br>
@@ -658,27 +651,8 @@ $TabControl->BeginNextTab();
 		};
 
 
-		$("#add_item").on("click",function(){
+		$("input[type=button].add_item").on("click",function(){
 			jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;&amp;k=PRODUCT_ID', 600, 500);
-		});
-		$("#items_list").on("click",".edit_item",function(){
-			var $this = $(this);
-			var dataID = $this.attr("data");
-			var $thisRow = $("#items_list #row_"+dataID);
-
-			$thisRow.find("input[type=text].noedit").removeClass("not");
-
-			var $inputText = $thisRow.find("input[type=text]:not(.noedit)");
-			var $selects = $thisRow.find("select");
-
-			$inputText.removeClass("not");
-			$inputText.removeAttr("readonly");
-			$selects.removeClass("not");
-			$selects.removeAttr("disabled");
-
-			//$thisRow.find(".change_button").show();
-
-			$this.remove();
 		});
 
 		$("#items_list").on("click", ".delete_item", function(){

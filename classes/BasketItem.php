@@ -113,7 +113,7 @@ SQL
 	protected $_mainTablePrimaryKey = 'ID';
 	protected $_mainTableAutoIncrement = 'ID';
 	protected $_arTableUnique = array(
-		'udx_obx_basket_items' => array('BASKET_ID', 'PRODUCT_ID')
+		'udx_obx_basket_items' => array('BASKET_ID', 'PRODUCT_ID', 'PRICE_ID')
 	);
 	protected $_arSortDefault = array('ID' => 'ASC');
 	protected $_arTableFieldsDefault = array(
@@ -275,7 +275,7 @@ SQL
 		if(
 			!array_key_exists('PRICE_VALUE', $arFields)
 			||
-			intval($arFields['PRICE_VALUE']) <= 0
+			intval($arFields['PRICE_VALUE']) < 0
 		) {
 			$arPricePropList = CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
 				'PRICE_ID' => $arFields['PRICE_ID'],

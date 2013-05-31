@@ -146,7 +146,7 @@ create table if not exists obx_basket_items (
 	DISCOUNT_VALUE decimal(18,2) not null default 0,
 	VAT_ID int(11) null,
 	VAT_VALUE decimal(18,2) not null default 0,
-	unique udx_obx_basket_items(BASKET_ID, PRODUCT_ID),
+	unique udx_obx_basket_items(BASKET_ID, PRODUCT_ID, PRICE_ID),
 	primary key(ID)
 );
 -- Таблица статусов заказов

@@ -26,7 +26,7 @@ class CIBlockPropertyPriceDBS extends \OBX_DBSimple
 		'IB'	=> 'b_iblock',
 		'IBP'	=> 'b_iblock_property',
 		'L'		=> 'obx_price_ibp',
-		'IBE'	=> 'obx_ecom_iblock',
+		'EIB'	=> 'obx_ecom_iblock',
 	);
 	protected $_mainTable = 'L';
 	public $_arTableLinks = array(
@@ -44,7 +44,7 @@ class CIBlockPropertyPriceDBS extends \OBX_DBSimple
 		),
 		3 => array(
 			array('L'	=> 'IBLOCK_ID'),
-			array('IBE' => 'IBLOCK_ID')
+			array('EIB' => 'IBLOCK_ID')
 		)
 	);
 	protected $_arTableFields = array(
@@ -61,14 +61,14 @@ class CIBlockPropertyPriceDBS extends \OBX_DBSimple
 		'IBLOCK_PROP_NAME'		=> array('IBP'	=> 'NAME'),
 		'IBLOCK_PROP_ACTIVE'	=> array('IBP'	=> 'ACTIVE'),
 		'IBLOCK_PROP_REQUIRED'	=> array('IBP'	=> 'IS_REQUIRED'),
-		'IBLOCK_ECOM_ID'		=> array('IBE'	=> 'IBLOCK_ID'),
+		'IBLOCK_ECOM_ID'		=> array('EIB'	=> 'IBLOCK_ID'),
 	);
 	protected $_arTableUnique = array(
 		'obx_price_ibpr' => array('IBLOCK_ID', 'PRICE_ID'),
 		'obx_price_ibpp' => array('IBLOCK_ID', 'IBLOCK_PROP_ID')
 	);
 	protected $_arTableLeftJoin = array(
-		'IBE' => 'L.IBLOCK_ID = IBE.IBLOCK_ID'
+		'EIB' => 'L.IBLOCK_ID = EIB.IBLOCK_ID'
 	);
 
 	protected $_mainTablePrimaryKey = null;
@@ -212,6 +212,8 @@ SQL;
 		}
 		$sqlList .= ' ORDER BY IB.ID ASC, PR.ID ASC';
 		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
+		$res = new \OBX_DBSResult($res);
+		$res->setAbstractionName(get_called_class());
 		if($bResultCDBResult) {
 			return $res;
 		}
@@ -229,7 +231,7 @@ SQL;
 	 * не вернет строк, в отличие от getFullPriceList, которые вернет строки с null
 	 * @param int $IBLOCK_ID
 	 * @param bool $bResultCDBResult
-	 * @return array|bool|\CDBResult
+	 * @return array|bool|\OBX_DBSResult
 	 */
 	public function getFullPropList($IBLOCK_ID = 0, $bResultCDBResult = false) {
 		global $DB;
@@ -266,6 +268,8 @@ SQL;
 			$sqlList .= ' AND B.ID = '.$IBLOCK_ID;
 		}
 		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
+		$res = new \OBX_DBSResult($res);
+		$res->setAbstractionName(get_called_class());
 		if($bResultCDBResult) {
 			return $res;
 		}

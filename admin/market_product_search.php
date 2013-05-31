@@ -1,6 +1,12 @@
-<?
+<?php
+use \OBX\Core\Tools;
 use \OBX\Market\ECommerceIBlock;
 use \OBX\Market\ECommerceIBlockDBS;
+use \OBX\Market\Price;
+use \OBX\Market\CurrencyFormat;
+use \OBX\Market\CurrencyFormatDBS;
+use \OBX\Market\CIBlockPropertyPrice;
+use \OBX\Market\CIBlockPropertyPriceDBS;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/iblock.php");
@@ -85,6 +91,7 @@ $arFilterFields = Array(
 	"filter_active",
 	"filter_intext",
 	"filter_name",
+	"filter_price_id"
 );
 
 foreach($arProps as $prop)
@@ -170,9 +177,36 @@ $arHeader[] = array("id"=>"PREVIEW_TEXT", "content"=>GetMessage("IBLOCK_FIELD_PR
 $arHeader[] = array("id"=>"DETAIL_PICTURE", "content"=>GetMessage("IBLOCK_FIELD_DETAIL_PICTURE"), "align"=>"center");
 $arHeader[] = array("id"=>"DETAIL_TEXT", "content"=>GetMessage("IBLOCK_FIELD_DETAIL_TEXT"));
 
+$arPricePropFilter = array();
+if( !empty($filter_price_id) ) {
+	$filter_price_id = intval($filter_price_id);
+	$arPricePropFilter['PRICE_ID'] = $filter_price_id;
+	if( $arFilter["IBLOCK_ID"] > 0) {
+		$arPricePropFilter['IBLOCK_ID'] = $arFilter['IBLOCK_ID'];
+	}
+}
+$arPriceList = CIBlockPropertyPrice::getListArray(null, $arPricePropFilter);
+$arPriceListPropIDIndex = Tools::getListIndex($arPriceList, 'IBLOCK_PROP_ID', true, true);
+$arPriceListPriceIDIndex = Tools::getListIndex($arPriceList, 'PRICE_ID', true, true);
+
 foreach($arProps as $prop)
 {
-	$arHeader[] = array("id"=>"PROPERTY_".$prop['ID'], "content"=>$prop['NAME'], "align"=>($prop["PROPERTY_TYPE"]=='N'?"right":"left"), "sort" => ($prop["MULTIPLE"]!='Y'? "PROPERTY_".$prop['ID'] : ""));
+	$propColumnName = '';
+	$propColumnDefault = false;
+	if( array_key_exists($prop['ID'], $arPriceListPropIDIndex) ) {
+		$propColumnName = $arPriceListPropIDIndex[$prop['ID']]['PRICE_NAME'];
+		$propColumnDefault = true;
+	}
+	else {
+		$propColumnName = $prop['NAME'];
+	}
+	$arHeader[] = array(
+		"id"=>"PROPERTY_".$prop['ID'],
+		"content"=>$propColumnName,
+		"align"=>($prop["PROPERTY_TYPE"]=='N'?"right":"left"),
+		"sort" => ($prop["MULTIPLE"]!='Y'? "PROPERTY_".$prop['ID'] : ""),
+		"default" => $propColumnDefault
+	);
 }
 $arHeader[] = array("id"=>"SELECT_PRODUCT_BTN", "content"=>GetMessage("IBLOCK_FIELD_SELECT_PRODUCT_BTN"), "default" => true);
 
@@ -256,23 +290,37 @@ function GetIBlockTypeID($IBLOCK_ID)
 	return $cache[$IBLOCK_ID]["IBLOCK_TYPE_ID"];
 }
 
-if($IBLOCK_ID <= 0)
-{
+$AdminMessages = array();
+if($IBLOCK_ID <= 0) {
+	$AdminMessages[] = new CAdminMessage(array("MESSAGE"=>GetMessage("IBLOCK_ELSEARCH_CHOOSE_IBLOCK"), "TYPE"=>"OK"));
+}
+if( $filter_price_id <= 0 || $arPriceListPropIDIndex[$filter_price_id]['PRICE_ID'] <= 0 ) {
+	$AdminMessages[] = new CAdminMessage(array("MESSAGE"=>GetMessage("PRODUCT_SEARCH_PRICE_NOT_SELECTED"), "TYPE"=>"OK"));
+}
+if( !empty($AdminMessages) ) {
 	$lAdmin->BeginPrologContent();
-	$message = new CAdminMessage(array("MESSAGE"=>GetMessage("IBLOCK_ELSEARCH_CHOOSE_IBLOCK"), "TYPE"=>"OK"));
-	echo $message->Show();
+	foreach($AdminMessages as &$message) {
+		echo $message->Show();
+	} unset($message);
 	$lAdmin->EndPrologContent();
 }
 
 $arProductJSON = array();
 while($arRes = $rsData->GetNext())
 {
+	$priceID = $arPriceListPriceIDIndex[$filter_price_id]['PRICE_ID'];
+	$priceValue = $arRes["PROPERTY_".$arPriceListPriceIDIndex[$filter_price_id]['IBLOCK_PROP_ID'].'_VALUE'];
+	if( !is_numeric($priceValue) || $priceValue <= 0 ) {
+		$priceValue = 0.00;
+	}
+	else {
+		$priceValue = floatVal($priceValue);
+	}
 	$arProductJSON[$arRes['ID']] = array(
 		'product_id' => $arRes['ID'],
 		'name' => $arRes['NAME'],
-		// Добавить получение доступных типов цен
-		'price_id' => 1,
-		'price_value' => 100.00,
+		'price_id' => $priceID,
+		'price_value' => $priceValue,
 		'weight' => 0.00,
 		'quantity' => 1
 	);
@@ -290,6 +338,7 @@ while($arRes = $rsData->GetNext())
 	$row->AddViewField('SELECT_PRODUCT_BTN',
 		'<input type="button" onclick="addProduct('.$arRes['ID'].', this)"'
 		.' data-product-id="'.$arRes['ID'].'"'
+		.' data-price-id="'.$priceID.'"'
 		.' value="'.GetMessage('IBLOCK_FIELD_SELECT_PRODUCT_BTN').'"'
 		.' />'
 	);
@@ -401,8 +450,8 @@ if($m)
 
 $lAdmin->AddAdminContextMenu(array(), false);
 
-$onLoadScript = 'checkAddedProducts();'."\n";
-$onLoadScript .= 'arPageItems = '.json_encode($arProductJSON);
+$onLoadScript = 'checkAddedProducts()'.";\n";
+$onLoadScript .= 'arPageItems = '.json_encode($arProductJSON).";\n";
 
 $lAdmin->onLoadScript .= $onLoadScript;
 $lAdmin->CheckListMode();
@@ -470,9 +519,6 @@ $oFilter->Begin();
 <script language="JavaScript">
 <!--
 
-<?=$onLoadScript?>
-
-
 function addProduct(id, domAddButton) {
 	if( typeof(window.opener.obx.admin.order_items.addProductToOrder) == 'function' ) {
 		window.opener.obx.admin.order_items.addProductToOrder(arPageItems[id], domAddButton);
@@ -487,8 +533,13 @@ function checkAddedProducts() {
 	$('input[data-product-id]').each(function() {
 		var $this = $(this);
 		var productID = parseInt($this.attr('data-product-id'));
-		if( typeof(window.opener.obx.admin.order_items.list[productID]) != 'undefined') {
-			$this.attr('value', '<?=GetMessage('IBLOCK_FIELD_SELECTED_PRODUCT_BTN')?>: ' + window.opener.obx.admin.order_items.list[productID]);
+		var priceID = parseInt($this.attr('data-price-id'));
+		if( typeof(window.opener.obx.admin.order_items.list[productID+'_'+priceID]) != 'undefined') {
+			$this.attr(
+				'value',
+				'<?=GetMessage('IBLOCK_FIELD_SELECTED_PRODUCT_BTN')?>: '
+					+ window.opener.obx.admin.order_items.list[productID+'_'+priceID]
+			);
 		}
 	});
 }
@@ -565,11 +616,56 @@ function SelAll()
 	}
 }
 
+function onChangeFilterIblock(domIBselect) {
+	var arIblockPriceProps = {};
+	arIblockPriceProps = <?
+
+		$arFullPropList = array();
+		$arFullPropListRaw = CIBlockPropertyPrice::getFullPropList();
+		foreach($arFullPropListRaw as &$arProp) {
+			if($arProp['PRICE_ID'] == null || $arProp['IBLOCK_IS_ECOM'] != 'Y') continue;
+			$arFullPropList[$arProp['IBLOCK_ID']][$arProp['PRICE_ID']] = $arProp;
+		} unset($arProp);
+
+		echo json_encode($arFullPropList);
+	?>;
+	var selectedIblockID = domIBselect.options[domIBselect.options.selectedIndex].value;
+	var domPriceSelect = BX('filter_price_id');
+	if(arIblockPriceProps) {
+		for(var i=domPriceSelect.length-1; i >= 0; i--) {
+			domPriceSelect.remove(i);
+		}
+		var n = 0;
+		if( typeof(arIblockPriceProps[selectedIblockID]) != 'undefined' ) {
+			for(var priceID in arIblockPriceProps[selectedIblockID]) {
+				var newoption = new Option(arIblockPriceProps[selectedIblockID][priceID]['PRICE_NAME'], priceID, false, false);
+				domPriceSelect.options.add(newoption);
+				n++;
+			}
+		}
+		if(n==0) {
+			domPriceSelect.options.add(new Option('<?=GetMessage('PRODUCT_SEARCH_FILTER_PRICE_NOT_FOUND_4_IB')?>', 'null'));
+		}
+	}
+}
+
+<?=$onLoadScript?>
+
 //-->
 </script>
 	<tr>
 		<td><b><?echo GetMessage("IBLOCK_ELSEARCH_IBLOCK")?></b></td>
-		<td><?echo GetIBlockDropDownList($IBLOCK_ID, "filter_type", "filter_iblock_id", $arEComIBlockFilter);?></td>
+		<td>
+			<?echo GetIBlockDropDownListEx($IBLOCK_ID, "filter_type", "filter_iblock_id", $arEComIBlockFilter, false, 'onChangeFilterIblock(this, event)');?>
+			<?$arPrices = Price::getListArray(array('SORT' => 'ASC'));?>
+			&nbsp;
+			<select name="filter_price_id" id="filter_price_id">
+				<option value="null"><?=GetMessage('PRODUCT_SEARCH_FILTER_SELECT_PRICE')?></option>
+				<?foreach($arPrices as &$arPrice):?>
+				<option value="<?=$arPrice['ID']?>"><?=$arPrice['NAME']?></option>
+				<?endforeach; unset($arPrice);?>
+			</select>
+		</td>
 	</tr>
 
 	<tr>
@@ -584,7 +680,7 @@ function SelAll()
 	</tr>
 
 	<tr>
-		<td  nowrap><? echo GetMessage("IBLOCK_FIELD_TIMESTAMP_X")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td nowrap><? echo GetMessage("IBLOCK_FIELD_TIMESTAMP_X")." (".CLang::GetDateFormat("SHORT")."):"?></td>
 		<td nowrap><? echo CalendarPeriod("filter_timestamp_from", htmlspecialcharsex($filter_timestamp_from), "filter_timestamp_to", htmlspecialcharsex($filter_timestamp_to), "form1")?></td>
 	</tr>
 
@@ -711,6 +807,7 @@ $lAdmin->DisplayList();
 ?>
 <script type="text/javascript">
 	checkAddedProducts();
+	onChangeFilterIblock(BX('filter_iblock_id'));
 </script>
 <?
 

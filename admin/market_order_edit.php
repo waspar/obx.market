@@ -131,6 +131,12 @@ if ($REQUEST_METHOD == "POST" // проверка метода вызова ст
 				}
 
 				$bSuccess = $Order->setItems($arFilteredItems,true);
+				if(!$bSuccess) {
+					$arErrorList = $Order->getErrors();
+					foreach($arErrorList as $arError) {
+						$arErrors[] = $arError['TEXT'].' code: '.$arError['CODE'];
+					}
+				}
 			}
 			if (!empty($arProps)) {
 				$bSuccess = $Order->setProperties($arProps);
@@ -441,7 +447,7 @@ $TabControl->BeginNextTab();
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_PRICE_VALUE")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_ACTIONS")?></td>
 			</tr>
-			<tr class="item-row" id="row_0" data-id="0" style="display:none;">
+			<tr class="item-row" id="row_0" data-num="0" style="display:none;">
 				<td colspan="7"></td>
 			</tr>
 			<?
@@ -458,18 +464,12 @@ $TabControl->BeginNextTab();
 				$arItemsInOrderJSON[$arItem['PRODUCT_ID']] = floatVal($arItem['QUANTITY']);
 				?>
 
-				<tr class="item-row" id="row_<?=$i?>" data-id="<?=$i?>">
+				<tr class="item-row" id="row_<?=$i?>" data-num="<?=$i?>" data-product-id="<?=$arItem['PRODUCT_ID']?>" data-price-id="<?=$arItem['PRICE_ID']?>">
 					<td><?=$i?></td>
 					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput<?=$i?>">
-							<tr>
-								<td class="item-name">
-									<input class="product_name" type="text" name="TABLE[<?=$i?>][PRODUCT_NAME]" value="<?=$arItem['PRODUCT_NAME']?>" />
-									<input class="product_id" type="hidden"  name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
-								</td>
-							</tr>
-						</table>
-					</td>
+						<input class="id" type="hidden" name="TABLE[<?=$i?>][ID]" id="TABLE[<?=$i?>][ID]" value="<?=$arItem['ID']?>" />
+						<input class="product_id" type="hidden"  name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
+						<input class="product_name" type="text" name="TABLE[<?=$i?>][PRODUCT_NAME]" value="<?=$arItem['PRODUCT_NAME']?>" />
 					<td>
 						<select name=TABLE[<?=$i?>][PRICE_ID]>
 							<option value="null"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
@@ -486,9 +486,10 @@ $TabControl->BeginNextTab();
 					</td>
 					<td align="right">
 						<input type="text" class="price_value" size="6" name="TABLE[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
+						<input type="hidden" class="price_id" name="TABLE[<?=$i?>][PRICE_ID]" value="<?=$arItem['PRICE_ID']?>"
 					</td>
 					<td class="action-row" align="center">
-						<a href="javascript:void(0)" class="delete_item" data="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
+						<a href="javascript:void(0)" class="delete_item" data-num="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
 						<input type="hidden" id="to_delete_<?=$i?>" name="TABLE[<?=$i?>][TO_DELETE]" value="N">
 					</td>
 				</tr>
@@ -529,32 +530,34 @@ $TabControl->BeginNextTab();
 
 
 <script type="x-template/custom" id="edit-href-template">
-	<a href="javascript:void(0)" class="edit_item" data="#ID#"><?=GetMessage("OBX_ORDER_HREF_ACTION_EDIT")?></a>
+	<a href="javascript:void(0)" class="edit_item" data-num="#NUM#"><?=GetMessage("OBX_ORDER_HREF_ACTION_EDIT")?></a>
 </script>
 
 <script type="x-template/custom" id="cancel-delete-item">
-	<a href="javascript:void(0)" class="undelete_item" data="#ID#"><?=GetMessage("OBX_ORDER_HREF_ACTION_UNDELETE")?></a>
+	<a href="javascript:void(0)" class="undelete_item" data-num="#NUM#"><?=GetMessage("OBX_ORDER_HREF_ACTION_UNDELETE")?></a>
 </script>
 
 <script type="x-template/custom" id="start-delete-item">
-	<a href="javascript:void(0)" class="delete_item" data="#ID#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
+	<a href="javascript:void(0)" class="delete_item" data-num="#NUM#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
 </script>
 
 <script type="x-template/custom" id="products-row-template">
-	<tr class="item-row" id="row_#ID#" data-id='#ID#'>
-	<td>#ID#</td>
+	<tr class="item-row" id="row_#NUM#" data-num='#NUM#'>
+	<td>#NUM#</td>
 	<td>
 		<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput#ID#">
 			<tr>
 				<td class="item-name">
-					<input class="product_name" type="text" name="TABLE[#ID#][PRODUCT_NAME]" />
-					<input class="product_id" type="hidden"  name="TABLE[#ID#][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" />
+					<input class="id" type="hidden"  name="TABLE[#NUM#][ID]" id="TABLE[#NUM#][ID]" />
+					<input class="product_id" type="hidden"  name="TABLE[#NUM##][PRODUCT_ID]" id="TABLE[#NUM#][PRODUCT_ID]" />
+					<input class="product_name" type="text" name="TABLE[#NUM#][PRODUCT_NAME]" />
+
 				</td>
 			</tr>
 		</table>
 	</td>
 	<td>
-		<select name="TABLE[#ID#][PRICE_ID]" class="price_id">
+		<select name="TABLE[#NUM#][PRICE_ID]" class="price_id">
 				<option value="null" selected="selected"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
 			<?foreach($arPriceTypes as $arPrice){?>
 				<option value="<?=$arPrice['ID']?>"><?=$arPrice['NAME']?></option>
@@ -562,19 +565,19 @@ $TabControl->BeginNextTab();
 		</select>
 	</td>
 	<td>
-		<input type='text' class="weight" size="5" name="TABLE[#ID#][WEIGHT]" value="0.00">
+		<input type='text' class="weight" size="5" name="TABLE[#NUM#][WEIGHT]" value="0.00">
 	</td>
 	<td>
-		<input type='text' class="quantity" size="5" name='TABLE[#ID#][QUANTITY]' value='0'>
+		<input type='text' class="quantity" size="5" name='TABLE[#NUM#][QUANTITY]' value='0'>
 	</td>
 	<td align="right">
-		<input type='text' class="price_value" name="TABLE[#ID#][PRICE_VALUE]" value="0">
+		<input type='text' class="price_value" name="TABLE[#NUM#][PRICE_VALUE]" value="0">
 	</td>
 	<td class="action-row" align="center">
-		<a href="javascript:void(0)" class="delete_item" data="#ID#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
+		<a href="javascript:void(0)" class="delete_item" data-num="#NUM#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
 		<br>
 		<br>
-		<input type="hidden" id="to_delete_#ID#" name="TABLE[#ID#][TO_DELETE]" value="N">
+		<input type="hidden" id="to_delete_#NUM#" name="TABLE[#NUM#][TO_DELETE]" value="N">
 	</td>
 	</tr>
 </script>
@@ -583,7 +586,7 @@ $TabControl->BeginNextTab();
 	if( typeof(obx) == 'undefined' ) { obx = {}; }
 	if( typeof(obx.admin) == 'undefined' ) { obx.admin = {}; }
 	if( typeof(obx.admin.order_items) == 'undefined' ) { obx.admin.order_items = {}; }
-	obx.admin.order_items.list = <?=json_encode($arItemsInOrderJSON)?>;
+	obx.admin.order_items.list = <?=json_encode($arItemsInOrderJSON, JSON_FORCE_OBJECT)?>;
 	(function ($) {
 		if (typeof($) == 'undefined') return false;
 		var rowtempl = $("#products-row-template").html();
@@ -595,33 +598,33 @@ $TabControl->BeginNextTab();
 
 		obx.admin.order_items.addNewRow = function() {
 			var $lastrow = $("#items_list tr.item-row:last-child");
-			var newRowID = Number($lastrow.attr("data-id"))+1;
-			var newtempl = rowtempl.replace(/#ID#/g,newRowID);
+			var newRowNum = Number($lastrow.attr("data-num"))+1;
+			var newtempl = rowtempl.replace(/#NUM#/g, newRowNum);
 			$lastrow.after(newtempl);
-			return newRowID;
+			return newRowNum;
 		}
 		obx.admin.order_items.addProductToOrder = function(oItem, domAddButton) {
 			if( typeof(oItem.product_id) == 'undefined' || oItem.product_id <1 ) return false;
 			if( typeof(oItem.price_id) == 'undefined' || oItem.price_id <1) return false;
 			if( typeof(oItem.price_value) == 'undefined' || oItem.price_value < 0) return false;
-			if( typeof(oItem.weight) == 'undefined' || oItem.weight < 0) oItem.weight = 0.00;
+			if( typeof(oItem.weight) == 'undefined' || oItem.weight <= 0) oItem.weight = 0.00;
 			if( typeof(oItem.quantity) == 'undefined' || oItem.quantity <= 0) oItem.quantity = 1;
 			if( typeof(oItem.name) == 'undefined' ) oItem.name = 'New product: ' + oItem.product_id;
 			//find exists row
-			var $itemRow = $('tr.item-row input[type=hidden][value="'+oItem.product_id+'"]').closest('tr.item-row');
+			var $itemRow = $('tr.item-row[data-product-id="'+oItem.product_id+'"][data-price-id="'+oItem.price_id+'"]');
 			if($itemRow.length < 1) {
 				var newRowID = obx.admin.order_items.addNewRow();
-				$itemRow = $('tr[data-id='+newRowID+']')
-				$itemRow.find('input[type=hidden]').attr('value', oItem.product_id);
+				$itemRow = $('tr[data-num='+newRowID+']')
 			}
 			if($itemRow.length < 1) {
 				return false;
 			}
-			if( typeof(obx.admin.order_items.list[oItem.product_id]) == 'undefined' ) {
-				obx.admin.order_items.list[oItem.product_id] = parseFloat(oItem.quantity);
+			var listKey = oItem.product_id+'_'+oItem.price_id;
+			if( typeof(obx.admin.order_items.list[listKey]) == 'undefined' ) {
+				obx.admin.order_items.list[listKey] = parseFloat(oItem.quantity);
 			}
 			else {
-				obx.admin.order_items.list[oItem.product_id] += parseFloat(oItem.quantity);
+				obx.admin.order_items.list[listKey] += parseFloat(oItem.quantity);
 			}
 			var $selectPriceID = $itemRow.find('select.price_id');
 			var $selectedOptionPriceID = $selectPriceID.find('option[value='+oItem.price_id+']');
@@ -629,55 +632,59 @@ $TabControl->BeginNextTab();
 				$selectPriceID.find('options').removeAttr('selected');
 				$selectedOptionPriceID.attr('selected', 'selected');
 			}
+			var $inputProductID = $itemRow.find('input[type=hidden]').attr('value', oItem.product_id);
 			var $inputWeight = $itemRow.find('input.weight');
 			var $inputPriceValue = $itemRow.find('input.price_value');
 			var $inputQuantity = $itemRow.find('input.quantity');
-			var $spanName = $itemRow.find('span.name');
+			var $inputName = $itemRow.find('input.product_name');
 
-			$inputWeight.attr('value', oItem.weight);
-			$inputPriceValue.attr('value', oItem.price_value);
-			$inputQuantity.attr('value', obx.admin.order_items.list[oItem.product_id]);
-			$spanName.text(oItem.name);
+			$itemRow.attr('data-product-id', oItem.product_id);
+			$itemRow.attr('data-price-id', oItem.price_id);
+			$inputName[0].value = oItem.name;
+			$inputProductID[0].value = oItem.product_id;
+			$inputPriceValue[0].value = oItem.price_value;
+			$inputQuantity[0].value = obx.admin.order_items.list[listKey];
+			$inputWeight[0].value = oItem.weight;
 
 			var $domAddButton = $(domAddButton);
 			if( typeof($domAddButton.is('input[type=button]')) ) {
 				$domAddButton.attr('value', '<?=GetMessage('OBX_ORDER_PRODUCT_SEARCH_SELECTED_BUTTON')?>: '
-											+ obx.admin.order_items.list[oItem.product_id]);
+											+ obx.admin.order_items.list[listKey]);
 			}
 			else if( typeof($domAddButton.is('button')) ) {
 				$domAddButton.text('<?=GetMessage('OBX_ORDER_PRODUCT_SEARCH_SELECTED_BUTTON')?>: '
-										+ obx.admin.order_items.list[oItem.product_id]);
+										+ obx.admin.order_items.list[listKey]);
 			}
 		};
 
 
 		$("input[type=button].add_item").on("click",function(){
-			jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;&amp;k=PRODUCT_ID', 600, 500);
+			jsUtils.OpenWindow('/bitrix/admin/obx_market_product_search.php?lang=ru&amp;IBLOCK_ID=0&amp;&amp;k=PRODUCT_ID', 800, 600);
 		});
 
 		$("#items_list").on("click", ".delete_item", function(){
 			var $this = $(this);
-			var id = $this.attr("data");
-			var $thisRow = $("#items_list #row_"+id);
+			var num = $this.attr("data-num");
+			var $thisRow = $("#items_list #row_"+num);
 
 			$thisRow.find(".edit_item").hide();
-			$thisRow.find("#to_delete_"+id).val("Y");
+			$thisRow.find("#to_delete_"+num).val("Y");
 			$thisRow.addClass("deleted");
 
-			$this.after(cancelDeleteHrefTempl.replace(/#ID#/g,id));
+			$this.after(cancelDeleteHrefTempl.replace(/#NUM#/g, num));
 			$this.remove();
 		});
 
 		$("#items_list").on("click",".undelete_item",function(){
 			var $this = $(this);
-			var id = $this.attr("data");
-			var $thisRow = $("#items_list #row_"+id);
+			var num = $this.attr("data-num");
+			var $thisRow = $("#items_list #row_"+num);
 
 			$thisRow.find(".edit_item").show();
-			$thisRow.find(".to_delete_"+id).val("N");
+			$thisRow.find(".to_delete_"+num).val("N");
 			$thisRow.removeClass("deleted");
 
-			$this.after(startDeleteHrefTempl.replace(/\#ID\#/g,id));
+			$this.after(startDeleteHrefTempl.replace(/\#ID\#/g,num));
 			$this.remove();
 		});
 

@@ -80,6 +80,8 @@ class PriceDBS extends \OBX_DBSimple {
 	);
 	protected $_arDBSimpleLangMessages = array();
 
+	protected $_arUserGroupsCache = array();
+
 	function __construct() {
 		$this->_arTableFieldsCheck = array(
 			"ID" => self::FLD_T_INT | self::FLD_NOT_NULL,
@@ -143,7 +145,7 @@ class PriceDBS extends \OBX_DBSimple {
 		return array();
 	}
 
-	public function getProductPriceList($productID, $userID = null, $langID = LANGUAGE_ID) {
+	public function getProductPriceList($productID, $userID = null, $langID = LANGUAGE_ID, $bWithPermissions = false) {
 		global $DB;
 		$productID = intval($productID);
 		$rsProd = \CIBlockElement::GetByID($productID);
@@ -492,6 +494,13 @@ SQL;
 		}
 	}
 
+	public function getGroupListCached($priceID) {
+		if( ! array_key_exists($priceID, $this->_arUserGroupsCache) ) {
+			$this->_arUserGroupsCache[$priceID] = $this->getGroupList($priceID, false);
+		}
+		return $this->_arUserGroupsCache[$priceID];
+	}
+
 	public function getAvailPriceForUser($userID = null, $bReturnCDBResult = false) {
 		global $USER;
 		if($userID === null) {
@@ -540,6 +549,9 @@ class Price extends \OBX_DBSimpleStatic {
 	}
 	static public function getGroupList($priceID, $bReturnCDBResult = false) {
 		return self::getInstance()->getGroupList($priceID, $bReturnCDBResult);
+	}
+	static public function getGroupListCached($priceID) {
+		return self::getInstance()->getGroupListCached($priceID);
 	}
 	static public function getAvailPriceForUser($userID, $bReturnCDBResult = false) {
 		return self::getInstance()->getAvailPriceForUser($userID, $bReturnCDBResult);

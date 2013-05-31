@@ -16,14 +16,47 @@ IncludeModuleLangFile(__FILE__);
 
 
 class Order extends \OBX_CMessagePoolDecorator {
+
+	/**
+	 * @var null|Order
+	 */
 	protected $_OrderDBS = null;
+
+	/**
+	 * @var null|BasketItemDBS
+	 */
 	protected $_BasketItemDBS = null;
+
+	/**
+	 * @var null|OrderStatusDBS
+	 */
 	protected $_OrderStatusDBS = null;
+
+	/**
+	 * @var null|OrderPropertyDBS
+	 */
 	protected $_OrderPropertyDBS = null;
+
+	/**
+	 * @var null|OrderCommentDBS
+	 */
 	protected $_OrderCommentDBS = null;
+
+	/**
+	 * @var null|ECommerceIBlockDBS
+	 */
 	protected $_EComIBlockDBS = null;
+
+	/**
+	 * @var null|PriceDBS
+	 */
 	protected $_PriceDBS = null;
+
+	/**
+	 * @var null|CIBlockPropertyPriceDBS
+	 */
 	protected $_CIBlockPropertyPriceDBS = null;
+
 	protected $_Basket = null;
 
 	protected $_arOrder = array();
@@ -186,7 +219,8 @@ class Order extends \OBX_CMessagePoolDecorator {
 
 	/**
 	 * Задать значения свойств заказа
-	 * @param type $arProperties
+	 * @param array $arProperties
+	 * @return bool
 	 */
 	public function setProperties($arProperties) {
 		$arExistsPropValueLst = $this->_OrderPropertyValuesDBS->getListArray(
@@ -359,20 +393,26 @@ class Order extends \OBX_CMessagePoolDecorator {
 					unset($arFields['QUANTITY_ADD']);
 				}
 				$bSuccess = $this->_BasketItemDBS->update($arFields);
+				if(!$bSuccess) {
+					$this->_BasketItemDBS->popLastError('ARRAY');
+				}
 				$arExistsOrderItems[$arFields['PRODUCT_ID']]['EXISTS_IN_ARGUMENT'] = true;
 			} else {
 				$bCorrect = false;
-				// стремное решение, надо добавить больше возможности в DBSimple
-				// TODO: Find a better solution
-				$sQuery = "SELECT b.IBLOCK_ID FROM b_iblock_element as a
+				$arFields["PRODUCT_ID"] = intval($arFields["PRODUCT_ID"]);
+				if($arFields["PRODUCT_ID"] > 0) {
+					// стремное решение, надо добавить больше возможности в DBSimple
+					// TODO: Find a better solution
+					$sQuery = "SELECT b.IBLOCK_ID FROM b_iblock_element as a
 					LEFT JOIN obx_ecom_iblock as b on(a.IBLOCK_ID = b.IBLOCK_ID)
 					WHERE a.ID=".$arFields["PRODUCT_ID"];
-				$res = $DB->Query($sQuery);
-				$arIblock = $res->Fetch();
-				if (is_array($arIblock) && !empty($arIblock) && !empty($arIblock["IBLOCK_ID"])){
-					$bCorrect = true;
+					$res = $DB->Query($sQuery);
+					$arIblock = $res->Fetch();
+					if (is_array($arIblock) && !empty($arIblock) && !empty($arIblock["IBLOCK_ID"])){
+						$bCorrect = true;
+					}
+					// ^^^
 				}
-				// ^^^
 				if ($bCorrect){
 					$newOrderItemID = $this->_BasketItemDBS->add($arFields);
 					$bSuccess = ($newOrderItemID > 0) ? true : false;

@@ -21,3 +21,6 @@ $MESS ['IBLOCK_ELSEARCH_FROMTO_ID'] = 'ID (начальный и конечны�
 $MESS ['IBLOCK_ELSEARCH_ELEMENTS'] = 'Элементы';
 $MESS ['IBLOCK_FIELD_SELECT_PRODUCT_BTN'] = 'Добавить';
 $MESS ['IBLOCK_FIELD_SELECTED_PRODUCT_BTN'] = 'Добавлено';
+$MESS ['PRODUCT_SEARCH_FILTER_PRICE_NOT_FOUND_4_IB'] = 'У инфоблока нет цен';
+$MESS ['PRODUCT_SEARCH_FILTER_SELECT_PRICE'] = 'Вебирите цену';
+$MESS ['PRODUCT_SEARCH_PRICE_NOT_SELECTED'] = 'Не выбран тип цены';

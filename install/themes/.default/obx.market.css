@@ -165,7 +165,7 @@ form[name=obx_order_edit_form] input[type=button].add_item.right {
 	}
 	#obx_order_items_edit #items_list input[type="text"],
 	#items_list select{
-		width: 80%;
+		width: 90%;
 	}
 		#obx_order_items_edit #items_list tr.deleted td,
 		#obx_order_items_edit #items_list tr.deleted td input[type="text"],

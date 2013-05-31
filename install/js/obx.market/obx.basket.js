@@ -78,6 +78,8 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		,toBasketButtons:		true // true - on, false - off
 		,toBasketClass:			'.addtobasket'
 		,toBasketAddedClass:	'added'
+		,toBasketHasValue:		'Уже в корзине'
+		,toBasketValue:			'Добавить в корзину'
 		,toBasketContainer:		'#content'
 		,qtyInput:				'input[name=qty]'
 		,animate:{
@@ -91,15 +93,9 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 	};
 
 	/**
-	 * @deprecated
 	 * @param price
 	 * @returns {string}
 	 */
-	var getDisplayPrice = function(price){ // converts 15360 to 15 360 (not for float)
-		if(price) return price.toString().replace(/(\d)(?=(\d{3})+$)/g, "$1 ");
-		else return '';
-	};
-
 
 	// constructor
 	function OBX_Basket(root, conf) {
@@ -110,7 +106,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		// private functions
 		var jqBasketSetPrice = function(){ // set total basket cost in html node
 			if(jq.total.length && basket.total){
-				jq.total.text(getDisplayPrice(basket.total));
+				jq.total.html(self.formatPrice(basket.total));
 			}else return false;
 		};
 		var jqBasketAnimatePrice = function(from){ // animate total basket cost in html node
@@ -146,8 +142,8 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 						if(step==0) tmpPrice = from-stepDelta-fault-0;
 						else tmpPrice = tmpPrice-stepDelta-0;
 					}
-					if(tmpPrice>999) jq.total.text(getDisplayPrice(tmpPrice)); // TODO: formatting price
-					else jq.total.text(tmpPrice); // not need formatting price
+					var tmpFormatPrice = self.formatPrice(tmpPrice);
+					jq.total.html(tmpFormatPrice);
 
 					step++;
 
@@ -410,7 +406,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					basket.count++;
 					// buttons
 					if(conf.toBasketButtons)
-						jq.buttons.filter('[data-id='+id+']').addClass(conf.toBasketAddedClass);
+						jq.buttons.filter('[data-id='+id+']').addClass(conf.toBasketAddedClass).val(conf.toBasketHasValue);
 					// item render
 					//var e = $.Event('onBeforeItemRender');
 					self.$.trigger('onBeforeItemRender', [item, bAnimate]);
@@ -429,8 +425,8 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			,updateBasketItem : function(item, qty, delta, bAnimate){ // bAnimate - animate? default = false
 				if(itemTemplateSetup!==true) return false; // error!
 				if(bAnimate!==true) bAnimate = false;
-				qty = parseInt(qty);
-				delta = parseInt(delta);
+				qty = qty|0;
+				delta = delta|0;
 				if(!(qty>=0) && !delta) return false; // error
 				var $item=null, tmplItem=null, id=0;
 				self.$.trigger('onBeforeItemUpdate', [item, qty, delta, bAnimate]);
@@ -513,7 +509,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					if(bAnimate) jqBasketAnimatePrice(from); // animate basket total cost
 					else jqBasketSetPrice();
 					// buttons
-					if(conf.toBasketButtons) jq.buttons.filter('[data-id='+id+']').removeClass(conf.toBasketAddedClass);
+					if(conf.toBasketButtons) jq.buttons.filter('[data-id='+id+']').removeClass(conf.toBasketAddedClass).val(conf.toBasketValue);
 					// animate & remove
 					if(conf.animateClose && bAnimate){ // animate item?
 						duration = conf.durationClose ? parseInt(conf.durationClose) : 300; // animate duration
@@ -588,7 +584,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 							if(!jScrollPaneAPI) {
 								$basketScrollable.data('jsp', undefined);
 								jScrollPaneAPI = $basketScrollable.jScrollPane({
-									mouseWheelSpeed : conf.mouseWheelSpeed,
+									mouseWheelSpeed : conf.mouseWheelSpeed
 								}).data().jsp;
 							}
 							//jScrollPaneAPI = $basketScrollable.jScrollPane().data('jsp');
@@ -754,7 +750,6 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 				id = this.data.id;
 				if(basket.items[id]){
 					cost = basket.items[id].cost;
-					//if(cost) return getDisplayPrice(cost);
 					if(cost) return self.formatPrice(cost);
 					else return '';
 				}else return '';
@@ -877,29 +872,37 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 						(e.keyCode==8) || // backspace
 						(e.keyCode==46) // delete
 					){
+					var curValue = parseInt(this.value);
+					this.beforeValue = curValue;
+//					if (!this.unit) {
+//						this.unit = this.value.replace("" + curValue, "")	// - value
+//							.replace(/^\s+|\s+$/g, '');			// trim()
+//					}
 					keyboardKeyControl = true; // anything changed
 					return true;
 				}else return false;
 			}
 			,keyup : function(){
-				if(!keyboardKeyControl){ // keyboard control
+				var curVal = parseInt(this.value);
+//				var unit = " "+this.unit;
+				if(!keyboardKeyControl || this.beforeValue == curVal){ // keyboard control
 					keyboardKeyControl = true;
 					return false;
 				}
 				if(this.obxTimeoutKeyUp) clearTimeout(this.obxTimeoutKeyUp); // cancel
 				// setup
 				var $this = $(this);
-				$item = $this.parents(conf.itemClass);
-				var value = $this.val(); // typeof str!
+				$item = $this.closest(conf.itemClass);
 				var tmplItem = $item.tmplItem();
+				var value = $this.val();
 				var id = $item.attr('data-id');
 				// check
-				if(value>999) return false;
+				if(curVal>999) return false;
 				if(!id || !$.obx.tools.isJQtmpl(tmplItem)) return false;
 				// exe
 				if(!$.obx.tools.isEmpty(value)){
 					// calculation
-					if((value-0)===0){ // zero
+					if(curVal==0){ // zero
 						// remove?
 						if(confirm('Удалить товар "'+tmplItem.data.name+'" из корзины?')){
 							self.removeBasketItem(id);
@@ -911,7 +914,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					}
 					this.obxTimeoutKeyUp = setTimeout(function(){ // timeout for exe
 						// item
-						basket.items[id].qty = value;
+						basket.items[id].qty = curVal;
 						var oldCost = basket.items[id].cost;
 						// basket
 						basket.items[id].cost = basket.items[id].qty*basket.items[id].price;

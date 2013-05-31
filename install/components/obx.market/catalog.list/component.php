@@ -160,7 +160,7 @@ if ($this->StartResultCache()) {
 				$arItem["PRICE"] = $arPrice;
 				$arItem["CAN_BUY"] = "Y";
 			}
-			$arItem["PRICES"][$arPrice["CODE"]] = array(
+			$arItem["PRICES"][$arPrice["PRICE_CODE"]] = array(
 				"VALUE_NOVAT" => $arPrice["TOTAL_VALUE"],
 				"PRINT_VALUE_NOVAT" => $arPrice["TOTAL_VALUE_FORMATTED"],
 

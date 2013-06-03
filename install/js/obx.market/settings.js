@@ -321,7 +321,9 @@ if(typeof(OBX.Market) == 'undefined') {
 		var jsonCatalogData = {
 			obx_ecom_iblock_save: jsonSettingsFormData.obx_ecom_iblock_save,
 			obx_iblock_is_ecom: jsonSettingsFormData.obx_iblock_is_ecom,
-			obx_ib_price_prop: jsonSettingsFormData.obx_ib_price_prop
+			obx_ib_price_prop: jsonSettingsFormData.obx_ib_price_prop,
+			obx_ib_weight_prop: jsonSettingsFormData.obx_ib_weight_prop,
+			obx_ib_discount_prop: jsonSettingsFormData.obx_ib_discount_prop
 		};
 		$.ajax({
 		 url: settings_catalog_url

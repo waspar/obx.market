@@ -132,6 +132,21 @@ form[name=obx_order_edit_form] input[type=button].add_item.right {
 #obx_market_settings td.remove_new_item {
 	width: 90px;
 }
+#obx_market_settings label.select,
+#obx_market_settings .ecom_iblock.checkbox{
+	display: block;
+	text-align: left;
+	width: 80%;
+	margin: 10px auto;
+}
+	#obx_market_settings label.select span.select-label-text {
+		display: block;
+		font-size: 0.95em;
+	}
+	#obx_market_settings select.obx_ib_weight_prop,
+	#obx_market_settings select.obx_ib_discount_prop {
+		width: 170px;
+	}
 
 #obx_market_settings_currency {
 

@@ -12,13 +12,18 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  * Class OBX_PriceDBS
  * @method @static OBX_PriceDBS getInstance()
  */
-class PriceDBS extends \OBX_DBSimple {
+class PriceDBS extends DBSimple {
 
 	const DEFAULT_PRICE_GROUP = "2";
 
@@ -528,7 +533,7 @@ SQL;
 /**
  * @method @static PriceDBS getInstance()
  */
-class Price extends \OBX_DBSimpleStatic {
+class Price extends DBSimpleStatic {
 	static public function getOptimalProductPrice($productID, $userID = null, $langID = LANGUAGE_ID) {
 		return self::getInstance()->getOptimalProductPrice($productID, $userID, $langID);
 	}

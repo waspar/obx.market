@@ -9,16 +9,20 @@
  ***********************************************/
 
 namespace OBX\Market;
-use OBX\Market\Currency as OBX_Currency;
+
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
 
 IncludeModuleLangFile(__FILE__);
 
 /**
- * Class OBX_CurrencyFormatDBS
+ * Class CurrencyFormatDBS
  * @package OBX\Market
  * @static @method CurrencyFormatDBS getInstance()
  */
-class CurrencyFormatDBS extends \OBX_DBSimple
+class CurrencyFormatDBS extends DBSimple
 {
 	protected $_arTableList = array(
 		'C' => 'obx_currency',
@@ -213,7 +217,7 @@ class CurrencyFormatDBS extends \OBX_DBSimple
  * @package OBX\Market
  * @static @method CurrencyFormatDBS getInstance()
  */
-class CurrencyFormat extends \OBX_DBSimpleStatic {
+class CurrencyFormat extends DBSimpleStatic {
 	static public function getListGroupedByLang($arSort = null) {
 		return self::getInstance()->getListGroupedByLang($arSort);
 	}

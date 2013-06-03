@@ -14,6 +14,14 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePool;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\CMessagePoolDecorator;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+use OBX\Core\DBSResult;
+
 use OBX\Market\Currency;
 use OBX\Market\Currency as OBX_Currency	;
 use OBX\Market\CurrencyDBS;
@@ -37,7 +45,7 @@ use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
 
 IncludeModuleLangFile(__FILE__);
 
-abstract class Settings extends \OBX_CMessagePoolDecorator {
+abstract class Settings extends CMessagePoolDecorator {
 
 	final protected function __construct() {
 	}

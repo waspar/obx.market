@@ -12,8 +12,16 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePool;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\CMessagePoolDecorator;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+use OBX\Core\DBSResult;
+
 IncludeModuleLangFile(__FILE__);
-class OrderPropertyDBS extends \OBX_DBSimple {
+class OrderPropertyDBS extends DBSimple {
 	protected $_arTableList = array(
 		'OP' => 'obx_order_property'
 	);
@@ -163,7 +171,12 @@ class OrderPropertyDBS extends \OBX_DBSimple {
 	}
 }
 
-class OrderProperty extends \OBX_DBSimpleStatic {
+/**
+ * Class OrderProperty
+ * @package OBX\Market
+ * @method @static OrderProperty getInstance
+ */
+class OrderProperty extends DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}

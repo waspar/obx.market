@@ -12,9 +12,15 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
+
 IncludeModuleLangFile(__FILE__);
 
-class BasketItemDBS extends \OBX_DBSimple {
+class BasketItemDBS extends DBSimple {
 	protected $_arTableList = array(
 		'I'		=> 'obx_basket_items',
 		'B'		=> 'obx_basket',
@@ -419,7 +425,7 @@ SQL
 	}
 }
 
-class BasketItem extends \OBX_DBSimpleStatic {
+class BasketItem extends DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}

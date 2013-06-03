@@ -12,9 +12,14 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
 IncludeModuleLangFile(__FILE__);
 
-class OrderCommentDBS extends \OBX_DBSimple
+class OrderCommentDBS extends DBSimple
 {
 	protected $_arTableList = array(
 		"OC" => "obx_order_comments"
@@ -46,5 +51,5 @@ class OrderCommentDBS extends \OBX_DBSimple
 		);
 	}
 }
-class OrderComment extends \OBX_DBSimpleStatic {}
+class OrderComment extends DBSimpleStatic {}
 OrderComment::__initDBSimple(OrderCommentDBS::getInstance());

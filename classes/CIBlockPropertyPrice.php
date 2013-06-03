@@ -12,13 +12,19 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+use OBX\Core\DBSResult;
+
 use OBX\Market\Price as OBX_Price;
 use OBX\Market\PriceDBS as OBX_PriceDBS;
 use OBX\Market\ECommerceIBlock;
 
 IncludeModuleLangFile(__FILE__);
 
-class CIBlockPropertyPriceDBS extends \OBX_DBSimple
+class CIBlockPropertyPriceDBS extends DBSimple
 {
 	protected $_arTableDefaultFields = array();
 	protected $_arTableList = array(
@@ -268,7 +274,7 @@ SQL;
 			$sqlList .= ' AND B.ID = '.$IBLOCK_ID;
 		}
 		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
-		$res = new \OBX_DBSResult($res);
+		$res = new DBSResult($res);
 		$res->setAbstractionName(get_called_class());
 		if($bResultCDBResult) {
 			return $res;
@@ -418,7 +424,7 @@ SQL;
 }
 
 
-class CIBlockPropertyPrice extends \OBX_DBSimpleStatic {
+class CIBlockPropertyPrice extends DBSimpleStatic {
 	static public function delete($ID, $bDeleteIBlockProp = false) {
 		return self::getInstance()->delete($ID, $bDeleteIBlockProp);
 	}

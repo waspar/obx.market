@@ -10,11 +10,8 @@
  ***************************************/
 
 use OBX\Market\OrderPropertyDBS;
-use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
 use OBX\Market\OrderPropertyValuesDBS;
-use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
 use OBX\Market\OrderPropertyEnumDBS;
-use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
 
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
@@ -53,8 +50,8 @@ if( !isset($_SESSION['_OBX_ORDER_PROP_EDIT_ERRORS']) ) {
 }
 $arErrors = &$_SESSION['_OBX_ORDER_PROP_EDIT_ERRORS'];
 
-$OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
-$OrderPropertyEnumDBS = OBX_OrderPropertyEnumDBS::getInstance();
+$OrderPropertyDBS = OrderPropertyDBS::getInstance();
+$OrderPropertyEnumDBS = OrderPropertyEnumDBS::getInstance();
 $arProperty = $OrderPropertyDBS->getByID($ID);
 
 if(empty($arProperty)) {

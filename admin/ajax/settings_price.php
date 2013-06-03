@@ -13,7 +13,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 
 CModule::IncludeModule("obx.market");
 
-$TabContentController = OBX_MarketSettings::getController("Price");
+$TabContentController = OBX\Market\Settings::getController("Price");
 
 if( !empty($_REQUEST["obx_price_update"])
 	|| !empty($_REQUEST["obx_price_new"])

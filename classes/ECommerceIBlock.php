@@ -12,9 +12,14 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
 IncludeModuleLangFile(__FILE__);
 
-class ECommerceIBlockDBS extends \OBX_DBSimple
+class ECommerceIBlockDBS extends DBSimple
 {
 	protected $_arTableList = array(
 		"E" => "obx_ecom_iblock",
@@ -163,7 +168,7 @@ SQL;
 }
 
 
-class ECommerceIBlock extends \OBX_DBSimpleStatic {
+class ECommerceIBlock extends DBSimpleStatic {
 	static public function getFullList($bResultCDBResult = false) {
 		return self::getInstance()->getFullList($bResultCDBResult);
 	}

@@ -9,30 +9,17 @@
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
 use OBX\Market\Currency;
-use OBX\Market\Currency as OBX_Currency	;
 use OBX\Market\CurrencyDBS;
-use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
 use OBX\Market\CurrencyFormat;
-use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
 use OBX\Market\CurrencyFormatDBS;
-use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
 use OBX\Market\Order;
 use OBX\Market\OrderDBS;
-use OBX\Market\Order as OBX_Order;
-use OBX\Market\OrderDBS as OBX_OrderDBS;
 use OBX\Market\OrderStatusDBS;
-use OBX\Market\OrderStatusDBS as OBX_OrderStatusDBS;
 use OBX\Market\OrderPropertyDBS;
-use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
 use OBX\Market\OrderPropertyValuesDBS;
-use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
 use OBX\Market\OrderPropertyEnumDBS;
-use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
 use OBX\Market\Price;
-use OBX\Market\Price as OBX_Price;
 use OBX\Market\PriceDBS;
-use OBX\Market\Price as OBX_PriceDBS;
-
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 if (!CModule::IncludeModule('obx.market')) return;
@@ -89,23 +76,23 @@ if (!isset($_SESSION['_OBX_ORDER_EDIT_ERRORS'])) {
 }
 $arErrors = & $_SESSION['_OBX_ORDER_EDIT_ERRORS'];
 
-$Order = OBX_Order::getOrder($ID, $arError);
+$Order = Order::getOrder($ID, $arError);
 
 if (!empty($arError)) {
 	$arErrors[] = $arError;
 }
 
-$arStatusList = OBX_OrderStatusDBS::getInstance()->getListArray();
-$arCurrencyFormatList = OBX_CurrencyFormatDBS::getInstance()->getListGroupedByLang();
-$currencyDefault = OBX_CurrencyDBS::getInstance()->getDefault();
+$arStatusList = OrderStatusDBS::getInstance()->getListArray();
+$arCurrencyFormatList = CurrencyFormatDBS::getInstance()->getListGroupedByLang();
+$currencyDefault = CurrencyDBS::getInstance()->getDefault();
 
-$OrderDBS = OBX_OrderDBS::getInstance();
-$OrderPropertyEnumDBS = OBX_OrderPropertyEnumDBS::getInstance();
+$OrderDBS = OrderDBS::getInstance();
+$OrderPropertyEnumDBS = OrderPropertyEnumDBS::getInstance();
 
 $arOrder = array();
 $arOrderStatus = array();
 $arOrderPropertyValues = array();
-$arPriceTypes = OBX_PriceDBS::getInstance()->getListArray();
+$arPriceTypes = PriceDBS::getInstance()->getListArray();
 
 if ($REQUEST_METHOD == "POST" // проверка метода вызова страницы
 	&& ($save != "" || $apply != "") // проверка нажатия кнопок "Сохранить" и "Применить"
@@ -149,7 +136,7 @@ if ($REQUEST_METHOD == "POST" // проверка метода вызова ст
 		$bSuccess = ($newID > 0) ? true : false;
 		if ($bSuccess) {
 			$ID = $newID;
-			$Order = OBX_Order::getOrder($ID, $arError);
+			$Order = Order::getOrder($ID, $arError);
 			if (!empty($arItems)) {
 				$arFilteredItems = array();
 
@@ -223,7 +210,7 @@ if (array_key_exists('ID', $arOrder) && $arOrder['ID'] > 0) {
 	$arOrderStatus = each($arStatusList);
 	$arOrderStatus = $arOrderStatus['value'];
 	$arOrderPropertyValues = array();
-	$OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
+	$OrderPropertyDBS = OrderPropertyDBS::getInstance();
 	$arPropertyList = $OrderPropertyDBS->getListArray();
 	foreach ($arPropertyList as &$arProperty) {
 		$arOrderPropertyValue = array(

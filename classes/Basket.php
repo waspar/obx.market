@@ -11,6 +11,10 @@
 namespace OBX\Market;
 
 use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\CMessagePoolDecorator;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSResult;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -27,7 +31,7 @@ IncludeModuleLangFile(__FILE__);
  * В дальнейшем, когда будет механизм курса валют, просто делать пересчет по курсу.
  */
 
-class Basket extends \OBX_CMessagePoolDecorator
+class Basket extends CMessagePoolDecorator
 {
 	const COOKIE_NAME = 'OBX_BASKET_HASH';
 
@@ -74,7 +78,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 	static protected $_CurrencyFormatDBS = null;
 
 	/**
-	 * @var null | \OBX_DBSResult
+	 * @var null | DBSResult
 	 */
 	protected $_rsBasket = null;
 	protected $_arFields = array(
@@ -209,9 +213,9 @@ class Basket extends \OBX_CMessagePoolDecorator
 	}
 
 	/**
-	 * @param \OBX_DBSResult $rsBasket
+	 * @param DBSResult $rsBasket
 	 */
-	public function __construct(\OBX_DBSResult $rsBasket) {
+	public function __construct(DBSResult $rsBasket) {
 		if($rsBasket != null && $rsBasket->SelectedRowsCount() > 0) {
 			$abstractionName = get_class(self::$_BasketDBS);
 			if($rsBasket->getAbstractionName() != $abstractionName) {

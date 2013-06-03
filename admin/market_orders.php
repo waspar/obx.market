@@ -10,22 +10,15 @@
  ***************************************/
 
 use OBX\Market\CurrencyFormatDBS;
-use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
 use OBX\Market\Order;
 use OBX\Market\OrderDBS;
-use OBX\Market\Order as OBX_Order;
-use OBX\Market\OrderDBS as OBX_OrderDBS;
 use OBX\Market\OrderStatusDBS;
-use OBX\Market\OrderStatusDBS as OBX_OrderStatusDBS;
 use OBX\Market\OrderPropertyDBS;
-use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
 use OBX\Market\OrderPropertyValuesDBS;
-use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
 use OBX\Market\OrderPropertyEnumDBS;
-use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
 
 /*
- * TODO: Сейчас свойства и статусы работают на позапросах внутри цикла. Это исправимо. Займемся позже. надо переделать под класс OBX_Order
+ * TODO: Сейчас свойства и статусы работают на позапросах внутри цикла. Это исправимо. Займемся позже. надо переделать под класс Order
  *
  */
 
@@ -49,32 +42,32 @@ $tableID = 'tbl_obx_orders';
 /**
  * @var OrderDBS $OrderDBS
  */
-$OrderDBS = OBX_OrderDBS::getInstance();
+$OrderDBS = OrderDBS::getInstance();
 
 /**
  * @var OrderStatusDBS $OrderStatusDBS
  */
-$OrderStatusDBS = OBX_OrderStatusDBS::getInstance();
+$OrderStatusDBS = OrderStatusDBS::getInstance();
 
 /**
  * @var OrderPropertyDBS $OrderPropertyDBS
  */
-$OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
+$OrderPropertyDBS = OrderPropertyDBS::getInstance();
 
 /**
  * @var OrderPropertyValuesDBS $OrderPropertyValuesDBS
  */
-$OrderPropertyValuesDBS = OBX_OrderPropertyValuesDBS::getInstance();
+$OrderPropertyValuesDBS = OrderPropertyValuesDBS::getInstance();
 
 /**
  * @var OrderPropertyEnumDBS $OrderPropertyEnumDBS
  */
-$OrderPropertyEnumDBS = OBX_OrderPropertyEnumDBS::getInstance();
+$OrderPropertyEnumDBS = OrderPropertyEnumDBS::getInstance();
 
 /**
  * @var CurrencyFormatDBS $CurrencyFormatDBS
  */
-$CurrencyFormatDBS = OBX_CurrencyFormatDBS::getInstance();
+$CurrencyFormatDBS = CurrencyFormatDBS::getInstance();
 
 $oSort = new CAdminSorting($tableID, 'SORT', 'ASC');
 $lAdmin = new CAdminList($tableID, $oSort);
@@ -245,7 +238,7 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 				$DB->StartTransaction();
 
 				$statusID = intval($arAction[1]);
-				if(!OBX_Order::getOrder($ID)->setStatus($statusID)){
+				if(!Order::getOrder($ID)->setStatus($statusID)){
 					$DB->Rollback();
 					$lAdmin->AddGroupError(GetMessage('OBX_STATUS_CHANGE_ERROR_1'), $ID);
 				}

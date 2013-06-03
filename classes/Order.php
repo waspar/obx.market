@@ -12,10 +12,12 @@
 
 namespace OBX\Market;
 
+use \OBX\Core\CMessagePoolDecorator;
+
 IncludeModuleLangFile(__FILE__);
 
 
-class Order extends \OBX_CMessagePoolDecorator {
+class Order extends CMessagePoolDecorator {
 
 	/**
 	 * @var null|Order

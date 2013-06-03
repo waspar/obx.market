@@ -12,7 +12,7 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("obx.market");
 
-$TabContentController = OBX_MarketSettings::getController("Catalog");
+$TabContentController = OBX\Market\Settings::getController("Catalog");
 
 if( !empty($_REQUEST["obx_iblock_is_ecom"])
 	|| !empty($_REQUEST["obx_ib_price_prop"])

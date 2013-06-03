@@ -9,14 +9,15 @@
  ***********************************************/
 
 namespace OBX\Market;
-use OBX\Market\Currency as OBX_Currency;
-use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
-use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
-use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
+
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
 
 IncludeModuleLangFile(__FILE__);
 
-class CurrencyDBS extends \OBX_DBSimple {
+class CurrencyDBS extends DBSimple {
 	protected $_arTableList = array(
 		'C' => 'obx_currency'
 	);
@@ -185,7 +186,7 @@ class CurrencyDBS extends \OBX_DBSimple {
 		return array();
 	}
 }
-class Currency extends \OBX_DBSimpleStatic {
+class Currency extends DBSimpleStatic {
 
 	static public function setDefault($currency, &$bIsAlreadyDefault = false) {
 		return self::getInstance()->setDefault($currency, $bIsAlreadyDefault);
@@ -200,7 +201,7 @@ class Currency extends \OBX_DBSimpleStatic {
 Currency::__initDBSimple(CurrencyDBS::getInstance());
 
 
-//class OBX_CurrencyDBS_BAK extends OBX_DBSimple
+//class CurrencyDBS_BAK extends OBX_DBSimple
 //{
 //	protected $_arTableList = array(
 //		"C" => "obx_currency"

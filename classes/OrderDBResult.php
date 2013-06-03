@@ -10,9 +10,15 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+use OBX\Core\DBSResult;
+
 IncludeModuleLangFile(__FILE__);
 
-class OrderDBResult extends \OBX_DBSResult {
+class OrderDBResult extends DBSResult {
 
 	function __construct($DBResult = null) {
 		parent::__construct($DBResult);

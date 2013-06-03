@@ -10,19 +10,12 @@
  ***************************************/
 
 use OBX\Market\CurrencyFormatDBS;
-use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
 use OBX\Market\Order;
 use OBX\Market\OrderDBS;
-use OBX\Market\Order as OBX_Order;
-use OBX\Market\OrderDBS as OBX_OrderDBS;
 use OBX\Market\OrderStatusDBS;
-use OBX\Market\OrderStatusDBS as OBX_OrderStatusDBS;
 use OBX\Market\OrderPropertyDBS;
-use OBX\Market\OrderPropertyDBS as OBX_OrderPropertyDBS;
 use OBX\Market\OrderPropertyValuesDBS;
-use OBX\Market\OrderPropertyValuesDBS as OBX_OrderPropertyValuesDBS;
 use OBX\Market\OrderPropertyEnumDBS;
-use OBX\Market\OrderPropertyEnumDBS as OBX_OrderPropertyEnumDBS;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 if(!CModule::IncludeModule('obx.market')) return;
@@ -39,7 +32,7 @@ IncludeModuleLangFile(__FILE__);
 
 
 $tableID = 'tbl_obx_order_property';
-$OrderPropertyDBS = OBX_OrderPropertyDBS::getInstance();
+$OrderPropertyDBS = OrderPropertyDBS::getInstance();
 $oSort = new CAdminSorting($tableID, 'SORT', 'ASC');
 $lAdmin = new CAdminList($tableID, $oSort);
 

@@ -12,12 +12,17 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  *
  */
-class OrderStatusDBS extends \OBX_DBSimple {
+class OrderStatusDBS extends DBSimple {
 	// TODO: Проверка на права
 	const ALLOW_CHANGE_ITEMS 		=	1;
 	const ALLOW_CHANGE_STATUS		=	2;
@@ -153,5 +158,5 @@ class OrderStatusDBS extends \OBX_DBSimple {
 	}
 }
 
-class OrderStatus extends \OBX_DBSimpleStatic {}
+class OrderStatus extends DBSimpleStatic {}
 OrderStatus::__initDBSimple(OrderStatusDBS::getInstance());

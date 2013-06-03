@@ -10,9 +10,15 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
+
 IncludeModuleLangFile(__FILE__);
 
-class BasketDBS extends \OBX_DBSimple
+class BasketDBS extends DBSimple
 {
 	protected $_mainTable = 'B';
 	protected $_arTableList = array(
@@ -189,7 +195,7 @@ SQLCHUNK
 		return true;
 	}
 }
-class BasketList extends \OBX_DBSimpleStatic {
+class BasketList extends DBSimpleStatic {
 	static public function registerModuleDependencies() {
 		return self::getInstance()->registerModuleDependencies();
 	}
@@ -198,5 +204,4 @@ class BasketList extends \OBX_DBSimpleStatic {
 		return self::getInstance()->unRegisterModuleDependencies();
 	}
 }
-
 BasketList::__initDBSimple(BasketDBS::getInstance());

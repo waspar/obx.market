@@ -12,13 +12,18 @@
 
 namespace OBX\Market;
 
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
 IncludeModuleLangFile(__FILE__);
 
 /**
  * Class OrderDBS
  * @method @static self getInstance()
  */
-class OrderDBS extends \OBX_DBSimple {
+class OrderDBS extends DBSimple {
 
 	protected $_arTableList = array(
 		'O'		=> 'obx_orders',
@@ -269,10 +274,10 @@ SQL
 }
 
 /**
- * Class OBX_OrderList
- * @method @static OBX_OrderDBS getInstance()
+ * Class OrderList
+ * @method @static OrderDBS getInstance()
  */
-class OrderList extends \OBX_DBSimpleStatic {
+class OrderList extends DBSimpleStatic {
 	static public function add($arFields = array()) {
 		return parent::add($arFields);
 	}

@@ -9,12 +9,14 @@
  ***********************************************/
 
 namespace OBX\Market;
-use OBX\Market\Currency as OBX_Currency;
-use OBX\Market\CurrencyDBS as OBX_CurrencyDBS;
-use OBX\Market\CurrencyFormat as OBX_CurrencyFormat;
-use OBX\Market\CurrencyFormatDBS as OBX_CurrencyFormatDBS;
 
-class CurrencyInfo extends \OBX_CMessagePoolDecorator
+use OBX\Core\Tools;
+use OBX\Core\CMessagePoolStatic;
+use OBX\Core\CMessagePoolDecorator;
+use OBX\Core\DBSimple;
+use OBX\Core\DBSimpleStatic;
+
+class CurrencyInfo extends CMessagePoolDecorator
 {
 	/**
 	 * @var array

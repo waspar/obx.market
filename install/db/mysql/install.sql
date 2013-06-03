@@ -41,9 +41,11 @@ create table if not exists obx_price_group(
 -- ИБ котрые содержат товары
 create table if not exists obx_ecom_iblock (
 	IBLOCK_ID int(11) not null,
-	PRICE_VERSION tinyint(2) not null default '1',
+	VERSION tinyint(2) not null default '1',
 	VAT_ID int(11) NULL default '0',
-
+	VAT_VAL_PROP_ID int(11) NULL,
+	WEIGHT_VAL_PROP_ID int(11) NULL,
+	DISCOUNT_VAL_PROP_ID int(11) NULL,
 	primary key(IBLOCK_ID)
 );
 
@@ -144,6 +146,7 @@ create table if not exists obx_basket_items (
 	PRICE_ID int(11) not null,
 	PRICE_VALUE decimal(18,2) not null default 0,
 	DISCOUNT_VALUE decimal(18,2) not null default 0,
+	TOTAL_PRICE_VALUE decimal(18,2) not null default 0,
 	VAT_ID int(11) null,
 	VAT_VALUE decimal(18,2) not null default 0,
 	unique udx_obx_basket_items(BASKET_ID, PRODUCT_ID, PRICE_ID),

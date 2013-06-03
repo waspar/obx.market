@@ -594,6 +594,7 @@ class Basket extends CMessagePoolDecorator
 			//'PRICE_NAME',
 			'PRICE_VALUE',
 			'DISCOUNT_VALUE',
+			'TOTAL_PRICE_VALUE',
 			//'VAT_ID',
 			//'VAT_VALUE',
 			'IB_ELT_ID',

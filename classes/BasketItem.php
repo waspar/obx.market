@@ -82,6 +82,7 @@ SQL
 		'PRICE_NAME'				=> array('P'	=> 'NAME'),
 		'PRICE_VALUE'				=> array('I'	=> 'PRICE_VALUE'),
 		'DISCOUNT_VALUE'			=> array('I'	=> 'DISCOUNT_VALUE'),
+		'TOTAL_PRICE_VALUE'			=> array('I'	=> 'TOTAL_PRICE_VALUE'),
 		'VAT_ID'					=> array('I'	=> 'VAT_ID'),
 		'VAT_VALUE'					=> array('I'	=> 'VAT_VALUE'),
 		'IB_ELT_ID'					=> array('IBE'	=> 'ID'),
@@ -263,6 +264,16 @@ SQL
 		if( array_key_exists('PRICE_ID', $arFields) && $arFields['PRICE_ID'] == null) {
 			unset($arFields['PRICE_ID']);
 		}
+		if( array_key_exists('TOTAL_PRICE_VALUE', $arFields) ) {
+			unset($arFields['TOTAL_PRICE_VALUE']);
+		}
+		return true;
+	}
+
+	protected function _onStartUpdate(&$arFields){
+		if( array_key_exists('TOTAL_PRICE_VALUE', $arFields) ) {
+			unset($arFields['TOTAL_PRICE_VALUE']);
+		}
 		return true;
 	}
 
@@ -342,40 +353,71 @@ SQL
 			unset($arFields['ORDER_ID']);
 			unset($arCheckData['ORDER_ID']);
 		}
+		$arFields['TOTAL_PRICE_VALUE'] = floatVal($arFields['PRICE_VALUE'] - $arFields['DISCOUNT_VALUE']);
+		if($arFields['TOTAL_PRICE_VALUE'] < 0) {
+			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_12_13'), 12);
+			return false;
+		}
 		return true;
 	}
 
 	protected function _onBeforeExecUpdate(&$arFields, &$arCheckData = null) {
+		if($arCheckData !== null) {
 		// +++ [pronix] try to change PRODUCT_ID or BASKET_ID
-			// DBSimple::update() и выбросил из $arFields поля входящие в уникальный индекс
+			// DBSimple::update() выбросил из $arFields поля входящие в уникальный индекс
 			// см. переопределенный метод update($arFields, $bNotUpdateUniqueFields)
 			// аргумент $bNotUpdateUniqueFields = true
 		 	// Тем не менее стоит выбросить предупреждение о попытке обновления PRODUCT_ID и BASKET_ID
-			// А при использовании OBX_MAGIC_WORD можно и ошибку бросить
-			if($arCheckData !== null) {
-				if( array_key_exists('PRODUCT_ID', $arCheckData)
-					&& $arCheckData['PRODUCT_ID']['IS_CORRECT'] == true
-					&& $arCheckData['__EXIST_ROW']['PRODUCT_ID'] != $arCheckData['PRODUCT_ID']['VALUE']
-				) {
-					if($arCheckData['__MAGIC_WORD']) {
-						$this->addError(GetMessage('OBX_BASKET_ITEM_WARNING_1'), 31);
-						return false;
-					}
-					$this->addWarning(GetMessage('OBX_BASKET_ITEM_WARNING_1'), 1);
+			// А при использовании OBX_MAGIC_WORD можно и ошибку бросить, что бы наверняка пресечь Duplicate Entry в Mysql
+
+			if( array_key_exists('PRODUCT_ID', $arCheckData)
+				&& $arCheckData['PRODUCT_ID']['IS_CORRECT'] == true
+				&& $arCheckData['__EXIST_ROW']['PRODUCT_ID'] != $arCheckData['PRODUCT_ID']['VALUE']
+			) {
+				if($arCheckData['__MAGIC_WORD']) {
+					$this->addError(GetMessage('OBX_BASKET_ITEM_WARNING_1'), 31);
+					return false;
 				}
-				if( array_key_exists('BASKET_ID', $arCheckData)
-					&& $arCheckData['BASKET_ID']['IS_CORRECT'] == true
-					&& $arCheckData['__EXIST_ROW']['BASKET_ID'] != $arCheckData['BASKET_ID']['VALUE']
-				) {
-					if($arCheckData['__MAGIC_WORD']) {
-						$this->addError(GetMessage('OBX_BASKET_ITEM_WARNING_2'), 32);
-						return false;
-					}
-					$this->addWarning(GetMessage('OBX_BASKET_ITEM_WARNING_2'), 2);
+				$this->addWarning(GetMessage('OBX_BASKET_ITEM_WARNING_1'), 1);
+			}
+			if( array_key_exists('BASKET_ID', $arCheckData)
+				&& $arCheckData['BASKET_ID']['IS_CORRECT'] == true
+				&& $arCheckData['__EXIST_ROW']['BASKET_ID'] != $arCheckData['BASKET_ID']['VALUE']
+			) {
+				if($arCheckData['__MAGIC_WORD']) {
+					$this->addError(GetMessage('OBX_BASKET_ITEM_WARNING_2'), 32);
+					return false;
 				}
-				return true;
+				$this->addWarning(GetMessage('OBX_BASKET_ITEM_WARNING_2'), 2);
 			}
 		// ^^^ try to change PRODUCT_ID or BASKET_ID
+
+		// +++ [pronix] check TOTAL_PRICE_VALUE
+			//проверяем корректность значение скидки/наценки
+
+			$priceValue = $arCheckData['__EXIST_ROW']['PRICE_VALUE'];
+			$discountValue = $arCheckData['__EXIST_ROW']['DISCOUNT_VALUE'];
+
+			if( array_key_exists('PRICE_VALUE', $arCheckData)
+				&& $arCheckData['PRICE_VALUE']['IS_CORRECT'] == true
+				&& $priceValue != $arCheckData['PRICE_VALUE']['VALUE']
+			) {
+				$priceValue = $arCheckData['PRICE_VALUE']['VALUE'];
+			}
+
+			if( array_key_exists('DISCOUNT_VALUE', $arCheckData)
+				&& $arCheckData['DISCOUNT_VALUE']['IS_CORRECT'] == true
+				&& $discountValue != $arCheckData['DISCOUNT_VALUE']['VALUE']
+			) {
+				$discountValue = $arCheckData['DISCOUNT_VALUE']['VALUE'];
+			}
+			$arFields['TOTAL_PRICE_VALUE'] = floatVal($priceValue - $discountValue);
+			if( $arFields['TOTAL_PRICE_VALUE'] < 0 ) {
+				$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_12_13'), 13);
+				return false;
+			}
+		// ^^^ check TOTAL_PRICE_VALUE
+		}
 		return true;
 	}
 

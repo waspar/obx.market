@@ -899,7 +899,6 @@ class Settings_Catalog extends Settings {
 	<tr class="heading">
 		<td class="field-name"></td>
 		<td><?=GetMessage("OBX_SETT_CATALOG_F_IBLOCK")?></td>
-		<td><?=GetMessage("OBX_SETT_CATALOG_F_IBLOCK_TYPE")?></td>
 		<td><?=GetMessage("OBX_SETT_CATALOG_F_IBLOCK_IS_ECOM")?></td>
 		<td><?=GetMessage("OBX_SETT_CATALOG_F_PRICE")?></td>
 		<td><?=GetMessage("OBX_SETT_CATALOG_F_IBLOCK_PROP")?></td>
@@ -927,10 +926,12 @@ class Settings_Catalog extends Settings {
 			?>
 			<tr>
 				<td class="field-name"></td>
-			<td rowspan="<?=$countPricePropList?>" class="center"><?=$arIBlock["NAME"]?> (<?=$arIBlock["ID"]?>)</td>
-			<td rowspan="<?=$countPricePropList?>" class="center"><?=$arIBlock["IBLOCK_TYPE_ID"]?></td>
 			<td rowspan="<?=$countPricePropList?>" class="center">
-				<label>
+				<?=$arIBlock["NAME"]?> <br />
+				[<?=$arIBlock["ID"]?> / <?=$arIBlock["IBLOCK_TYPE_ID"]?>]
+			</td>
+			<td rowspan="<?=$countPricePropList?>" class="center">
+				<label class="ecom_iblock checkbox">
 					<input name="obx_iblock_is_ecom[<?=$arIBlock["ID"]?>]"
 						   class="obx_iblock_is_ecom"
 						   data-checked-text="<?=GetMessage("OBX_SETT_CATALOG_L_DO_SIMPLE")?>"
@@ -944,6 +945,43 @@ class Settings_Catalog extends Settings {
 							<? else: ?><?= GetMessage("OBX_SETT_CATALOG_L_DO_SIMPLE") ?><?endif?>
 						</span>
 				</label>
+
+				<label class="select ibpprice-link-control <?if(!$bIBockIsECom):?> iblock-is-not-ecom<?endif?>" data-iblock-id="<?=$arIBlock["ID"]?>">
+					<span class="select-label-text"><?=GetMessage('OBX_SETT_CATALOG_S_DISCOUNT_PROP')?></span>
+					<select class="obx_ib_discount_prop" name="obx_ib_discount_prop[<?=$arIBlock["ID"]?>]"<?if(!$bIBockIsECom):?> disabled="disabled"<?endif?>>
+						<option value="0">
+							<?if ($arIBlock["DISCOUNT_VAL_PROP_ID"] > 0): ?><?= GetMessage("OBX_SETT_CATALOG_S_REMOVE_LINK") ?>
+							<? else: ?><?= GetMessage("OBX_SETT_CATALOG_S_DOESNOT_SET") ?><?endif?>
+						</option>
+						<option value="-1"><?=GetMessage("OBX_SETT_CATALOG_S_NEW_PROP")?></option>
+					<?foreach ($arPropIntList as &$arPropInt): ?>
+						<option value="<?=$arPropInt["ID"]?>"<?if($arPropInt["ID"] == $arIBlock["DISCOUNT_VAL_PROP_ID"]):
+							?> selected="selected"<?endif?>>
+							<?=$arPropInt["NAME"]?>
+							[<?=$arPropInt["ID"]?><?=((strlen($arPropInt["CODE"]) ? ":" : "") . $arPropInt["CODE"])?>]
+						</option>
+					<? endforeach?>
+					</select>
+				</label>
+
+				<label class="select ibpprice-link-control <?if(!$bIBockIsECom):?> iblock-is-not-ecom<?endif?>" data-iblock-id="<?=$arIBlock["ID"]?>">
+					<span class="select-label-text"><?=GetMessage('OBX_SETT_CATALOG_S_WEIGHT_PROP')?></span>
+					<select class="obx_ib_weight_prop" name="obx_ib_weight_prop[<?=$arIBlock["ID"]?>]"<?if(!$bIBockIsECom):?> disabled="disabled"<?endif?>>
+						<option value="0">
+							<?if ($arIBlock["WEIGHT_VAL_PROP_ID"] > 0): ?><?= GetMessage("OBX_SETT_CATALOG_S_REMOVE_LINK") ?>
+							<? else: ?><?= GetMessage("OBX_SETT_CATALOG_S_DOESNOT_SET") ?><?endif?>
+						</option>
+						<option value="-1"><?=GetMessage("OBX_SETT_CATALOG_S_NEW_PROP")?></option>
+						<?foreach ($arPropIntList as &$arPropInt): ?>
+							<option value="<?=$arPropInt["ID"]?>"<?if($arPropInt["ID"] == $arIBlock["WEIGHT_VAL_PROP_ID"]):
+								?> selected="selected"<?endif?>>
+								<?=$arPropInt["NAME"]?>
+								[<?=$arPropInt["ID"]?><?=((strlen($arPropInt["CODE"]) ? ":" : "") . $arPropInt["CODE"])?>]
+							</option>
+						<? endforeach?>
+					</select>
+				</label>
+
 			</td>
 
 			<?
@@ -976,8 +1014,7 @@ class Settings_Catalog extends Settings {
 							<option value="<?=$arPropInt["ID"]?>"<?if ($arPropInt["ID"] == $arProp["PROPERTY_ID"]): ?>
 									selected="selected"<? endif?>>
 								<?=$arPropInt["NAME"]?>
-								[<?=$arPropInt["ID"]?><?=((strlen($arPropInt["CODE"]) ? ":" : "") . $arPropInt["CODE"])?>
-								]
+								[<?=$arPropInt["ID"]?><?=((strlen($arPropInt["CODE"]) ? ":" : "") . $arPropInt["CODE"])?>]
 							</option>
 							<? endforeach?>
 						</select>
@@ -1015,8 +1052,66 @@ class Settings_Catalog extends Settings {
 		while (($arIBlock = $rsIBlockList->GetNext())) {
 			if (array_key_exists($arIBlock["ID"], $_REQUEST["obx_iblock_is_ecom"])) {
 				if ($arIBlock["IS_ECOM"] == "N") {
-					ECommerceIBlock::add(array("IBLOCK_ID" => $arIBlock["ID"]));
+					$arEComFields = array("IBLOCK_ID" => $arIBlock["ID"]);
+					if( array_key_exists($arIBlock["ID"], $_REQUEST["obx_ib_weight_prop"]) ) {
+						$arEComFields['WEIGHT_VAL_PROP_ID'] = intval($_REQUEST["obx_ib_weight_prop"][$arIBlock["ID"]]);
+						if($arEComFields['WEIGHT_VAL_PROP_ID'] == -1) {
+							$arWeightPropFields = array(
+								'IBLOCK_ID' => $arIBlock['ID'],
+								'NAME' => GetMessage('OBX_SETT_WEIGHT'),
+								'CODE' => 'WEIGHT',
+								'SORT' => 500,
+								'PROPERTY_TYPE' => 'N',
+								'ACTIVE' => 'Y'
+							);
+							$IBProp = new \CIBlockProperty;
+							$newID = $IBProp->Add($arWeightPropFields);
+							if(!$newID) {
+								$this->addError(
+									GetMessage('OBX_SETT_CATALOG_ERROR_5', array('#IBLOCK_ID#' => $arIBlock['ID'])
+										.' '.$IBProp->LAST_ERROR
+									), 5
+								);
+								return false;
+							}
+							$arEComFields['WEIGHT_VAL_PROP_ID'] = $newID;
+						}
+					}
+					if( array_key_exists($arIBlock["ID"], $_REQUEST["obx_ib_discount_prop"]) ) {
+						$arEComFields['DISCOUNT_VAL_PROP_ID'] = intval($_REQUEST["obx_ib_discount_prop"][$arIBlock["ID"]]);
+						if($arEComFields['DISCOUNT_VAL_PROP_ID'] == -1) {
+							$arDiscountPropFields = array(
+								'IBLOCK_ID' => $arIBlock['ID'],
+								'NAME' => GetMessage('OBX_SETT_DISCOUNT'),
+								'CODE' => 'DISCOUNT',
+								'SORT' => 500,
+								'PROPERTY_TYPE' => 'N',
+								'ACTIVE' => 'Y'
+							);
+							$IBProp = new \CIBlockProperty;
+							$newID = $IBProp->Add($arDiscountPropFields);
+							if(!$newID) {
+								$this->addError(
+									GetMessage('OBX_SETT_CATALOG_ERROR_4', array('#IBLOCK_ID#' => $arIBlock['ID'])
+										.' '.$IBProp->LAST_ERROR
+									), 4
+								);
+								return false;
+							}
+							$arEComFields['DISCOUNT_VAL_PROP_ID'] = $newID;
+						}
+					}
+					$nowEComIBlockID = ECommerceIBlock::add($arEComFields);
+					if(!$nowEComIBlockID) {
+						$arECommAddError = ECommerceIBlock::popLastError('ARRAY');
+						$this->addError(
+							GetMessage('OBX_SETT_CATALOG_ERROR_300', array('#IBLOCK_ID#' => $arIBlock['ID']))
+								.' '.$arECommAddError['TEXT'].'; code: '.$arECommAddError['CODE']
+							, (300 + $arECommAddError['CODE'])
+						);
+					}
 				}
+
 			} else {
 				if ($arIBlock["IS_ECOM"] == "Y") {
 					ECommerceIBlock::delete($arIBlock["ID"]);
@@ -1032,6 +1127,8 @@ class Settings_Catalog extends Settings {
 				continue;
 			}
 			$arIBPricePropFullList = CIBlockPropertyPrice::getFullPropList($arIBlock["ID"]);
+
+			// Обработка свойств-цен
 			$rawSetPriceProp = $_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]];
 			$arNewPricePropLinkList = array();
 			$arUniquePR = array();

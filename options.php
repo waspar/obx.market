@@ -19,21 +19,21 @@ $arTabsList = array(
 		"TAB" => GetMessage("OBX_MARKET_SETTINGS_TAB_CURRENCY"),
 		"ICON" => "settings_currency",
 		"TITLE" => GetMessage("OBX_MARKET_SETTINGS_TITLE_CURRENCY"),
-		"CONTROLLER" => OBX_MarketSettings::getController("Currency")
+		"CONTROLLER" => OBX\Market\Settings::getController("Currency")
 	),
 	array(
 		"DIV" => "obx_market_settings_price",
 		"TAB" => GEtMessage("OBX_MARKET_SETTINGS_TAB_PRICE"),
 		"ICON" => "settings_price",
 		"TITLE" => GEtMessage("OBX_MARKET_SETTINGS_TITLE_PRICE"),
-		"CONTROLLER" => OBX_MarketSettings::getController("Price")
+		"CONTROLLER" => OBX\Market\Settings::getController("Price")
 	),
 	array(
 		"DIV" => "obx_market_settings_catalog",
 		"TAB" => GEtMessage("OBX_MARKET_SETTINGS_TAB_CATALOG"),
 		"ICON" => "settings_catalog",
 		"TITLE" => GEtMessage("OBX_MARKET_SETTINGS_TITLE_CATALOG"),
-		"CONTROLLER" => OBX_MarketSettings::getController("Catalog")
+		"CONTROLLER" => OBX\Market\Settings::getController("Catalog")
 	),
 //	array(
 //		"DIV" => "obx_market_settings_main",

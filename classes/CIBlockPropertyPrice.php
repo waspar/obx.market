@@ -18,8 +18,8 @@ use OBX\Core\DBSimple;
 use OBX\Core\DBSimpleStatic;
 use OBX\Core\DBSResult;
 
-use OBX\Market\Price as OBX_Price;
-use OBX\Market\PriceDBS as OBX_PriceDBS;
+use OBX\Market\Price;
+use OBX\Market\PriceDBS;
 use OBX\Market\ECommerceIBlock;
 
 IncludeModuleLangFile(__FILE__);
@@ -256,6 +256,8 @@ SQL;
 			,R.CODE AS PRICE_CODE
 			,R.NAME AS PRICE_NAME
 			,R.CURRENCY AS CURRENCY
+			,C.WEIGHT_VAL_PROP_ID as WEIGHT_VAL_PROP_ID
+			,C.DISCOUNT_VAL_PROP_ID as DISCOUNT_VAL_PROP_ID
 		FROM
 			 b_iblock AS B
 			,b_iblock_property AS P
@@ -318,7 +320,7 @@ SQL;
 						$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_3'), 3);
 						return 0;
 					}
-					$arPrice = OBX_Price::getByCode($fieldValue, null);
+					$arPrice = Price::getByCode($fieldValue, null);
 					if( empty($arPrice) ) {
 						$this->addError(GetMessage('OBX_MARKET_PRICE_PROP_ERROR_3'), 3);
 						return 0;

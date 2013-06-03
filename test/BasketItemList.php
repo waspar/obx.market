@@ -237,7 +237,15 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 		$arBasketItemBeforeUpdate = &self::$_arTestBasketItems['BASKET'][self::$_BasketArray['TEST_BASKET']->getFields('ID')][0];
 		$bSuccess = self::$_BasketItemDBS->update(array(
 			'ID' => $arBasketItemBeforeUpdate['ID'],
-			'DISCOUNT_VALUE' => 686868.68
+			'DISCOUNT_VALUE' => 68686868.68
+		));
+		$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+		$this->assertFalse($bSuccess, GetMessage('OBX_TEST_BASKET_ITEM_LIST_ERROR_1'));
+		$this->assertEquals(13, $arError['CODE'], GetMessage('OBX_TEST_BASKET_ITEM_LIST_ERROR_2', array('#CODE#' => $arError['CODE'], '#TEXT#' => $arError['TEXT'])));
+
+		$bSuccess = self::$_BasketItemDBS->update(array(
+			'ID' => $arBasketItemBeforeUpdate['ID'],
+			'DISCOUNT_VALUE' => 1.68
 		));
 		if( !$bSuccess ) {
 			$arError = self::$_BasketItemDBS->popLastError('ARRAY');
@@ -245,7 +253,7 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 		}
 		$arUpdatedBasketItem = self::$_BasketItemDBS->getByID($arBasketItemBeforeUpdate['ID']);
 		$this->assertNotEmpty($arUpdatedBasketItem, 'Error: test basket item not found');
-		$this->assertEquals(686868.68, $arUpdatedBasketItem['DISCOUNT_VALUE'], 'Error: updated field value is wrong.');
+		$this->assertEquals(1.68, $arUpdatedBasketItem['DISCOUNT_VALUE'], 'Error: updated field value is wrong.');
 		$arBasketItemBeforeUpdate = $arUpdatedBasketItem;
 	}
 
@@ -256,16 +264,23 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 		$arBasketItemBeforeUpdate = &self::$_arTestBasketItems['ORDER'][self::$_arTestOrder['ID']][0];
 		$bSuccess = self::$_BasketItemDBS->update(array(
 			'ID' => $arBasketItemBeforeUpdate['ID'],
-			'DISCOUNT_VALUE' => 686868.68
+			'DISCOUNT_VALUE' => 68686868.68
+		));
+		$arError = self::$_BasketItemDBS->popLastError('ARRAY');
+		$this->assertFalse($bSuccess, GetMessage('OBX_TEST_BASKET_ITEM_LIST_ERROR_1'));
+		$this->assertEquals(13, $arError['CODE'], GetMessage('OBX_TEST_BASKET_ITEM_LIST_ERROR_2', array('#CODE#' => $arError['CODE'], '#TEXT#' => $arError['TEXT'])));
+
+		$bSuccess = self::$_BasketItemDBS->update(array(
+			'ID' => $arBasketItemBeforeUpdate['ID'],
+			'DISCOUNT_VALUE' => 1.68
 		));
 		if( !$bSuccess ) {
 			$arError = self::$_BasketItemDBS->popLastError('ARRAY');
 			$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
 		}
 		$arUpdatedBasketItem = self::$_BasketItemDBS->getByID($arBasketItemBeforeUpdate['ID']);
-		$lastQuery = self::$_BasketItemDBS->getLastQueryString();
 		$this->assertNotEmpty($arUpdatedBasketItem, 'Error: test basket item not found');
-		$this->assertEquals(686868.68, $arUpdatedBasketItem['DISCOUNT_VALUE'], 'Error: updated field value is wrong.');
+		$this->assertEquals(1.68, $arUpdatedBasketItem['DISCOUNT_VALUE'], 'Error: updated field value is wrong.');
 		$arBasketItemBeforeUpdate = $arUpdatedBasketItem;
 	}
 
@@ -280,7 +295,7 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 		$arSomeOtherBasketItem = &self::$_arTestBasketItems['BASKET'][self::$_BasketArray['TEST_BASKET']->getFields('ID')][3];
 		$bSuccess = self::$_BasketItemDBS->update(array(
 			'ID' => $arBasketItemBeforeUpdate['ID'],
-			'DISCOUNT_VALUE' => 686868.68,
+			'DISCOUNT_VALUE' => 1.68,
 			'PRODUCT_ID' => $arSomeOtherBasketItem['PRODUCT_ID']
 		));
 		if( !$bSuccess ) {
@@ -304,7 +319,7 @@ final class OBX_Test_BasketItemList extends OBX_Test_Lib_Basket
 		$SomeOtherBasket = Basket::getByHash(md5('__TEST_AND_DELETE_testTryToUpdateBasketID()'));
 		$bSuccess = self::$_BasketItemDBS->update(array(
 			'ID' => $arBasketItemBeforeUpdate['ID'],
-			'DISCOUNT_VALUE' => 686868.68,
+			'DISCOUNT_VALUE' => 1.68,
 			'QUANTITY' => 68,
 			'BASKET_ID' => $SomeOtherBasket->getFields('ID')
 		));

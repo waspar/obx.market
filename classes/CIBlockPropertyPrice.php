@@ -218,7 +218,7 @@ SQL;
 		}
 		$sqlList .= ' ORDER BY IB.ID ASC, PR.ID ASC';
 		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
-		$res = new \OBX_DBSResult($res);
+		$res = new DBSResult($res);
 		$res->setAbstractionName(get_called_class());
 		if($bResultCDBResult) {
 			return $res;
@@ -237,7 +237,7 @@ SQL;
 	 * не вернет строк, в отличие от getFullPriceList, которые вернет строки с null
 	 * @param int $IBLOCK_ID
 	 * @param bool $bResultCDBResult
-	 * @return array|bool|\OBX_DBSResult
+	 * @return array|bool|DBSResult
 	 */
 	public function getFullPropList($IBLOCK_ID = 0, $bResultCDBResult = false) {
 		global $DB;

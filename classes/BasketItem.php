@@ -137,8 +137,8 @@ SQL
 									| self::FLD_CUSTOM_CK
 									| self::FLD_BRK_INCORR,
 
-			'PRICE_VALUE'		=> self::FLD_T_FLOAT | self::FLD_NOT_ZERO,
-			'DISCOUNT_VALUE'	=> self::FLD_T_FLOAT | self::FLD_NOT_ZERO,
+			'PRICE_VALUE'		=> self::FLD_T_FLOAT,
+			'DISCOUNT_VALUE'	=> self::FLD_T_FLOAT,
 			'VAT_ID'			=> self::FLD_T_INT,
 			'VAT_VALUE'			=> self::FLD_T_FLOAT
 		);
@@ -275,7 +275,9 @@ SQL
 		if(
 			!array_key_exists('PRICE_VALUE', $arFields)
 			||
-			intval($arFields['PRICE_VALUE']) < 0
+			!is_numeric($arFields['PRICE_VALUE'])
+			||
+			$arFields['PRICE_VALUE'] < 0
 		) {
 			$arPricePropList = CIBlockPropertyPriceDBS::getInstance()->getListArray(array(
 				'PRICE_ID' => $arFields['PRICE_ID'],

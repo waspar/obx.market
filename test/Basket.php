@@ -129,7 +129,9 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$arErrorBefore = $Basket->popLastError('ARRAY');
 		// Обрабатываем ошибку. Нельзя добавить в корзину элемент из инфоблока не являющегося торговым каталогом
 		$this->assertEquals(5, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
-		$this->assertEquals(309, $arErrorBefore['CODE'], 'Error: returned not expected error: '.$arErrorBefore['TEXT'].'; code: '.$arErrorBefore['CODE']);
+		$text = $arErrorBefore['TEXT']."\n";
+		$text .= GetMessage('OBX_MARKET_TEST_BASKET_ERROR_11_310');
+		$this->assertEquals(309, $arErrorBefore['CODE'], 'Error: returned not expected error: '.$text.'; code: '.$arErrorBefore['CODE']);
 	}
 
 	/**
@@ -156,6 +158,17 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		// Обрабатываем ошибку. Цена не указана явно и получить её из элемента не удастся. Код ошибки 10
 		$this->assertEquals(5, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
 		$this->assertEquals(310, $arErrorBefore['CODE'], 'Error: returned not expected error: '.$arErrorBefore['TEXT'].'; code: '.$arErrorBefore['CODE']);
+	}
+
+	public function testAddProductWithExplicitPriceValueZero() {
+		/**
+		 * @var Basket $Basket
+		 */
+		$Basket = &self::$_BasketArray['ANON_BASKET'];
+		$newQuantity = $Basket->addProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0], 1, 0);
+		$this->assertEquals(1, $newQuantity);
+		$bSuccess = $Basket->removeProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
+		$this->assertTrue($bSuccess);
 	}
 
 	/**
@@ -187,7 +200,6 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 				$this->fail('Error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
 			}
 			$this->assertGreaterThanOrEqual($addQuantity, $newQuantity);
-
 		}
 	}
 

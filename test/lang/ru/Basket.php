@@ -12,5 +12,8 @@ $MESS['OBX_MARKET_TEST_BASKET_ERROR_8'] = 'Error: Корзина заказа н
 $MESS['OBX_MARKET_TEST_BASKET_ERROR_9'] = 'Error: Корзина заказа не должна быть привязана к пользователю, принадлежность к пользователю определяет заказ';
 $MESS['OBX_MARKET_TEST_BASKET_ERROR_10'] = 'Error: Корзина заказа не содержит привязку к заказу o_0';
 $MESS['OBX_MARKET_TEST_BASKET_RUB'] = 'руб.';
+$MESS['OBX_MARKET_TEST_BASKET_ERROR_11_310'] = 'Эта ситауция возможна если предыдущее выполнение теста завершено с ошибкой'."\n"
+												.' и тестовый инфоблок остался в списке торговых.'."\n"
+												.' Попробуйте уберать флаг "Торговый" у инфоблока "__TEXT_AND_DELETE".';
 //$MESS['OBX_MARKET_TEST_BASKET_ERROR_1'] = '';
 //$MESS['OBX_MARKET_TEST_BASKET_ERROR_1'] = '';

@@ -456,8 +456,8 @@ class Basket extends \OBX_CMessagePoolDecorator
 				$priceID = null;
 			}
 		}
-		$priceValue = floatval($priceValue);
-		if($priceValue <= 0) {
+
+		if( $priceValue !== null && floatval($priceValue) < 0) {
 			$priceValue = null;
 		}
 		$arEmptyPriceError = null;

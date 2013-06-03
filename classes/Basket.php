@@ -95,6 +95,17 @@ class Basket extends \OBX_CMessagePoolDecorator
 	 */
 	protected $_arProductListIndex = array();
 
+	/**
+	 * Вводим механизм ручного подсчета, поскольку:
+	 * почему-то при попытку взять количество в этом массиве (return count($this->_arProductList);) интерпретатор версии
+	 * PHP 5.3.10-1ubuntu3.6 with Suhosin-Patch (cli) (built: Mar 11 2013 14:31:48)
+	 * падает в segfault во время отладки. А во время выолнения тестов без отладчика вохвращает на 1 больше
+	 * проявляется на нескольких машинах с ubuntu-12.04
+	 * ^^^
+	 * @var int
+	 */
+	protected $_countProducts = 0;
+
 
 
 	/**
@@ -392,7 +403,8 @@ class Basket extends \OBX_CMessagePoolDecorator
 	 * @return int
 	 */
 	public function getProductsCount() {
-		return count($this->_arProductListIndex);
+		$count = intval($this->_countProducts);
+		return $count;
 	}
 
 	/**
@@ -430,6 +442,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 		unset($this->_arProductList[$this->_arProductListIndex[$productID]['ID']]);
 		unset($this->_arProductListIndex[$productID]);
 		unset($this->_arItemsQuantity[$productID]);
+		$this->_countProducts--;
 		return true;
 	}
 
@@ -509,6 +522,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 				}
 				return -1;
 			}
+			$this->_countProducts++;
 			$this->syncProductList();
 		}
 		return $this->_arItemsQuantity[$productID];
@@ -603,9 +617,11 @@ class Basket extends \OBX_CMessagePoolDecorator
 			$this->addError(GetMessage('OBX_BASKET_ERROR_1'));
 			return false;
 		}
+		$countProducts = 0;
 		if( count($arBasketItems)>0 ) {
 			foreach($arBasketItems as $key => &$arItem) {
 				if($arItem['BASKET_ID'] != $this->_arFields['ID']) continue;
+				$countProducts++;
 				$arItemPriceList = Price::getProductPriceList($arItem['PRODUCT_ID'], $this->getFields('USER_ID'));
 				$arItemPriceListIndex = Tools::getListIndex($arItemPriceList, 'PRICE_ID', true, true);
 				$arBasketItem['PRICE_LIST'] = $arItemPriceListIndex;
@@ -674,6 +690,7 @@ class Basket extends \OBX_CMessagePoolDecorator
 				$this->_arProductListIndex[$arItem['PRODUCT_ID']] = &$this->_arProductList[$arItem['ID']];
 				$this->_arItemsQuantity[$arItem['PRODUCT_ID']] = $arItem['QUANTITY'];
 			}
+			$this->_countProducts = $countProducts;
 		}
 		return true;
 	}

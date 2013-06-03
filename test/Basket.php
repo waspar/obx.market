@@ -152,11 +152,15 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		 */
 		$Basket = &self::$_BasketArray['ANON_BASKET'];
 		$newQuantity = $Basket->addProduct(self::$_arTestNotEComIBlock['__ELEMENTS_ID_LIST'][0]);
+		// +++ именно меньше нуля, поскольку при возникновении ошибки будет возвращено значение -1
+		// возвращать нуль не совсем корректно ибо по смыслу кол-во товара может быть равным 0 :)
 		$this->assertLessThan(0, $newQuantity, GetMessage('OBX_MARKET_TEST_BASKET_ERROR_71'));
+		// ^^^
 		$arError = $Basket->popLastError('ARRAY');
 		$arErrorBefore = $Basket->popLastError('ARRAY');
-		// Обрабатываем ошибку. Цена не указана явно и получить её из элемента не удастся. Код ошибки 10
+		// +++ Обрабатываем ошибку. Цена не указана явно и получить её из элемента не удастся. Код ошибки 10
 		$this->assertEquals(5, $arError['CODE'], 'Error: returned not expected error: '.$arError['TEXT'].'; code: '.$arError['CODE']);
+		// ^^^
 		$this->assertEquals(310, $arErrorBefore['CODE'], 'Error: returned not expected error: '.$arErrorBefore['TEXT'].'; code: '.$arErrorBefore['CODE']);
 	}
 
@@ -273,6 +277,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 	 * @param string $basketName
 	 * @dataProvider getBaskets
 	 * @depends testGetBasketData
+	 * @depends testTryToAddProductWithoutPrice
 	 */
 	public function testDeleteSomeOfItem($basketName) {
 		/**
@@ -292,7 +297,17 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 			}
 			$arIBElement['__DELETED'] = true;
 		}
-		$this->assertEquals(15, $Basket->getProductsCount());
+		$prodCount = $Basket->getProductsCount();
+		// +++ [pronix:2013-06-02]
+		// Здесь стабильно вылетает 16 если хотя бы раз
+		// после чистого запуска не сразуботал тест
+		// testTryToAddProductWithoutPrice или testTryToAddNotAProduct
+		// еслибыл пропущен товар без цены или элемент не торгового каталога,
+		// значит в корзине на один товар больше.
+		// Актуальное значение будет не 15, а 16
+		// потому добавлена зависимость
+		// ^^^ [pronix:2013-06-02]
+		$this->assertEquals(15, $prodCount);
 		$this->testGetBasketData($basketName, 15);
 	}
 

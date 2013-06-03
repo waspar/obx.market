@@ -100,7 +100,7 @@ if ($REQUEST_METHOD == "POST" // проверка метода вызова ст
 	&& check_bitrix_sessid() // проверка идентификатора сессии
 ) {
 	$DB->StartTransaction();
-	$arItems = $_REQUEST['TABLE'];
+	$arItems = $_REQUEST['PRODUCTS'];
 	$arProps = $_REQUEST['PROPERTIES'];
 
 	if ($ID > 0) {
@@ -428,9 +428,9 @@ $TabControl->BeginNextTab();
 			<tr class="heading">
 				<td>№</td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_NAME")?></td>
-				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_PRICE_NAME")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_WEIGHT")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_QUANTITY")?></td>
+				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_PRICE_NAME")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_PRICE_VALUE")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_ACTIONS")?></td>
 			</tr>
@@ -454,30 +454,32 @@ $TabControl->BeginNextTab();
 				<tr class="item-row" id="row_<?=$i?>" data-num="<?=$i?>" data-product-id="<?=$arItem['PRODUCT_ID']?>" data-price-id="<?=$arItem['PRICE_ID']?>">
 					<td><?=$i?></td>
 					<td>
-						<input class="id" type="hidden" name="TABLE[<?=$i?>][ID]" id="TABLE[<?=$i?>][ID]" value="<?=$arItem['ID']?>" />
-						<input class="product_id" type="hidden"  name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
-						<input class="product_name" type="text" name="TABLE[<?=$i?>][PRODUCT_NAME]" value="<?=$arItem['PRODUCT_NAME']?>" />
+						<input class="id" type="hidden" name="PRODUCTS[<?=$i?>][ID]" id="PRODUCTS[<?=$i?>][ID]" value="<?=$arItem['ID']?>" />
+						<input class="product_id" type="hidden"  name="PRODUCTS[<?=$i?>][PRODUCT_ID]" id="PRODUCTS[<?=$i?>][PRODUCT_ID]" value="<?=$arItem['PRODUCT_ID']?>">
+						<input class="product_name" type="text" name="PRODUCTS[<?=$i?>][PRODUCT_NAME]" value="<?=$arItem['PRODUCT_NAME']?>" />
+					</td>
 					<td>
-						<select name=TABLE[<?=$i?>][PRICE_ID]>
+						<input type="text" class="weight" size="5" name="PRODUCTS[<?=$i?>][WEIGHT]" value="<?=$arItem['WEIGHT']?>">
+					</td>
+					<td>
+						<input type="text" class="quantity" size="5" name="PRODUCTS[<?=$i?>][QUANTITY]" value="<?=$arItem['QUANTITY']?>">
+					</td>
+					<td>
+						<select class="price_id_view" name=PRODUCTS[<?=$i?>][PRICE_ID] disabled="disabled">
 							<option value="null"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
 							<?foreach($arPriceTypes as $arPrice){?>
-							<option value="<?=$arPrice['ID']?>" <?if($arItem['PRICE_ID'] == $arPrice['ID'] ){?>selected<?}?>><?=$arPrice['NAME']?></option>
+								<option value="<?=$arPrice['ID']?>" <?if($arItem['PRICE_ID'] == $arPrice['ID'] ){?>selected<?}?>><?=$arPrice['NAME']?></option>
 							<?}?>
 						</select>
-					</td>
-					<td>
-						<input type="text" class="weight" size="5" name="TABLE[<?=$i?>][WEIGHT]" value="<?=$arItem['WEIGHT']?>">
-					</td>
-					<td>
-						<input type="text" class="quantity" size="5" name="TABLE[<?=$i?>][QUANTITY]" value="<?=$arItem['QUANTITY']?>">
+						<input type="hidden" class="price_id" name=PRODUCTS[<?=$i?>][PRICE_ID] />
 					</td>
 					<td align="right">
-						<input type="text" class="price_value" size="6" name="TABLE[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
-						<input type="hidden" class="price_id" name="TABLE[<?=$i?>][PRICE_ID]" value="<?=$arItem['PRICE_ID']?>"
+						<input type="text" class="price_value" size="6" name="PRODUCTS[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
+						<input type="hidden" class="price_id" name="PRODUCTS[<?=$i?>][PRICE_ID]" value="<?=$arItem['PRICE_ID']?>"
 					</td>
 					<td class="action-row" align="center">
 						<a href="javascript:void(0)" class="delete_item" data-num="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
-						<input type="hidden" id="to_delete_<?=$i?>" name="TABLE[<?=$i?>][TO_DELETE]" value="N">
+						<input type="hidden" id="to_delete_<?=$i?>" name="PRODUCTS[<?=$i?>][TO_DELETE]" value="N">
 					</td>
 				</tr>
 
@@ -535,36 +537,37 @@ $TabControl->BeginNextTab();
 		<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput#ID#">
 			<tr>
 				<td class="item-name">
-					<input class="id" type="hidden"  name="TABLE[#NUM#][ID]" id="TABLE[#NUM#][ID]" />
-					<input class="product_id" type="hidden"  name="TABLE[#NUM##][PRODUCT_ID]" id="TABLE[#NUM#][PRODUCT_ID]" />
-					<input class="product_name" type="text" name="TABLE[#NUM#][PRODUCT_NAME]" />
+					<input class="id" type="hidden"  name="PRODUCTS[#NUM#][ID]" id="PRODUCTS[#NUM#][ID]" />
+					<input class="product_id" type="hidden"  name="PRODUCTS[#NUM#][PRODUCT_ID]" id="PRODUCTS[#NUM#][PRODUCT_ID]" />
+					<input class="product_name" type="text" name="PRODUCTS[#NUM#][PRODUCT_NAME]" />
 
 				</td>
 			</tr>
 		</table>
 	</td>
 	<td>
-		<select name="TABLE[#NUM#][PRICE_ID]" class="price_id">
-				<option value="null" selected="selected"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
+		<input type='text' class="weight" size="5" name="PRODUCTS[#NUM#][WEIGHT]" value="0.00">
+	</td>
+	<td>
+		<input type='text' class="quantity" size="5" name='PRODUCTS[#NUM#][QUANTITY]' value='0'>
+	</td>
+	<td>
+		<select name="PRODUCTS[#NUM#][PRICE_ID]" class="price_id_view" disabled="disabled">
+			<option value="null" selected="selected"><?=GetMessage('OBX_ORDER_TITLE_PRODUCT_PRICE_DEFAULT')?></option>
 			<?foreach($arPriceTypes as $arPrice){?>
 				<option value="<?=$arPrice['ID']?>"><?=$arPrice['NAME']?></option>
 			<?}?>
 		</select>
-	</td>
-	<td>
-		<input type='text' class="weight" size="5" name="TABLE[#NUM#][WEIGHT]" value="0.00">
-	</td>
-	<td>
-		<input type='text' class="quantity" size="5" name='TABLE[#NUM#][QUANTITY]' value='0'>
+		<input type="hidden" class="price_id" name=PRODUCTS[#NUM#][PRICE_ID] />
 	</td>
 	<td align="right">
-		<input type='text' class="price_value" name="TABLE[#NUM#][PRICE_VALUE]" value="0">
+		<input type='text' class="price_value" name="PRODUCTS[#NUM#][PRICE_VALUE]" value="0">
 	</td>
 	<td class="action-row" align="center">
 		<a href="javascript:void(0)" class="delete_item" data-num="#NUM#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
 		<br>
 		<br>
-		<input type="hidden" id="to_delete_#NUM#" name="TABLE[#NUM#][TO_DELETE]" value="N">
+		<input type="hidden" id="to_delete_#NUM#" name="PRODUCTS[#NUM#][TO_DELETE]" value="N">
 	</td>
 	</tr>
 </script>
@@ -613,13 +616,14 @@ $TabControl->BeginNextTab();
 			else {
 				obx.admin.order_items.list[listKey] += parseFloat(oItem.quantity);
 			}
-			var $selectPriceID = $itemRow.find('select.price_id');
+			var $selectPriceID = $itemRow.find('select.price_id_view');
 			var $selectedOptionPriceID = $selectPriceID.find('option[value='+oItem.price_id+']');
 			if($selectedOptionPriceID.length > 0) {
 				$selectPriceID.find('options').removeAttr('selected');
 				$selectedOptionPriceID.attr('selected', 'selected');
 			}
-			var $inputProductID = $itemRow.find('input[type=hidden]').attr('value', oItem.product_id);
+			var $inputPriceID = $itemRow.find('input[type=hidden].price_id');
+			var $inputProductID = $itemRow.find('input[type=hidden].product_id').attr('value', oItem.product_id);
 			var $inputWeight = $itemRow.find('input.weight');
 			var $inputPriceValue = $itemRow.find('input.price_value');
 			var $inputQuantity = $itemRow.find('input.quantity');
@@ -632,6 +636,7 @@ $TabControl->BeginNextTab();
 			$inputPriceValue[0].value = oItem.price_value;
 			$inputQuantity[0].value = obx.admin.order_items.list[listKey];
 			$inputWeight[0].value = oItem.weight;
+			$inputPriceID[0].value = oItem.price_id;
 
 			var $domAddButton = $(domAddButton);
 			if( typeof($domAddButton.is('input[type=button]')) ) {
@@ -706,9 +711,9 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_ad
 <table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbprodinput<?=$i?>">
 	<tr>
 		<td>
-			<input name="TABLE[<?=$i?>][PRODUCT_ID]" id="TABLE[<?=$i?>][PRODUCT_ID]" value="" size="5" type="text">
+			<input name="PRODUCTS[<?=$i?>][PRODUCT_ID]" id="PRODUCTS[<?=$i?>][PRODUCT_ID]" value="" size="5" type="text">
 			<input type="button" value="..."
-				   onclick="jsUtils.OpenWindow('/bitrix/admin/iblock_element_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=TABLE[<?=$i?>]&amp;k=<?=$i?>', 600, 500);">
+				   onclick="jsUtils.OpenWindow('/bitrix/admin/iblock_element_search.php?lang=ru&amp;IBLOCK_ID=0&amp;n=PRODUCTS[<?=$i?>]&amp;k=<?=$i?>', 600, 500);">
 			<span id="sp_prodinput_<?=$i?>"></span>
 		</td>
 	</tr>

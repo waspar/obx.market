@@ -302,7 +302,7 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 			foreach($arItemsFromJSON['items'] as &$arItemFromJSON) {
 				$itemsView .= (++$iItem).'.&nbsp;'.$arItemFromJSON['PN']
 							.'&nbsp;('.$arItemFromJSON['PID'].'):'
-							.'&nbsp;'.$CurrencyFormatDBS->formatPrice($arItemFromJSON['PRV'], $f_CURRENCY)
+							.'&nbsp;'.str_replace(' ', '&nbsp;', $CurrencyFormatDBS->formatPrice($arItemFromJSON['PRV']), $f_CURRENCY)
 							.'&nbsp;<span style="font-size: 0.8em; font-weight: bolder;">x</span>&nbsp;'.$arItemFromJSON['Q']
 							.GetMessage('OBX_MARKET_ORDER_LIST_UNIT')
 

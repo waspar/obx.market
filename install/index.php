@@ -26,6 +26,27 @@ class obx_market extends CModule {
 	protected $moduleDir = null;
 	protected $bxModulesDir = null;
 	protected $arErrors = array();
+	protected $arWarnings = array();
+	protected $arMessages = array();
+	protected $bSuccessInstallDB = false;
+	protected $bSuccessInstallFiles = false;
+	protected $bSuccessInstallDeps = false;
+	protected $bSuccessInstallEvents = false;
+	protected $bSuccessInstallTasks = true;
+	protected $bSuccessInstallData = false;
+	protected $bSuccessUnInstallDB = false;
+	protected $bSuccessUnInstallFiles = false;
+	protected $bSuccessUnInstallDeps = false;
+	protected $bSuccessUnInstallEvents = false;
+	protected $bSuccessUnInstallTasks = true;
+	protected $bSuccessUnInstallData = false;
+
+	const DB = 1;
+	const FILES = 2;
+	const DEPS = 4;
+	const EVENTS = 8;
+	const TASKS = 16;
+	const TARGETS = 31;
 
 	public function obx_market() {
 		self::includeLangFile();
@@ -44,6 +65,66 @@ class obx_market extends CModule {
 		$this->MODULE_DESCRIPTION = GetMessage("OBX_MODULE_INSTALL_DESCRIPTION");
 		$this->PARTNER_NAME = GetMessage("OBX_PARTNER_NAME");
 		$this->PARTNER_URI = GetMessage("OBX_PARTNER_URI");
+	}
+
+	public function getErrors() {
+		return $this->arErrors;
+	}
+
+	public function getWarnings() {
+		return $this->arWarnings;
+	}
+
+	public function getMessages() {
+		return $this->arMessages;
+	}
+
+	/**
+	 * @param int $maskTarget
+	 * @return bool
+	 */
+	public function isIntallationSuccess($maskTarget) {
+		$bSuccess = true;
+		if($maskTarget & self::DB) {
+			$bSuccess = $this->bSuccessInstallDB && $bSuccess;
+		}
+		if($maskTarget & self::FILES) {
+			$bSuccess = $this->bSuccessInstallFiles && $bSuccess;
+		}
+		if($maskTarget & self::DEPS) {
+			$bSuccess = $this->bSuccessInstallDeps && $bSuccess;
+		}
+		if($maskTarget & self::EVENTS) {
+			$bSuccess = $this->bSuccessInstallEvents && $bSuccess;
+		}
+		if($maskTarget & self::TASKS) {
+			$bSuccess = $this->bSuccessInstallTasks && $bSuccess;
+		}
+		return $bSuccess;
+	}
+
+	/**
+	 * @param int $maskTarget
+	 * @return bool
+	 */
+	public function isUnIntallationSuccess($maskTarget) {
+		$bSuccess = true;
+		if($maskTarget & self::DB) {
+			$bSuccess = $this->bSuccessUnInstallDB && $bSuccess;
+		}
+		if($maskTarget & self::FILES) {
+			$bSuccess = $this->bSuccessUnInstallFiles && $bSuccess;
+		}
+		if($maskTarget & self::DEPS) {
+			$bSuccess = $this->bSuccessUnInstallDeps && $bSuccess;
+		}
+		if($maskTarget & self::EVENTS) {
+			$bSuccess = $this->bSuccessUnInstallEvents && $bSuccess;
+		}
+		if($maskTarget & self::TASKS) {
+			$bSuccess = $this->bSuccessUnInstallTasks && $bSuccess;
+		}
+		return $bSuccess;
 	}
 
 	public function DoInstall() {
@@ -76,41 +157,57 @@ class obx_market extends CModule {
 		return $bSuccess;
 	}
 	public function InstallFiles() {
+		$this->bSuccessInstallFiles = true;
 		if (is_file($this->installDir . "/install_files.php")) {
 			require($this->installDir . "/install_files.php");
 		}
-		return true;
+		else {
+			$this->bSuccessInstallFiles = false;
+		}
+		return $this->bSuccessInstallFiles;
 	}
 	public function UnInstallFiles() {
+		$this->bSuccessUnInstallFiles = true;
 		if (is_file($this->installDir . "/uninstall_files.php")) {
 			require($this->installDir . "/uninstall_files.php");
 		}
-		return true;
+		else {
+			$this->bSuccessUnInstallFiles = false;
+		}
+		return $this->bSuccessUnInstallFiles;
 	}
 
 	public function InstallDB() {
 		global $DB, $DBType;
+		$this->bSuccessInstallDB = true;
 		if( is_file($this->installDir.'/db/'.$DBType.'/install.sql') ) {
 			$this->prepareDBConnection();
 			$arErrors = $DB->RunSQLBatch($this->installDir.'/db/'.$DBType.'/install.sql');
 			if( is_array($arErrors) && count($arErrors)>0 ) {
 				$this->arErrors = $arErrors;
-				return false;
+				$this->bSuccessInstallDB = false;
 			}
 		}
-		return true;
+		else {
+			$this->bSuccessInstallDB = false;
+		}
+		return $this->bSuccessInstallDB;
 	}
 	public function UnInstallDB() {
 		global $DB, $DBType;
+		$this->bSuccessUnInstallDB = true;
 		if( is_file($this->installDir.'/db/'.$DBType.'/uninstall.sql') ) {
 			$this->prepareDBConnection();
 			$arErrors = $DB->RunSQLBatch($this->installDir.'/db/'.$DBType.'/uninstall.sql');
 			if( is_array($arErrors) && count($arErrors)>0 ) {
 				$this->arErrors = $arErrors;
-				return false;
+				$this->bSuccessUnInstallDB = false;
 			}
 		}
-		return true;
+		else {
+			$this->bSuccessUnInstallDB = false;
+		}
+		return $this->bSuccessUnInstallDB;
 	}
 	
 	public function InstallEvents() {
@@ -118,7 +215,8 @@ class obx_market extends CModule {
 		require_once $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/" . $this->MODULE_ID . "/include_static.php";
 		ECommerceIBlock::registerModuleDependencies();
 		CIBlockPropertyPrice::registerModuleDependencies();
-		return true;
+		$this->bSuccessInstallEvents = true;
+		return $this->bSuccessInstallEvents;
 	}
 
 	public function UnInstallEvents() {
@@ -126,11 +224,12 @@ class obx_market extends CModule {
 		require_once $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/" . $this->MODULE_ID . "/include_static.php";
 		ECommerceIBlock::unRegisterModuleDependencies();
 		CIBlockPropertyPrice::unRegisterModuleDependencies();
-		return true;
+		$this->bSuccessUnInstallEvents = true;
+		return $this->bSuccessUnInstallEvents;
 	}
 	
-	public function InstallTasks() { return true; }
-	public function UnInstallTasks() { return true; }
+	public function InstallTasks() { $this->bSuccessInstallTasks = true; return $this->bSuccessInstallTasks; }
+	public function UnInstallTasks() { $this->bSuccessUnInstallTasks = true; return $this->bSuccessUnInstallTasks; }
 
 	public function InstallDeps() {
 		if( is_file($this->installDir."/install_deps.php") ) {
@@ -153,11 +252,21 @@ class obx_market extends CModule {
 						if( !IsModuleInstalled($depModID) ) {
 							RegisterModule($depModID);
 						}
+						$this->bSuccessInstallDeps = true;
+					}
+					else {
+						if( method_exists($DepModInstaller, 'getErrors') ) {
+							$arInstallErrors = $DepModInstaller->getErrors();
+							foreach($arInstallErrors as $error) {
+								$this->arErrors[] = $error;
+							}
+						}
+						$this->bSuccessInstallDeps = false;
 					}
 				}
 			}
 		}
-		return true;
+		return $this->bSuccessInstallDeps;
 	}
 	public function UnInstallDeps() {
 		$arDepsList = $this->getDepsList();
@@ -177,11 +286,22 @@ class obx_market extends CModule {
 					if( IsModuleInstalled($depModID) ) {
 						UnRegisterModule($depModID);
 					}
+					$this->bSuccessUnInstallDeps = true;
+				}
+				else {
+					if( method_exists($DepModInstaller, 'getErrors') ) {
+						$arInstallErrors = $DepModInstaller->getErrors();
+						foreach($arInstallErrors as $error) {
+							$this->arErrors[] = $error;
+						}
+					}
+					$this->bSuccessUnInstallDeps = false;
 				}
 			}
 		}
-		return true;
+		return $this->bSuccessUnInstallDeps;
 	}
+
 	protected function getDepsList() {
 		$arDepsList = array();
 		if( is_dir($this->installDir."/modules") ) {
@@ -331,9 +451,10 @@ class obx_market extends CModule {
 				'SORT' => '10'
 			));
 		}
-		return true;
+		$this->bSuccessInstallData = true;
+		return $this->bSuccessInstallData;
 	}
-	public function UnInstallData() { return true; }
+	public function UnInstallData() { $this->bSuccessUnInstallData = true; return $this->bSuccessUnInstallData; }
 
 
 	protected function prepareDBConnection() {
@@ -351,6 +472,17 @@ class obx_market extends CModule {
 
 	public function GetModuleRightList() {
 
+	}
+
+	public function registerModule() {
+		if( !IsModuleInstalled($this->MODULE_ID) ) {
+			RegisterModule($this->MODULE_ID);
+		}
+	}
+	public function unRegisterModule() {
+		if( IsModuleInstalled($this->MODULE_ID) ) {
+			UnRegisterModule($this->MODULE_ID);
+		}
 	}
 
 	static public function getModuleCurDir() {

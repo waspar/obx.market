@@ -1052,56 +1052,7 @@ class Settings_Catalog extends Settings {
 		while (($arIBlock = $rsIBlockList->GetNext())) {
 			if (array_key_exists($arIBlock["ID"], $_REQUEST["obx_iblock_is_ecom"])) {
 				if ($arIBlock["IS_ECOM"] == "N") {
-					$arEComFields = array("IBLOCK_ID" => $arIBlock["ID"]);
-					if( array_key_exists($arIBlock["ID"], $_REQUEST["obx_ib_weight_prop"]) ) {
-						$arEComFields['WEIGHT_VAL_PROP_ID'] = intval($_REQUEST["obx_ib_weight_prop"][$arIBlock["ID"]]);
-						if($arEComFields['WEIGHT_VAL_PROP_ID'] == -1) {
-							$arWeightPropFields = array(
-								'IBLOCK_ID' => $arIBlock['ID'],
-								'NAME' => GetMessage('OBX_SETT_WEIGHT'),
-								'CODE' => 'WEIGHT',
-								'SORT' => 500,
-								'PROPERTY_TYPE' => 'N',
-								'ACTIVE' => 'Y'
-							);
-							$IBProp = new \CIBlockProperty;
-							$newID = $IBProp->Add($arWeightPropFields);
-							if(!$newID) {
-								$this->addError(
-									GetMessage('OBX_SETT_CATALOG_ERROR_5', array('#IBLOCK_ID#' => $arIBlock['ID'])
-										.' '.$IBProp->LAST_ERROR
-									), 5
-								);
-								return false;
-							}
-							$arEComFields['WEIGHT_VAL_PROP_ID'] = $newID;
-						}
-					}
-					if( array_key_exists($arIBlock["ID"], $_REQUEST["obx_ib_discount_prop"]) ) {
-						$arEComFields['DISCOUNT_VAL_PROP_ID'] = intval($_REQUEST["obx_ib_discount_prop"][$arIBlock["ID"]]);
-						if($arEComFields['DISCOUNT_VAL_PROP_ID'] == -1) {
-							$arDiscountPropFields = array(
-								'IBLOCK_ID' => $arIBlock['ID'],
-								'NAME' => GetMessage('OBX_SETT_DISCOUNT'),
-								'CODE' => 'DISCOUNT',
-								'SORT' => 500,
-								'PROPERTY_TYPE' => 'N',
-								'ACTIVE' => 'Y'
-							);
-							$IBProp = new \CIBlockProperty;
-							$newID = $IBProp->Add($arDiscountPropFields);
-							if(!$newID) {
-								$this->addError(
-									GetMessage('OBX_SETT_CATALOG_ERROR_4', array('#IBLOCK_ID#' => $arIBlock['ID'])
-										.' '.$IBProp->LAST_ERROR
-									), 4
-								);
-								return false;
-							}
-							$arEComFields['DISCOUNT_VAL_PROP_ID'] = $newID;
-						}
-					}
-					$nowEComIBlockID = ECommerceIBlock::add($arEComFields);
+					$nowEComIBlockID = ECommerceIBlock::add(array("IBLOCK_ID" => $arIBlock["ID"]));
 					if(!$nowEComIBlockID) {
 						$arECommAddError = ECommerceIBlock::popLastError('ARRAY');
 						$this->addError(
@@ -1123,78 +1074,160 @@ class Settings_Catalog extends Settings {
 		}
 		$arIBlockList = ECommerceIBlock::getFullList(false);
 		foreach ($arIBlockList as &$arIBlock) {
-			if ($arIBlock["IS_ECOM"] == "N" || !isset($_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]])) {
+			if ($arIBlock["IS_ECOM"] == "N" ) {
 				continue;
 			}
-			$arIBPricePropFullList = CIBlockPropertyPrice::getFullPropList($arIBlock["ID"]);
 
-			// Обработка свойств-цен
-			$rawSetPriceProp = $_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]];
-			$arNewPricePropLinkList = array();
-			$arUniquePR = array();
-			$arUniquePP = array();
-			foreach ($rawSetPriceProp as $priceID => $propID) {
-				$priceID = intval($priceID);
-				$propID = intval($propID);
-				if ($priceID > 0) {
-					if ($propID > 0) {
-						$keyPR = $arIBlock["ID"] . "_" . $priceID;
-						$keyPP = $arIBlock["ID"] . "_" . $propID;
-						if (array_key_exists($keyPR, $arUniquePR)) {
-							$this->addError(GetMessage("OBX_SETT_CATALOG_ERROR_1", array(
-								"#IBLOCK_ID#" => $arIBlock["ID"]
-							)), 1);
-							return false;
-						}
-						if (array_key_exists($keyPP, $arUniquePP)) {
-							$this->addError(GetMessage("OBX_SETT_CATALOG_ERROR_2", array(
-								"#IBLOCK_PROP_ID#" => htmlspecialcharsEx($propID)
-							)), 2);
-							return false;
-						}
-						$arUniquePR[$keyPR] = true;
-						$arUniquePP[$keyPP] = true;
-						$arNewPricePropLinkList[] = array(
-							"__ACTION" => "ADD",
-							"IBLOCK_ID" => $arIBlock["ID"],
-							"PRICE_ID" => $priceID,
-							"IBLOCK_PROP_ID" => $propID
+			$arEComFieldsUpdate = array();
+			if( array_key_exists($arIBlock["ID"], $_REQUEST["obx_ib_weight_prop"]) ) {
+				$arEComFieldsUpdate["IBLOCK_ID"] = $arIBlock["ID"];
+				$arEComFieldsUpdate['WEIGHT_VAL_PROP_ID'] = intval($_REQUEST["obx_ib_weight_prop"][$arIBlock["ID"]]);
+				if($arEComFieldsUpdate['WEIGHT_VAL_PROP_ID'] == -1) {
+					$arWeightPropFields = array(
+						'IBLOCK_ID' => $arIBlock['ID'],
+						'NAME' => GetMessage('OBX_SETT_WEIGHT'),
+						'CODE' => 'WEIGHT',
+						'SORT' => 500,
+						'PROPERTY_TYPE' => 'N',
+						'ACTIVE' => 'Y'
+					);
+					$IBProp = new \CIBlockProperty;
+					$newID = $IBProp->Add($arWeightPropFields);
+					if(!$newID) {
+						$this->addError(
+							GetMessage('OBX_SETT_CATALOG_ERROR_5', array('#IBLOCK_ID#' => $arIBlock['ID'])
+								.' '.$IBProp->LAST_ERROR
+							), 5
 						);
-					} elseif ($propID == 0) {
-						$arDelFilter = array(
-							"IBLOCK_ID" => $arIBlock["ID"],
-							"PRICE_ID" => $priceID,
+						return false;
+					}
+					$arEComFieldsUpdate['WEIGHT_VAL_PROP_ID'] = $newID;
+				}
+			}
+			if( array_key_exists($arIBlock["ID"], $_REQUEST["obx_ib_discount_prop"]) ) {
+				$arEComFieldsUpdate["IBLOCK_ID"] = $arIBlock["ID"];
+				$arEComFieldsUpdate['DISCOUNT_VAL_PROP_ID'] = intval($_REQUEST["obx_ib_discount_prop"][$arIBlock["ID"]]);
+				if($arEComFieldsUpdate['DISCOUNT_VAL_PROP_ID'] == -1) {
+					$arDiscountPropFields = array(
+						'IBLOCK_ID' => $arIBlock['ID'],
+						'NAME' => GetMessage('OBX_SETT_DISCOUNT'),
+						'CODE' => 'DISCOUNT',
+						'SORT' => 500,
+						'PROPERTY_TYPE' => 'N',
+						'ACTIVE' => 'Y'
+					);
+					$IBProp = new \CIBlockProperty;
+					$newID = $IBProp->Add($arDiscountPropFields);
+					if(!$newID) {
+						$this->addError(
+							GetMessage('OBX_SETT_CATALOG_ERROR_4', array('#IBLOCK_ID#' => $arIBlock['ID'])
+								.' '.$IBProp->LAST_ERROR
+							), 4
 						);
-						$arExists = CIBlockPropertyPrice::getListArray(null, $arDelFilter, null, null, null, false);
-						if (!empty($arExists)) {
-							$arExists["__ACTION"] = "DELETE";
-							$arNewPricePropLinkList[] = $arExists;
+						return false;
+					}
+					$arEComFieldsUpdate['DISCOUNT_VAL_PROP_ID'] = $newID;
+				}
+			}
+			if(
+				!empty($arEComFieldsUpdate)
+				&& (
+					$arEComFieldsUpdate['DISCOUNT_VAL_PROP_ID'] != $arIBlock['DISCOUNT_VAL_PROP_ID']
+					||
+					$arEComFieldsUpdate['WEIGHT_VAL_PROP_ID'] != $arIBlock['WEIGHT_VAL_PROP_ID']
+				)
+			) {
+					if( intval($arEComFieldsUpdate['WEIGHT_VAL_PROP_ID'])<1 ) {
+						$arEComFieldsUpdate['WEIGHT_VAL_PROP_ID'] = null;
+					}
+					if( intval($arEComFieldsUpdate['DISCOUNT_VAL_PROP_ID'])<1 ) {
+						$arEComFieldsUpdate['DISCOUNT_VAL_PROP_ID'] = null;
+					}
+					$bEComIBlockUpdateSuccess = ECommerceIBlock::update($arEComFieldsUpdate);
+					if(!$bEComIBlockUpdateSuccess) {
+						$arErrorUpdateECommIBlock = ECommerceIBlock::popLastError('ARRAY');
+						$this->addError(
+							GetMessage('OBX_SETT_CATALOG_ERROR_600', array('#IBLOCK_ID#' => $arIBlock['ID']))
+							.' '.$arErrorUpdateECommIBlock['TEXT'].'; code: '.$arErrorUpdateECommIBlock['CODE']
+							, (600 + $arErrorUpdateECommIBlock['CODE'])
+						);
+					}
+			}
+
+
+			if( isset($_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]]) ) {
+				$arIBPricePropFullList = CIBlockPropertyPrice::getFullPropList($arIBlock["ID"]);
+
+				// Обработка свойств-цен
+				$rawSetPriceProp = $_REQUEST["obx_ib_price_prop"][$arIBlock["ID"]];
+				$arNewPricePropLinkList = array();
+				$arUniquePR = array();
+				$arUniquePP = array();
+				foreach ($rawSetPriceProp as $priceID => $propID) {
+					$priceID = intval($priceID);
+					$propID = intval($propID);
+					if ($priceID > 0) {
+						if ($propID > 0) {
+							$keyPR = $arIBlock["ID"] . "_" . $priceID;
+							$keyPP = $arIBlock["ID"] . "_" . $propID;
+							if (array_key_exists($keyPR, $arUniquePR)) {
+								$this->addError(GetMessage("OBX_SETT_CATALOG_ERROR_1", array(
+									"#IBLOCK_ID#" => $arIBlock["ID"]
+								)), 1);
+								return false;
+							}
+							if (array_key_exists($keyPP, $arUniquePP)) {
+								$this->addError(GetMessage("OBX_SETT_CATALOG_ERROR_2", array(
+									"#IBLOCK_PROP_ID#" => htmlspecialcharsEx($propID)
+								)), 2);
+								return false;
+							}
+							$arUniquePR[$keyPR] = true;
+							$arUniquePP[$keyPP] = true;
+							$arNewPricePropLinkList[] = array(
+								"__ACTION" => "ADD",
+								"IBLOCK_ID" => $arIBlock["ID"],
+								"PRICE_ID" => $priceID,
+								"IBLOCK_PROP_ID" => $propID
+							);
+						} elseif ($propID == 0) {
+							$arDelFilter = array(
+								"IBLOCK_ID" => $arIBlock["ID"],
+								"PRICE_ID" => $priceID,
+							);
+							$arExists = CIBlockPropertyPrice::getListArray(null, $arDelFilter, null, null, null, false);
+							if (!empty($arExists)) {
+								$arExists["__ACTION"] = "DELETE";
+								$arNewPricePropLinkList[] = $arExists;
+							}
+						} elseif ($propID == -1) {
+							$arNewPricePropLinkList[] = array(
+								"__ACTION" => "NEW_PROP",
+								"IBLOCK_ID" => $arIBlock["ID"],
+								"PRICE_ID" => $priceID,
+							);
 						}
-					} elseif ($propID == -1) {
-						$arNewPricePropLinkList[] = array(
-							"__ACTION" => "NEW_PROP",
-							"IBLOCK_ID" => $arIBlock["ID"],
-							"PRICE_ID" => $priceID,
-						);
+					}
+				}
+				CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arIBlock["ID"]));
+				CIBlockPropertyPrice::clearErrors();
+				foreach ($arNewPricePropLinkList as &$arNewPricePropLink) {
+					if ($arNewPricePropLink["__ACTION"] == "ADD") {
+						$bSuccess = CIBlockPropertyPrice::add($arNewPricePropLink);
+					}
+					//elseif($arNewPricePropLink["__ACTION"] == "DELETE") {
+					//	$bSuccess = CIBlockPropertyPrice::deleteByFilter($arNewPricePropLink);
+					//}
+					elseif ($arNewPricePropLink["__ACTION"] == "NEW_PROP") {
+						$bSuccess = CIBlockPropertyPrice::addIBlockPriceProperty($arNewPricePropLink);
+					}
+					if (!$bSuccess) {
+						$arError = CIBlockPropertyPrice::popLastError('ALL');
+						$this->addError($arError["TEXT"], $arError["CODE"]);
 					}
 				}
 			}
-			CIBlockPropertyPrice::deleteByFilter(array("IBLOCK_ID" => $arIBlock["ID"]));
-			CIBlockPropertyPrice::clearErrors();
-			foreach ($arNewPricePropLinkList as &$arNewPricePropLink) {
-				if ($arNewPricePropLink["__ACTION"] == "ADD") {
-					$bSuccess = CIBlockPropertyPrice::add($arNewPricePropLink);
-				} //				elseif($arNewPricePropLink["__ACTION"] == "DELETE") {
-//					$bSuccess = CIBlockPropertyPrice::deleteByFilter($arNewPricePropLink);
-//				}
-				elseif ($arNewPricePropLink["__ACTION"] == "NEW_PROP") {
-					$bSuccess = CIBlockPropertyPrice::addIBlockPriceProperty($arNewPricePropLink);
-				}
-				if (!$bSuccess) {
-					$arError = CIBlockPropertyPrice::popLastError('ALL');
-					$this->addError($arError["TEXT"], $arError["CODE"]);
-				}
-			}
+
 		}
 		return true;
 	}

@@ -109,7 +109,7 @@ class ECommerceIBlockDBS extends DBSimple
 	}
 
 	protected function _onBeforeExecUpdate(&$arFields, &$arCheckResult) {
-
+		return true;
 	}
 
 	protected function _onBeforeDelete(&$arItem) {

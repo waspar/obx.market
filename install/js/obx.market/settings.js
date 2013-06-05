@@ -12,11 +12,20 @@ if(typeof(OBX.Market) == 'undefined') {
 	};
 }
 (function($) {
+	if( typeof($) == 'undefined' ) return;
 	$.fn.toggleDisabled = function(){
 		return this.each(function(){
 			this.disabled = !this.disabled;
 		});
 	};
+	$(function() {
+		var settingsForm = $('#obx_market_settings form').get(0);
+		OBX.Market.BXSettings.modifyFormElements = function() {
+			if( typeof(BX.adminFormTools) != 'undefined' && typeof(BX.adminFormTools.modifyFormElements) != 'undefined') {
+				BX.adminFormTools.modifyFormElements(settingsForm);
+			}
+		};
+	});
 })(jQuery);
 
 
@@ -29,7 +38,7 @@ if(typeof(OBX.Market) == 'undefined') {
 	var tmplNewCurrencyRow = '#obx_market_currency_row_tmpl';
 
 	var FieldDefaults = {
-		 currency: ''
+		currency: ''
 		,name: ''
 		,sort: 100
 		,format: '#'
@@ -76,7 +85,7 @@ if(typeof(OBX.Market) == 'undefined') {
 		var newCurrencyIndex = 0;
 		$currencyContainer.find('input.add_new_item').on('click', function() {
 			OBX.Market.BXSettings.addCurrencyRow($.extend(FieldDefaults, {
-				 index: newCurrencyIndex
+				index: newCurrencyIndex
 			}));
 			newCurrencyIndex++;
 		});
@@ -168,6 +177,7 @@ if(typeof(OBX.Market) == 'undefined') {
 			,success: function(data, textStatus, jqXHR) {
 				$currencyContainer.html(data);
 				setEventHandlers();
+				OBX.Market.BXSettings.modifyFormElements();
 			}
 		});
 	};
@@ -269,6 +279,7 @@ if(typeof(OBX.Market) == 'undefined') {
 			,success: function(data, textStatus, jqXHR) {
 				$priceContainer.html(data);
 				setEventHandlers();
+				OBX.Market.BXSettings.modifyFormElements();
 			}
 		});
 	};
@@ -308,6 +319,7 @@ if(typeof(OBX.Market) == 'undefined') {
 			,success: function(data, textStatus, jqXHR) {
 				$catalogContainer.html(data);
 				setEventHandlers();
+				OBX.Market.BXSettings.modifyFormElements();
 			}
 		});
 	};
@@ -326,16 +338,17 @@ if(typeof(OBX.Market) == 'undefined') {
 			obx_ib_discount_prop: jsonSettingsFormData.obx_ib_discount_prop
 		};
 		$.ajax({
-		 url: settings_catalog_url
-		 ,type : 'POST'
-		 ,headers: { 'X-OBX-MarketSettings': true }
-		 ,dataType : 'html'
-		 ,data: jsonCatalogData
-		 ,success: function(data, textStatus, jqXHR) {
-		 	$catalogContainer.html(data);
-		 	setEventHandlers();
-		 }
-		 });
+			url: settings_catalog_url
+			,type : 'POST'
+			,headers: { 'X-OBX-MarketSettings': true }
+			,dataType : 'html'
+			,data: jsonCatalogData
+			,success: function(data, textStatus, jqXHR) {
+				$catalogContainer.html(data);
+				setEventHandlers();
+				OBX.Market.BXSettings.modifyFormElements();
+			}
+		});
 	};
 
 	var setEventHandlers = function() {

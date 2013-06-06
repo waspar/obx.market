@@ -33,6 +33,7 @@ class OBX_Build {
 		$this->_modulesFolder = $this->_bxRootFolder.'/modules';
 		$arrTmp = explode($this->_modulesFolder, $this->_selfDir);
 		$this->_docRootDir = $arrTmp[0];
+		$_SERVER["DOCUMENT_ROOT"] = $this->_docRootDir;
 		$this->_selfFolder = $this->_modulesFolder.$arrTmp[1];
 		$this->_bxRootDir = $this->_docRootDir.$this->_bxRootFolder;
 		$this->_modulesDir = $this->_docRootDir.$this->_modulesFolder;
@@ -295,7 +296,7 @@ class OBX_Build {
 					$arResource['INSTALL_FOLDER'] != '/bitrix/modules/'.$this->getModuleName().'/install'
 					&& $arResource['INSTALL_FOLDER'] != '/bitrix/modules/'.$this->getModuleName().'/install/'
 				) {
-					self::DeleteDirFilesEx($arResource['INSTALL_FOLDER']);
+					//self::DeleteDirFilesEx($arResource['INSTALL_FOLDER']);
 				}
 			}
 			foreach($this->_arResources as &$arResource) {

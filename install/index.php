@@ -380,7 +380,7 @@ class obx_market extends CModule {
 		OrderStatus::add(array(
 			'CODE' => 'COMPLETE',
 			'NAME' => GetMessage('OBX_MARKET_INS_ORDER_STATUS_COMPLETE'),
-			'COLOR' => '97c004',
+			'COLOR' => '77D26B',
 			'SORT' => '1000',
 			'IS_SYS' => 'Y',
 			OBX_MAGIC_WORD => 'Y'

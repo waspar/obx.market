@@ -20,7 +20,7 @@ $arComponentDescription = array(
 		'ID' => 'obx_market',
 		'NAME' => GetMessage('OBX_MARKET_CMP_PATH_MARKET_NAME'),
 		'CHILD' => array(
-			'ID' => 'catalog',
+			'ID' => 'obx_catalog',
 			'NAME' => GetMessage('OBX_MARKET_BASKET_CMP_PATH_CATALOG'),
 			'SORT' => 10,
 		),

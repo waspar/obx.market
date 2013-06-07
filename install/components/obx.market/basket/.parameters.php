@@ -1,8 +1,9 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: maximum
- * Date: 24.05.13
- * Time: 12:18
- * To change this template use File | Settings | File Templates.
- */
+/***********************************************
+ ** @product OBX:Market Bitrix Module         **
+ ** @authors                                  **
+ **         Maksim S. Makarov aka pr0n1x      **
+ ** @License GPLv3                            **
+ ** @mailto rootfavell@gmail.com              **
+ ** @copyright 2013 DevTop                    **
+ ***********************************************/

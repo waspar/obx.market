@@ -1,16 +1,18 @@
-<?
+<?php
+/*******************************************
+ ** @product OBX:Market Bitrix Module     **
+ ** @authors                              **
+ **         Maksim S. Makarov aka pr0n1x  **
+ **         Morozov P. Artem aka tashiro  **
+ ** @License GPLv3                        **
+ ** @mailto rootfavell@gmail.com          **
+ ** @mailto tashiro@yandex.ru             **
+ ** @copyright 2013 DevTop                **
+ *******************************************/
+
 use OBX\Market\Price;
 use OBX\Market\Basket;
 
-/***************************************
- ** @product OBX:Market Bitrix Module **
- ** @authors                          **
- **         Maksim S. Makarov         **
- **         Morozov P. Artem          **
- ** @License GPLv3                    **
- ** @mailto rootfavell@gmail.com      **
- ** @mailto tashiro@yandex.ru         **
- ***************************************/
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 if (!CModule::IncludeModule("obx.market")) {
@@ -29,6 +31,7 @@ $arParams["PRODUCT_ID_VARIABLE"] = trim($arParams["PRODUCT_ID_VARIABLE"]);
 $arParams["USE_QUANTITY_VARIABLE"] = $arParams["USE_QUANTITY_VARIABLE"] == "Y" ? "Y" : "N";
 $arParams["QUANTITY_VARIABLE"] = trim($arParams["QUANTITY_VARIABLE"]);
 $arParams["PATH_TO_BASKET"] = trim($arParams["PATH_TO_BASKET"]);
+$arParams["FILTER_NAME"] = trim($arParams["FILTER_NAME"]);
 
 $arParams["AJAX_BUY"] = $arParams["AJAX_BUY"] == "Y" ? "Y" : "N";
 
@@ -116,25 +119,26 @@ if ($this->StartResultCache()) {
 		true,
 		Array(
 			"ID"
-			, "IBLOCK_ID"
-			, "NAME"
-			, "PICTURE"
-			, "DESCRIPTION"
-			, "DESCRIPTION_TYPE"
-			, "SEARCHABLE_CONTENT"
-			, "CODE"
-			, "LIST_PAGE_URL"
-			, "SECTION_PAGE_URL"
-			, "ELEMENT_CNT"
+		, "IBLOCK_ID"
+		, "NAME"
+		, "PICTURE"
+		, "DESCRIPTION"
+		, "DESCRIPTION_TYPE"
+		, "SEARCHABLE_CONTENT"
+		, "CODE"
+		, "LIST_PAGE_URL"
+		, "SECTION_PAGE_URL"
+		, "ELEMENT_CNT"
 		),
 		false
 	);
 
 	$arSections = array();
-	while($arSection = $dbSections->GetNext())
-	{
+	while ($arSection = $dbSections->GetNext()) {
 		$arSections[$arSection["ID"]] = $arSection;
 	}
+	unset ($dbSections);
+	unset ($arSection);
 
 	$bPriceFound = true;
 	while ($obElement = $dbItems->GetNextElement()) {
@@ -189,12 +193,15 @@ if ($this->StartResultCache()) {
 		);
 		*/
 		$arItem["PRICE"] = null; // Нужная цена
+		$arSupportData = array();
 
 		$arItemPrices = Price::getProductPriceList($arItem["ID"]);
 		foreach ($arItemPrices as &$arPrice) {
 			if ($arPrice["IS_OPTIMAL"] == "Y" && $arPrice["AVAILABLE"] == "Y") { // IS_OPTIMAL может быть == Y только 1 раз
 				$arItem["PRICE"] = $arPrice;
 				$arItem["CAN_BUY"] = "Y";
+				$arSupportData["WEIGHT"]["ID"] = $arPrice["WEIGHT_VAL_PROP_ID"];
+				$arSupportData["DISCOUNT"]["ID"] = $arPrice["DISCOUNT_VAL_PROP_ID"];
 			}
 			$arItem["PRICES"][$arPrice["PRICE_CODE"]] = array(
 				"VALUE_NOVAT" => $arPrice["TOTAL_VALUE"],
@@ -238,12 +245,42 @@ if ($this->StartResultCache()) {
 
 		$arSections[$arItem["IBLOCK_SECTION_ID"]]["ITEMS"][] = $arItem;
 		$arItems[] = $arItem;
+
+		if (!empty ($arSupportData["WEIGHT"]["ID"])) {
+			$resWeight = CIBlockProperty::GetByID(
+				$arSupportData["WEIGHT"]["ID"],
+				$arParams["IBLOCK_ID"]
+			);
+			$arWeight = $resWeight->GetNext();
+			unset ($resWeight);
+			if (!empty($arWeight["CODE"])) {
+				$arSupportData["WEIGHT"]["CODE"] = $arWeight["CODE"];
+			}
+			unset ($arWeight);
+		}
+		if (!empty ($arSupportData["DISCOUNT"]["ID"])) {
+			$resDiscount = CIBlockProperty::GetByID(
+				$arSupportData["DISCOUNT"]["ID"],
+				$arParams["IBLOCK_ID"]
+			);
+			$arDiscount = $resDiscount->GetNext();
+			unset ($resDiscount);
+			if (!empty($arDiscount["CODE"])) {
+				$arSupportData["DISCOUNT"]["CODE"] = $arDiscount["CODE"];
+			}
+			unset ($arDiscount);
+		}
+
 	}
 	if (!$bPriceFound) {
 		ShowError(GetMessage("OBX_MARKET_CMP_CAN_NOT_FIND_PRICE"));
 	}
 	$arResult["ITEMS"] = $arItems;
 	$arResult["SECTIONS"] = $arSections;
+	$arResult["SUPPORT_DATA"] = $arSupportData;
+	unset ($arItems);
+	unset ($arSections);
+	unset ($arSupportData);
 
 	$this->IncludeComponentTemplate();
 }

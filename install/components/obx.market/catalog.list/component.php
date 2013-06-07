@@ -44,7 +44,7 @@ if (array_key_exists($arParams["ACTION_VARIABLE"], $_REQUEST) && array_key_exist
 		$q = ($rQ > 0) ? $rQ : 1;
 	}
 
-	switch ($_REQUEST[$arParams["ACTION_VARIABLE"]]){
+	switch ($_REQUEST[$arParams["ACTION_VARIABLE"]]) {
 		case "ADD" :
 			$Basket->addProduct($_REQUEST[$arParams["PRODUCT_ID_VARIABLE"]], $q);
 			break;
@@ -65,7 +65,7 @@ if ($this->StartResultCache()) {
 	$arItems = array();
 
 	$arSelectFields = array(
-		"NAME"
+	"NAME"
 	, "ID"
 	, "DATE_CREATE"
 	, "DATE_CREATE_UNIX"
@@ -92,6 +92,7 @@ if ($this->StartResultCache()) {
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"ACTIVE" => "Y"
 	);
+
 	$arNavStartParams = array();
 
 	$dbItems = CIBlockElement::GetList(
@@ -101,16 +102,51 @@ if ($this->StartResultCache()) {
 		false, //mixed arNavStartParams
 		$arSelectFields
 	);
+
+	$dbSections = CIBlockSection::GetList(
+		Array("SORT" => "ASC"),
+		Array(
+			"ACTIVE" => "Y",
+			"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
+			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"DEPTH_LEVEL" => "1",
+			"ELEMENT_SUBSECTIONS" => "N",
+			"CNT_ACTIVE" => "Y"
+		),
+		true,
+		Array(
+			"ID"
+			, "IBLOCK_ID"
+			, "NAME"
+			, "PICTURE"
+			, "DESCRIPTION"
+			, "DESCRIPTION_TYPE"
+			, "SEARCHABLE_CONTENT"
+			, "CODE"
+			, "LIST_PAGE_URL"
+			, "SECTION_PAGE_URL"
+			, "ELEMENT_CNT"
+		),
+		false
+	);
+
+	$arSections = array();
+	while($arSection = $dbSections->GetNext())
+	{
+		$arSections[$arSection["ID"]] = $arSection;
+	}
+
 	$bPriceFound = true;
 	while ($obElement = $dbItems->GetNextElement()) {
 
 		$arItem = $obElement->GetFields();
+		$arItem["PROPERTIES"] = $obElement->GetProperties();
 
 		$arButtons = CIBlock::GetPanelButtons(
 			$arItem["IBLOCK_ID"],
 			$arItem["ID"],
-			$arResult["ID"],
-			array("SECTION_BUTTONS" => false, "SESSID" => false, "CATALOG" => true)
+			0,
+			array("SECTION_BUTTONS" => false, "SESSID" => false)
 		);
 
 		$arItem["EDIT_LINK"] = $arButtons["edit"]["edit_element"]["ACTION_URL"];
@@ -200,12 +236,14 @@ if ($this->StartResultCache()) {
 			$bPriceFound = false;
 		}
 
+		$arSections[$arItem["IBLOCK_SECTION_ID"]]["ITEMS"][] = $arItem;
 		$arItems[] = $arItem;
 	}
 	if (!$bPriceFound) {
 		ShowError(GetMessage("OBX_MARKET_CMP_CAN_NOT_FIND_PRICE"));
 	}
 	$arResult["ITEMS"] = $arItems;
+	$arResult["SECTIONS"] = $arSections;
 
 	$this->IncludeComponentTemplate();
 }

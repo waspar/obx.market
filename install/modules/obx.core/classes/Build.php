@@ -33,6 +33,7 @@ class OBX_Build {
 		$this->_modulesFolder = $this->_bxRootFolder.'/modules';
 		$arrTmp = explode($this->_modulesFolder, $this->_selfDir);
 		$this->_docRootDir = $arrTmp[0];
+		$_SERVER["DOCUMENT_ROOT"] = $this->_docRootDir;
 		$this->_selfFolder = $this->_modulesFolder.$arrTmp[1];
 		$this->_bxRootDir = $this->_docRootDir.$this->_bxRootFolder;
 		$this->_modulesDir = $this->_docRootDir.$this->_modulesFolder;
@@ -272,6 +273,46 @@ class OBX_Build {
 		}
 	}
 
+	static protected function isEmptyDir($fullPath, $bRecursiveCheck4Files = false) {
+		$bEmpty = true;
+		if(!is_dir($fullPath)) {
+			return false;
+		}
+		if( ! ($handle = opendir($fullPath)) ) {
+			return false;
+		}
+		while( ($fsEntry = readdir($handle)) !== false ) {
+			if( $fsEntry == '.' || $fsEntry == '..' ) continue;
+			if( is_dir($fullPath.'/'.$fsEntry) ) {
+				if($bRecursiveCheck4Files) {
+					$bEmpty = self::isEmptyDir($fullPath.'/'.$fsEntry, true);
+				}
+				else {
+					$bEmpty = false;
+				}
+			}
+			else {
+				$bEmpty = false;
+			}
+		}
+		return $bEmpty;
+	}
+
+//	static protected function deleteEmptyFSBranches($fullPath) {
+//		while (($fsEntry = readdir($fullPath)) !== false) {
+//			if( $fsEntry == '.' || $fsEntry == '..' ) continue;
+//			if( is_dir($fullPath.'/'.$fsEntry) ) {
+//				if( self::isEmptyDir($fullPath.'/'.$fsEntry, false) ) {
+//
+//				}
+//			}
+//			else {
+//				$bEmpty = false;
+//			}
+//		}
+//		return $bEmpty;
+//	}
+
 	public function backInstallResources() {
 		if( count($this->_arDepModules) ) {
 			foreach($this->_arDepModules as $DependencyModule) {
@@ -281,6 +322,7 @@ class OBX_Build {
 				$DependencyModule->generateInstallCode();
 				$DependencyModule->generateUnInstallCode();
 				$DependencyModule->generateBackInstallCode();
+				self::DeleteDirFilesEx($this->_modulesDir.'/'.$this->getModuleName().'/install/modules/'.$DependencyModule->getModuleName());
 				self::CopyDirFilesEx(
 					 $this->_modulesDir.'/'.$DependencyModule->getModuleName()
 					,$this->_modulesDir.'/'.$this->getModuleName().'/install/modules/'.$DependencyModule->getModuleName()
@@ -295,11 +337,19 @@ class OBX_Build {
 					$arResource['INSTALL_FOLDER'] != '/bitrix/modules/'.$this->getModuleName().'/install'
 					&& $arResource['INSTALL_FOLDER'] != '/bitrix/modules/'.$this->getModuleName().'/install/'
 				) {
-					self::DeleteDirFilesEx($arResource['INSTALL_FOLDER']);
+					foreach($arResource['INSTALL_FILES_EXIST'] as $installFSEntry) {
+						self::DeleteDirFilesEx($installFSEntry);
+					}
+					if( self::isEmptyDir($this->_docRootDir.$arResource['INSTALL_FOLDER'], true) ) {
+						self::DeleteDirFilesEx($arResource['INSTALL_FOLDER']);
+					}
 				}
 			}
 			foreach($this->_arResources as &$arResource) {
 				foreach($arResource['FILES'] as $fsEntryName) {
+					if( ! is_dir($this->_docRootDir.$arResource['INSTALL_FOLDER']) ) {
+						@mkdir($this->_docRootDir.$arResource['INSTALL_FOLDER'], BX_DIR_PERMISSIONS, true);
+					}
 					self::CopyDirFilesEx(
 						 $this->_docRootDir.$arResource['TARGET_FOLDER'].'/'.$fsEntryName
 						,$this->_docRootDir.$arResource['INSTALL_FOLDER'].'/'
@@ -411,6 +461,10 @@ class OBX_Build {
 					'if( is_file('.$depBackInstallFilePathCode.') ) {'."\n"
 					."\t".'require_once '.$depBackInstallFilePathCode.";\n"
 					."}\n";
+				$backInstallCode .= 'DeleteDirFilesEx("'
+					.'/bitrix/modules/'.$this->getModuleName()
+					.'/install/modules/'.$DependencyModule->getModuleName()
+				.'");'."\n";
 				$backInstallCode .=
 					'OBX_CopyDirFilesEx('
 						.'$_SERVER["DOCUMENT_ROOT"]'
@@ -429,11 +483,23 @@ class OBX_Build {
 					$arResource['INSTALL_FOLDER'] != '/bitrix/modules/'.$this->getModuleName().'/install'
 					&& $arResource['INSTALL_FOLDER'] != '/bitrix/modules/'.$this->getModuleName().'/install/'
 				) {
-					$backInstallCode .= 'DeleteDirFilesEx("'.$arResource['INSTALL_FOLDER']."\");\n";
+					foreach($arResource['INSTALL_FILES_EXIST'] as $installFSEntry) {
+						$backInstallCode .= 'DeleteDirFilesEx("'.$installFSEntry."\");\n";
+					}
+					if( self::isEmptyDir($this->_docRootDir.$arResource['INSTALL_FOLDER'], true) ) {
+						$backInstallCode .= 'DeleteDirFilesEx("'.$arResource['INSTALL_FOLDER']."\");\n";
+					}
 				}
 			}
+			$arFolderCreated = array();
 			foreach($this->_arResources as &$arResource) {
 				foreach($arResource['FILES'] as $fsEntryName) {
+					if( !in_array($arResource['INSTALL_FOLDER'], $arFolderCreated) ) {
+						$backInstallCode .= 'if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."'.$arResource['INSTALL_FOLDER'].'") ) {'
+							."\n\t".'@mkdir($_SERVER["DOCUMENT_ROOT"]."'.$arResource['INSTALL_FOLDER'].'", BX_DIR_PERMISSIONS, true);'
+							."\n".'}'."\n";
+						$arFolderCreated[] = $arResource['INSTALL_FOLDER'];
+					}
 					$backInstallCode .= 'OBX_CopyDirFilesEx('
 						.'$_SERVER["DOCUMENT_ROOT"]."'
 							.$arResource['TARGET_FOLDER'].'/'.$fsEntryName

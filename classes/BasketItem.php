@@ -114,7 +114,9 @@ SQL
 		'QUANTITY',
 		'WEIGHT',
 		'PRICE_ID',
-		'PRICE_VALUE'
+		'PRICE_VALUE',
+		'DISCOUNT_VALUE',
+		'TOTAL_PRICE_VALUE'
 	);
 	protected $_mainTable = 'I';
 	protected $_mainTablePrimaryKey = 'ID';
@@ -352,6 +354,60 @@ SQL
 			}
 			unset($arFields['ORDER_ID']);
 			unset($arCheckData['ORDER_ID']);
+		}
+		$weightPropID = intval($arECommerceIBlocks[$arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID']]['WEIGHT_VAL_PROP_ID']);
+		$discountPropID = intval($arECommerceIBlocks[$arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID']]['DISCOUNT_VAL_PROP_ID']);
+		if(
+			(
+				!array_key_exists('DISCOUNT_VALUE', $arFields)
+				|| floatval($arFields['DISCOUNT_VALUE'])==0
+			)
+			&& $discountPropID > 0
+		) {
+			$discountPercentValue = 0;
+			$rsDiscountPropValueList = \CIBlockElement::GetProperty(
+				$arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'],
+				$arFields['PRODUCT_ID'],
+				array('SORT' => 'ASC'),
+				array(
+					'ID' => $discountPropID
+				)
+			);
+			if( $arDiscountPropValue = $rsDiscountPropValueList->GetNext() ) {
+				$discountPercentValue = intval($arDiscountPropValue['VALUE']);
+				if( $discountPercentValue >= 100) {
+					$discountPercentValue = 100;
+					$arFields['DISCOUNT_VALUE'] = $arFields['PRICE_VALUE'];
+				}
+				else {
+					$arFields['DISCOUNT_VALUE'] = ($arFields['PRICE_VALUE'] * round($discountPercentValue/100, 2));
+				}
+				$debug=1;
+			}
+			else {
+				$discountPercentValue = 0;
+				$arFields['DISCOUNT_VALUE'] = 0;
+			}
+		}
+		if(
+			(
+				!array_key_exists('WEIGHT', $arFields)
+				|| floatval($arFields['WEIGHT'])==0
+			)
+			&& $weightPropID > 0
+		) {
+			$weightValue = 0;
+			$rsWeightPropValueList = \CIBlockElement::GetProperty(
+				$arCheckData['PRODUCT_ID']['CHECK_DATA']['IBLOCK_ID'],
+				$arFields['PRODUCT_ID'],
+				array('SORT' => 'ASC'),
+				array(
+					'ID' => $weightPropID
+				)
+			);
+			if( $arWeightPropValue = $rsWeightPropValueList->GetNext() ) {
+				$arFields['WEIGHT'] = intval($arWeightPropValue['VALUE']);
+			}
 		}
 		$arFields['TOTAL_PRICE_VALUE'] = floatVal($arFields['PRICE_VALUE'] - $arFields['DISCOUNT_VALUE']);
 		if($arFields['TOTAL_PRICE_VALUE'] < 0) {

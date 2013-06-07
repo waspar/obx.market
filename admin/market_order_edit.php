@@ -432,6 +432,8 @@ $TabControl->BeginNextTab();
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_QUANTITY")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_PRICE_NAME")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_PRICE_VALUE")?></td>
+				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_DISCOUNT_VALUE")?></td>
+				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_TOTAL_VALUE")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_ACTIONS")?></td>
 			</tr>
 			<tr class="item-row" id="row_0" data-num="0" style="display:none;">
@@ -476,6 +478,12 @@ $TabControl->BeginNextTab();
 					<td align="right">
 						<input type="text" class="price_value" size="6" name="PRODUCTS[<?=$i?>][PRICE_VALUE]" value="<?=$arItem['PRICE_VALUE']?>">
 						<input type="hidden" class="price_id" name="PRODUCTS[<?=$i?>][PRICE_ID]" value="<?=$arItem['PRICE_ID']?>"
+					</td>
+					<td>
+						<input type="text" size="5" class="discount_value" name="PRODUCTS[<?=$i?>][DISCOUNT_VALUE]" value="<?=$arItem['DISCOUNT_VALUE']?>" />
+					</td>
+					<td>
+						<input type="text" size="5" class="total_price_value" name="PRODUCTS[<?=$i?>][TOTAL_PRICE_VALUE]" value="<?=$arItem['TOTAL_PRICE_VALUE']?>" disabled="disabled" />
 					</td>
 					<td class="action-row" align="center">
 						<a href="javascript:void(0)" class="delete_item" data-num="<?=$i?>"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
@@ -561,13 +569,19 @@ $TabControl->BeginNextTab();
 		<input type="hidden" class="price_id" name=PRODUCTS[#NUM#][PRICE_ID] />
 	</td>
 	<td align="right">
-		<input type='text' class="price_value" name="PRODUCTS[#NUM#][PRICE_VALUE]" value="0">
+		<input type='text' class="price_value" name="PRODUCTS[#NUM#][PRICE_VALUE]" value="0" />
+	</td>
+	<td>
+		<input type='text' class="discount_value" name="PRODUCTS[#NUM#][DISCOUNT_VALUE]" value="0" />
+	</td>
+	<td>
+		<input type='text' class="total_price_value" name="PRODUCTS[#NUM#][TOTAL_PRICE_VALUE]" disabled="disabled" value="0" />
 	</td>
 	<td class="action-row" align="center">
 		<a href="javascript:void(0)" class="delete_item" data-num="#NUM#"><?=GetMessage("OBX_ORDER_HREF_ACTION_DELETE")?></a>
 		<br>
 		<br>
-		<input type="hidden" id="to_delete_#NUM#" name="PRODUCTS[#NUM#][TO_DELETE]" value="N">
+		<input type="hidden" id="to_delete_#NUM#" name="PRODUCTS[#NUM#][TO_DELETE]" value="N" />
 	</td>
 	</tr>
 </script>

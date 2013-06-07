@@ -50,6 +50,9 @@ DeleteDirFilesEx("/bitrix/modules/obx.market/install/components/obx.market");
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/php_interface/event.d/obx.market.mysql_group_concat_max_len.php");
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/js/obx.market");
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/tools/obx.market");
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_delivery_systems.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_index.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_order_edit.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/", true, true);
@@ -62,14 +65,32 @@ OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_pay_syste
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_places.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_product_search.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/obx_market_statistics.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/", true, true);
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/ajax") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/ajax", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/ajax/obx_market_settings_catalog.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/ajax/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/ajax/obx_market_settings_currency.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/ajax/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/ajax/obx_market_settings_price.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/admin/ajax/", true, true);
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/themes/.default") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/themes/.default", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/themes/.default/", true, true);
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default/obx.market.css", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/themes/.default/", true, true);
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/components") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/components", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/components/", true, true);
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/php_interface/event.d") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/php_interface/event.d", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/event.d/obx.market.mysql_group_concat_max_len.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/php_interface/event.d/", true, true);
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/js") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/js", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/js/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/js/", true, true);
+if( ! is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/tools") ) {
+	@mkdir($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/tools", BX_DIR_PERMISSIONS, true);
+}
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/obx.market", $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.market/install/tools/", true, true);
 if($bConnectEpilog) require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 ?>

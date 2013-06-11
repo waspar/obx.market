@@ -97,8 +97,8 @@ class ImportIBlock
 					'TRANSLITERATION' => 'Y',
 					'TRANS_LEN' => 100,
 					'TRANS_CASE' => 'L',
-					'TRANS_SPACE' => '_',
-					'TRANS_OTHER' => '_',
+					'TRANS_SPACE' => '-',
+					'TRANS_OTHER' => '-',
 					'TRANS_EAT' => 'Y',
 					'USE_GOOGLE' => 'Y',
 				),
@@ -155,8 +155,8 @@ class ImportIBlock
 					'TRANSLITERATION' => 'N',
 					'TRANS_LEN' => 100,
 					'TRANS_CASE' => 'L',
-					'TRANS_SPACE' => '_',
-					'TRANS_OTHER' => '_',
+					'TRANS_SPACE' => '-',
+					'TRANS_OTHER' => '-',
 					'TRANS_EAT' => 'Y',
 					'USE_GOOGLE' => 'N',
 				),
@@ -181,15 +181,27 @@ class ImportIBlock
 		if( !is_dir($_SERVER['DOCUMENT_ROOT'].$this->_iblockXMLDir) || !file_exists($_SERVER['DOCUMENT_ROOT'].$this->_iblockXMLDir) ) {
 			return;
 		}
-		$rsIBlock = CIBlock::GetList(array(), array("XML_ID" => $this->_iblockXmlID, "TYPE" => $this->_iblockType));
+		$rsIBlock = \CIBlock::GetList(array(), array("XML_ID" => $this->_iblockXmlID, "TYPE" => $this->_iblockType));
 		if( ($arIBlock = $rsIBlock->Fetch()) ) {
 			$this->_iblockID = $arIBlock['ID'];
 		}
 		$this->_constructOK = true;
 	}
 
+	public function getFields() {
+		if($this->_constructOK) return array();
+		return array(
+			'CODE' => $this->_iblockCode,
+			'ID' => $this->_iblockID,
+			'IBLOCK_TYPE_ID' => $this->_iblockType,
+			'XML_ID' => $this->_iblockXmlID,
+			'XML_FILE' => $this->_iblockXMLFile,
+			'XML_DIR' => $this->_iblockXMLDir,
+		);
+	}
+
 	static public function generateXmlID($iblockCode) {
-		return md5('obx_'.$iblockCode);
+		return md5('obx_wiz_ib_xml_id'.$iblockCode);
 	}
 
 	static public function readConfig($configFilePath) {
@@ -248,7 +260,14 @@ class ImportIBlock
 					unset(self::$_arConfig['IBLOCK_TYPE'][$typeID]);
 				}
 			}
-
+			self::$_arConfig['PUBLIC_FILE_MACROS'] = array();
+			if( array_key_exists('PUBLIC_FILE_MACROS', $arRawConfig) && is_array($arRawConfig['PUBLIC_FILE_MACROS']) ) {
+				foreach($arRawConfig['PUBLIC_FILE_MACROS'] as $iblockCode => &$arRawPubFPH) {
+					if( array_key_exists($iblockCode, self::$_arConfig['IBLOCK']) ) {
+						self::$_arConfig['PUBLIC_FILE_MACROS'][$iblockCode] = $arRawPubFPH;
+					}
+				}
+			}
 			self::$_bConfigInitialized = true;
 		}
 		return self::$_arConfig;
@@ -398,7 +417,7 @@ class ImportIBlock
 			if ($this->_iblockID < 1) {
 				die('Error importing xml-data');
 			}
-			$iblock = new CIBlock;
+			$iblock = new \CIBlock;
 			$iblock->Update($this->_iblockID, $arFields);
 		}
 		// это если данные уже становлены просто добавим недостающие привязки к сайтам
@@ -412,4 +431,141 @@ class ImportIBlock
 			}
 		}
 	}
+
+	public function replacePublicFilesMacros() {
+		//CWizardUtil::ReplaceMacros(WIZARD_SITE_PATH."/catalog/index.php", array("MACROS" => $iblockID));
+		if( array_key_exists($this->_iblockCode, self::$_arConfig['PUBLIC_FILE_MACROS']) ) {
+			foreach(self::$_arConfig['PUBLIC_FILE_MACROS'][$this->_iblockCode] as &$arMacrosReplace) {
+				$arReplace = array();
+				if( array_key_exists('IBLOCK_TYPE_ID', $arMacrosReplace) ) {
+					$arReplace[trim($arMacrosReplace['IBLOCK_TYPE_ID'], '# ')] = $this->_iblockType;
+				}
+				if( $this->_iblockID > 0 && array_key_exists('IBLOCK_ID', $arMacrosReplace) ) {
+					$arReplace[trim($arMacrosReplace['IBLOCK_ID'], '# ')] = $this->_iblockID;
+				}
+				if( array_key_exists('PUBLIC_DIR', $arMacrosReplace) ) {
+					$path = WIZARD_SITE_PATH.$arMacrosReplace['PUBLIC_DIR'];
+					if( is_dir($path) && file_exists($path)) {
+						\WizardServices::ReplaceMacrosRecursive($path, $arReplace);
+					}
+				}
+				elseif( array_key_exists('PUBLIC_FILE', $arMacrosReplace) ) {
+					$path = WIZARD_SITE_PATH.$arMacrosReplace['PUBLIC_FILE'];
+					if( is_file($path) && file_exists($path)) {
+						\CWizardUtil::ReplaceMacros($path, $arReplace);
+					}
+				}
+			}
+		}
+	}
 }
+
+///////////// ПРИМЕР КОНФИГА /////////////
+//	$arIBlockInstallerConfig = array(
+//		'IBLOCK_TYPE' => array(
+//			'dvt_smoke_catalog' => array(
+//				'SECTIONS' => 'Y',
+//				'IN_RSS' => 'Y',
+//				'SORT' => 200,
+//			),
+//			'dvt_articles' => array(
+//				'SECTIONS' => 'Y',
+//				'IN_RSS' => 'N',
+//				'SORT' => 300,
+//			)
+//		),
+//		'IBLOCK' => array(
+//			'cig' => array(
+//				'IBLOCK_TYPE_ID' => 'dvt_smoke_catalog',
+//				'XML_FILE' => 'cig.xml',
+//				'FORM_SETTINGS' => 'cig.form_settings',
+//				'PERMISSIONS' => array(
+//					'1' => 'X',
+//					'2' => 'R'
+//				),
+//				'FIELDS' => array(
+//					'PREVIEW_PICTURE' => array(
+//						'FROM_DETAIL' => 'Y'
+//					)
+//				)
+//			),
+//			'fluid' => array(
+//				'IBLOCK_TYPE_ID' => 'dvt_smoke_catalog',
+//				'XML_FILE' => 'liq.xml',
+//				'FORM_SETTINGS' => 'liq.form_settings',
+//				'PERMISSIONS' => array(
+//					'1' => 'X',
+//					'2' => 'R'
+//				),
+//				'FIELDS' => array(
+//					'PREVIEW_PICTURE' => array(
+//						'FROM_DETAIL' => 'Y'
+//					)
+//				)
+//			),
+//			'kit' => array(
+//				'IBLOCK_TYPE_ID' => 'dvt_smoke_catalog',
+//				'XML_FILE' => 'kit.xml',
+//				'FORM_SETTINGS' => 'kit.form_settings',
+//				'PERMISSIONS' => array(
+//					'1' => 'X',
+//					'2' => 'R'
+//				),
+//				'FIELDS' => array(
+//					'PREVIEW_PICTURE' => array(
+//						'FROM_DETAIL' => 'Y'
+//					)
+//				)
+//			),
+//			'accessories' => array(
+//				'IBLOCK_TYPE_ID' => 'dvt_smoke_catalog',
+//				'XML_FILE' => 'acc.xml',
+//				'FORM_SETTINGS' => 'acc.form_settings',
+//				'PERMISSIONS' => array(
+//					'1' => 'X',
+//					'2' => 'R'
+//				),
+//				'FIELDS' => array(
+//					'PREVIEW_PICTURE' => array(
+//						'FROM_DETAIL' => 'Y'
+//					)
+//				)
+//			)
+//		),
+//		'PUBLIC_FILE_MACROS' => array(
+//			'cig' => array(
+//				array(
+//					'PUBLIC_FILE' => '/catalog/cigarettes/index.php',
+//					'IBLOCK_TYPE_ID' => '#DVT_SMOKE_CIG_CATALOG_IBLOCK_TYPE#',
+//					'IBLOCK_ID'	=> '#DVT_SMOKE_CIG_CATALOG_IBLOCK_ID#'
+//				),
+//				array(
+//					'PUBLIC_FILE' => '/catalog/cigarettes/.topsub.menu_ext.php',
+//					'IBLOCK_TYPE_ID' => '#DVT_SMOKE_CIG_CATALOG_IBLOCK_TYPE#',
+//					'IBLOCK_ID'	=> '#DVT_SMOKE_CIG_CATALOG_IBLOCK_ID#'
+//				),
+//			),
+//			'fluid' => array(
+//				array(
+//					'PUBLIC_DIR' => '/catalog/fluid/',
+//					'IBLOCK_TYPE_ID' => '#DVT_SMOKE_FLUID_CATALOG_IBLOCK_TYPE#',
+//					'IBLOCK_ID'	=> '#DVT_SMOKE_FLUID_CATALOG_IBLOCK_ID#'
+//				),
+//			),
+//			'kit' => array(
+//				array(
+//					'PUBLIC_DIR' => '/catalog/kit/index.php',
+//					'IBLOCK_TYPE_ID' => '#DVT_SMOKE_KIT_CATALOG_IBLOCK_TYPE#',
+//					'IBLOCK_ID'	=> '#DVT_SMOKE_KIT_CATALOG_IBLOCK_ID#'
+//				),
+//			),
+//			'accessories' => array(
+//				array(
+//					'PUBLIC_FILE' => '/catalog/accessories/index.php',
+//					'IBLOCK_TYPE_ID' => '#DVT_SMOKE_ACC_CATALOG_IBLOCK_TYPE#',
+//					'IBLOCK_ID'	=> '#DVT_SMOKE_ACC_CATALOG_IBLOCK_ID#'
+//				),
+//			),
+//		)
+//	);
+//	return $arIBlockInstallerConfig;

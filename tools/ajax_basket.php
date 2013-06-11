@@ -2,6 +2,7 @@
 
 use OBX\Core\Tools;
 use OBX\Market\Basket;
+use OBX\Market\BasketList;
 use OBX\Market\Price;
 use OBX\Market\CurrencyFormatDBS;
 
@@ -67,6 +68,11 @@ if (!CModule::IncludeModule('obx.market')) {
 		}
 	}
 
+	if (isset($_REQUEST['make_order']) && $_REQUEST['make_order'] = "Y") {
+		//$basketID = $Basket->getFields('ID');
+		//$bMoveBasketSuccess = BasketList::update(array('ID' => $basketIDt, 'ORDER_ID' => $orderID));
+
+	}
 	$arJSON['basket_cost'] = $Basket->getCost();
 	$arJSON['products_count'] = $Basket->getProductsCount();
 	$arJSON['products_list'] = array();

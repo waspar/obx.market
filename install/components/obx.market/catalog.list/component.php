@@ -68,7 +68,7 @@ if ($this->StartResultCache()) {
 	$arItems = array();
 
 	$arSelectFields = array(
-	"NAME"
+		"NAME"
 	, "ID"
 	, "DATE_CREATE"
 	, "DATE_CREATE_UNIX"
@@ -141,6 +141,7 @@ if ($this->StartResultCache()) {
 	unset ($arSection);
 
 	$bPriceFound = true;
+	$i = 0;
 	while ($obElement = $dbItems->GetNextElement()) {
 
 		$arItem = $obElement->GetFields();
@@ -243,8 +244,8 @@ if ($this->StartResultCache()) {
 			$bPriceFound = false;
 		}
 
-		$arSections[$arItem["IBLOCK_SECTION_ID"]]["ITEMS"][] = $arItem;
-		$arItems[] = $arItem;
+		$arItems[$i] = $arItem;
+		$arSections[$arItem["IBLOCK_SECTION_ID"]]["ITEMS"][] = & $arItems[$i];
 
 		if (!empty ($arSupportData["WEIGHT"]["ID"])) {
 			$resWeight = CIBlockProperty::GetByID(
@@ -270,10 +271,13 @@ if ($this->StartResultCache()) {
 			}
 			unset ($arDiscount);
 		}
-
+		$i++;
 	}
 	if (!$bPriceFound) {
-		ShowError(GetMessage("OBX_MARKET_CMP_CAN_NOT_FIND_PRICE"));
+		$this->AbortResultCache();
+		$arResult["ERROR"] = GetMessage("OBX_MARKET_CMP_CAN_NOT_FIND_PRICE");
+	} else {
+		$arResult["ERROR"] = null;
 	}
 	$arResult["ITEMS"] = $arItems;
 	$arResult["SECTIONS"] = $arSections;

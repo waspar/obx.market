@@ -94,9 +94,9 @@ class ECommerceIBlockDBS extends DBSimple
 			unset($arFields['DISCOUNT_VAL_PROP_ID']);
 		}
 		if(
-			   array_key_exists('WEIGHT_VAL_PROP_ID', $arCheckResult)
+			array_key_exists('WEIGHT_VAL_PROP_ID', $arFields)
 			&& $arCheckResult['WEIGHT_VAL_PROP_ID']['IS_CORRECT'] == true
-			&& array_key_exists('DISCOUNT_VAL_PROP_ID', $arCheckResult)
+			&& array_key_exists('DISCOUNT_VAL_PROP_ID', $arFields)
 			&& $arCheckResult['DISCOUNT_VAL_PROP_ID']['IS_CORRECT'] == true
 			&& $arFields['WEIGHT_VAL_PROP_ID'] == $arFields['DISCOUNT_VAL_PROP_ID']
 		) {

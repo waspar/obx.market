@@ -377,7 +377,7 @@ class Order extends CMessagePoolDecorator {
 				}
 				continue;
 			}
-			if (!isset($arFields['PRICE_VALUE'])){
+			if (!isset($arFields['PRICE_VALUE'])) {
 				$arOptimalPrice = $this->_PriceDBS->getOptimalProductPrice($arFields['PRODUCT_ID'], $this->_arOrder['USER_ID']);
 				if (is_array($arOptimalPrice)) {
 					$arFields['PRICE_ID'] = $arOptimalPrice['PRICE_ID'];
@@ -387,36 +387,36 @@ class Order extends CMessagePoolDecorator {
 			$arFields['ORDER_ID'] = $this->_arOrder['ID'];
 			if (array_key_exists($arFields['PRODUCT_ID'], $arExistsOrderItems)) {
 				if (array_key_exists('QUANTITY_ADD', $arFields) && $arFields['QUANTITY_ADD'] == 'Y'
-					|| $bQuantityAdd
+						|| $bQuantityAdd
 				) {
 					$arFields['QUANTITY'] = $arFields['QUANTITY'] + $arExistsOrderItems[$arFields['PRODUCT_ID']]['QUANTITY'];
 					unset($arFields['QUANTITY_ADD']);
 				}
 				$bSuccess = $this->_BasketItemDBS->update($arFields);
-				if(!$bSuccess) {
+				if (!$bSuccess) {
 					$this->_BasketItemDBS->popLastError('ARRAY');
 				}
 				$arExistsOrderItems[$arFields['PRODUCT_ID']]['EXISTS_IN_ARGUMENT'] = true;
 			} else {
 				$bCorrect = false;
 				$arFields["PRODUCT_ID"] = intval($arFields["PRODUCT_ID"]);
-				if($arFields["PRODUCT_ID"] > 0) {
+				if ($arFields["PRODUCT_ID"] > 0) {
 					// стремное решение, надо добавить больше возможности в DBSimple
 					// TODO: Find a better solution
 					$sQuery = "SELECT b.IBLOCK_ID FROM b_iblock_element as a
 					LEFT JOIN obx_ecom_iblock as b on(a.IBLOCK_ID = b.IBLOCK_ID)
-					WHERE a.ID=".$arFields["PRODUCT_ID"];
+					WHERE a.ID=" . $arFields["PRODUCT_ID"];
 					$res = $DB->Query($sQuery);
 					$arIblock = $res->Fetch();
-					if (is_array($arIblock) && !empty($arIblock) && !empty($arIblock["IBLOCK_ID"])){
+					if (is_array($arIblock) && !empty($arIblock) && !empty($arIblock["IBLOCK_ID"])) {
 						$bCorrect = true;
 					}
 					// ^^^
 				}
-				if ($bCorrect){
+				if ($bCorrect) {
 					$newOrderItemID = $this->_BasketItemDBS->add($arFields);
 					$bSuccess = ($newOrderItemID > 0) ? true : false;
-				}else{
+				} else {
 					$bSuccess = false;
 					$this->addError(GetMessage('OBX_ORDER_CLASS_ERROR_NOT_ECONOM_IBLOCK'));
 				}
@@ -435,7 +435,7 @@ class Order extends CMessagePoolDecorator {
 			}
 		}
 		$arEr = $this->getMessagePool()->getErrors();
-		if (!empty($arEr)){
+		if (!empty($arEr)) {
 			$bSuccess = false;
 		}
 		$this->_bFieldsChanged = true;

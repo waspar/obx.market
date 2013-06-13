@@ -44,6 +44,7 @@ $arModuleClasses = array(
 	,'OBX\Market\OrderProfile'					=> 'classes/OrderProfile.php'
 	,'OBX\Market\OrderComment'					=> 'classes/OrderComment.php'
 	,'OBX\Market\OrderCommentDBS'				=> 'classes/OrderComment.php'
+	,'OBX\Market\Wizard\WizardECommerceImport'	=> 'classes/WizardECommerceImport.php'
 
 );
 return $arModuleClasses;

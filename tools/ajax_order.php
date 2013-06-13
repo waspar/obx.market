@@ -49,6 +49,12 @@ if (!CModule::IncludeModule('obx.market')) {
 
 	if (!empty($_REQUEST["MAKE_ORDER"])) {
 
+		if(empty($_REQUEST["PHONE"])) {
+			$arJSON['success'] = "N";
+			$arJSON['messages'][] = "Не указан телефон";
+			echo json_encode($arJSON);
+			return false;
+		}
 		$CurrentBasket = Basket::getCurrent();
 
 		$newOrderID = OrderList::add(array("USER_ID" => $CurrentBasket->getFields("USER_ID")));
@@ -61,10 +67,11 @@ if (!CModule::IncludeModule('obx.market')) {
 		$OrderBasket->mergeBasket($CurrentBasket, true);
 		unset($CurrentBasket);
 
-		if ($OrderBasket->popLastError() == null) {
-			//$arJSON['success'] =
+		if ($OrderBasket->getLastError() == null) {
+			$arJSON['success'] = "Y";
 		}else{
-
+			$arJSON['success'] = "N";
+			$arJSON['messages'][] = $OrderBasket->getLastError();
 		}
 
 	};

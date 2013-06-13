@@ -618,10 +618,12 @@ class Basket extends CMessagePoolDecorator
 			//'IB_ELT_SITE_DIR',
 		);
 		$arBasketItems = self::$_BasketItemDBS->getListArray(null, array('BASKET_ID' => $this->_arFields['ID']), null, null, $arSelect);
-		if( empty($arBasketItems) ) {
+
+		// TODO: [Tashiro:2013-06-13] Надо разделить эту логику иначе создание заказа из корзины всегда будет с ошибкой
+		/*if( empty($arBasketItems) ) {
 			$this->addError(GetMessage('OBX_BASKET_ERROR_1'));
 			return false;
-		}
+		}*/
 		$countProducts = 0;
 		if( count($arBasketItems)>0 ) {
 			foreach($arBasketItems as $key => &$arItem) {

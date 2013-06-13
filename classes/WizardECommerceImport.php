@@ -13,13 +13,14 @@ namespace OBX\Market\Wizard;
 use OBX\Core\Wizard\ImportIBlock;
 use OBX\Core\Tools;
 use OBX\Market\ECommerceIBlock;
+use OBX\Market\OrderProperty;
 use OBX\Market\Price;
 use OBX\Market\CIBlockPropertyPrice;
 
 class ECommerceImport extends ImportIBlock
 {
 	protected $_arPrices = array();
-		//$this->_arIBlockPricesDependencies[$iblockCode][$ibPricePropCode] = $priceCode;
+	//$this->_arIBlockPricesDependencies[$iblockCode][$ibPricePropCode] = $priceCode;
 	protected $_arIBlockPricesDependencies = array();
 	protected $_iblockWeightPropID = null;
 	protected $_iblockDiscountPropID = null;
@@ -139,7 +140,13 @@ class ECommerceImport extends ImportIBlock
 				if( !array_key_exists('ACCESS', $arOrderProp) ) {
 					continue;
 				}
-				if( !array_key_exists('ENUM_LIST', $arOrderProp) || !is_array($arOrderProp['ENUM_LIST']) ) {
+				if(
+					$arOrderProp['PROPERTY_TYPE'] == 'L'
+					&& (
+						!array_key_exists('ENUM_LIST', $arOrderProp)
+						|| !is_array($arOrderProp['ENUM_LIST'])
+					)
+				) {
 					continue;
 				}
 				foreach($arOrderProp['ENUM_LIST'] as $enumCode => &$arEnum) {
@@ -257,4 +264,135 @@ class ECommerceImport extends ImportIBlock
 		}
 		$this->createIBlockPriceProps();
 	}
+
+	public function installOrderProperties() {
+		foreach($this->_arConfig['ORDER_PROPS'] as $propCode => $arPropFields) {
+			$arPropFields['CODE'] = $propCode;
+			$rsPropList = OrderProperty::getList(null, array('CODE' => $propCode));
+			if( $arExistProp = $rsPropList->Fetch() ) {
+				OrderProperty::update($arPropFields);
+			}
+			else {
+				OrderProperty::add($arPropFields);
+			}
+		}
+	}
 }
+///////////// Пример конфигурационного файла
+//	$arECommerceInstallerConfig = array(
+//		'EXTENDS_IBLOCK_CONFIG' => '../iblock/.config.php',
+//
+//		// TODO: [pronix:2013-06-12] Это пока не реализуем. Все нужные валюты есть при установке obx.market
+//		'CURRENCY' => array(),
+//
+//		// в будущем формат данного массива изменится
+//		'ECOMMERCE_IBLOCK' => array(
+//			'cig', 'fluid', 'kit', 'accessories'
+//		),
+//
+//		'PRICE_LIST' => array(
+//			'PRICE' => array(
+//				'CURRENCY' => 'RUB',
+//				'NAME' => GetMessage('OBX_MARKET_WIZ_PRICE_PRICE_NAME'),
+//				'SORT' => '10',
+//				'PERMISSONS' => array(
+//					// Группы имеющие доступ на чтение цен
+//					'1', '2'
+//				),
+//				'IBLOCK_PROPS' => array(
+//					// $IBLOCK_CODE => $PROPERTY_CODE
+//					// если не указано null, будет сделана попытка всзять код цены
+//					// и по этому коду найти соответствующее свойство
+//					'cig'			=> 'PRICE',
+//					'fluid'			=> 'PRICE',
+//					'kit'			=> 'PRICE',
+//					'accessories'	=> 'PRICE',
+//				),
+//			),
+//			'WHOLESALE' => array(
+//				'CURRENCY' => 'RUB',
+//				'NAME' => GetMessage('OBX_MARKET_WIZ_PRICE_WHOLESALE_NAME'),
+//				'SORT' => '20',
+//				'PERMISSIONS' => array(
+//					'1', '2'
+//				),
+//				'IBLOCK_PROPS' => array(
+//					'cig'			=> 'WHOLESALE',
+//					'fluid'			=> 'WHOLESALE',
+//					'kit'			=> 'WHOLESALE',
+//					'accessories'	=> 'WHOLESALE',
+//				)
+//			),
+//		),
+//		// TODO: [pronix:2013-06-12] В дальнейшем когда в API obx.market появится множественные скидки будем массив DISCOUNT_LIST
+//		// и задаватьсябудет примерно примерно так же как PRICE_LIST
+//		// пока один массив с привязкой одной скидки к каждому элементу
+//		// Если для инфоблока не задано явно, то будет сделана попытка получить свойство с кодом 'DISCOUNT'
+//		'DISCOUNT_IBLOCK_PROPS' => array(
+//			'cig'			=> 'DISCOUNT',
+//			'fluid'			=> 'DISCOUNT',
+//			'kit'			=> 'DISCOUNT',
+//			'accessories'	=> 'DISCOUNT',
+//		),
+//
+//		// Если для инфоблока не задано явно, то будет сделана попытка получить свойство с кодом 'WEIGHT'
+//		'WEIGHT_IBLOCK_PROPS' => array(
+//			'cig'			=> 'WEIGHT',
+//			'fluid'			=> 'WEIGHT',
+//			'kit'			=> 'WEIGHT',
+//			'accessories'	=> 'WEIGHT',
+//		),
+//
+//		// Массив свойств заказов
+//		'ORDER_PROPS' => array(
+//			// В качестве ключа выступает поле CODE свойства
+//			'PHONE_NUMBER' => array(
+//				'NAME' => GetMessage('OBX_MARKET_WIZ_ORDER_PROP_PHONE_NUMBER_NAME'),
+//				'DESCRIPTION' => GetMessage('OBX_MARKET_WIZ_ORDER_PROP_PHONE_NUMBER_DESCR'),
+//				'SORT' => 100,
+//				'PROPERTY_TYPE' => 'S',
+//				'ACTIVE' => 'Y',
+//				'IS_SYS' => 'Y',
+//				'ACCESS' => 'W',
+//				'IS_SYS' => 'Y',
+//				OBX_MAGIC_WORD => 'Y'
+//			),
+//
+//			// Пример для типа список
+//			//'DELIVERY' => array(
+//			//	'NAME' => GetMessage('OBX_MARKET_WIZ_ORDER_PROP_DELIVERY_NAME'),
+//			//	'DESCRIPTION' => GetMessage('OBX_MARKET_WIZ_ORDER_PROP_DELIVERY_DESCR'),
+//			//	'SORT' => 100,
+//			//	'PROPERTY_TYPE' => 'L',
+//			//	'ACTIVE' => 'Y',
+//			//	'ACCESS' => 'W',
+//			//	'IS_SYS' => 'Y',
+//			//	OBX_MAGIC_WORD => 'Y',
+//			//	'ENUM_LIST' => array(
+//			//		// в качестве ключа выступает поле CODE списочного значения свойства заказа
+//			//		'1' => array(
+//			//			'VALUE' => GetMessage('OBX_MARKET_WIZ_ORDER_PROP_DELIVERY_ENUM_1'),
+//			//			'SORT' => 10,
+//			//		),
+//			//		'2' => array(
+//			//			'VALUE' => GetMessage('OBX_MARKET_WIZ_ORDER_PROP_DELIVERY_ENUM_2'),
+//			//			'SORT' => 10,
+//			//		),
+//			//	),
+//			//)
+//
+//		),
+//
+//		// Массив статусов заказов
+//		// TODO: [pronix:2013-06-12] Не обрабатывается, пока достаточно тех что есть устанавливаются с obx.market
+//		'ORDER_STATUS_LIST' => array(
+//			// В качестве ключа выступает поле CODE статуса
+//			'ACCEPTED' => array(
+//				'NAME' => GetMessage('OBX_MARKET_WIZ_ORDER_STATUS_ACCEPTED_NAME'),
+//				'SORT' => '10',
+//				'IS_SYS' => 'Y',
+//				OBX_MAGIC_WORD => 'Y'
+//			)
+//		),
+//	);
+//	return $arECommerceInstallerConfig;

@@ -61,6 +61,12 @@ if (!CModule::IncludeModule('obx.market')) {
 		$OrderBasket->mergeBasket($CurrentBasket, true);
 		unset($CurrentBasket);
 
+		if ($OrderBasket->popLastError() == null) {
+			//$arJSON['success'] =
+		}else{
+
+		}
+
 	};
 
 

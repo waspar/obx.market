@@ -120,8 +120,6 @@ class Basket extends CMessagePoolDecorator
 	protected $_arItemsQuantity = array();
 
 	static protected function _initDBSimpleObjects() {
-		// DevTop: [pronix:2013-06-14] первый нашедший данную строку в коде получит лицензию на dvt.marketpizza бесплатно
-
 		self::$_BasketDBS = BasketDBS::getInstance();
 		self::$_BasketItemDBS = BasketItemDBS::getInstance();
 		self::$_OrderDBS = OrderDBS::getInstance();

@@ -80,21 +80,19 @@ class ECommerceImport extends ImportIBlock
 					'NAME' => $arPrice['NAME']
 				);
 				$arCurPriceConfig = &$this->_arConfig['PRICE_LIST'][$priceCode];
-				if( array_key_exists('IBLOCK_PROPS', $arPrice) && is_array($arPrice['IBLOCK_PROPS']) ) {
-					$arCurPriceConfig['IBLOCK_PROPS'] = array();
-					foreach($this->_arConfig['ECOMMERCE_IBLOCK'] as $ecommIBlockCode) {
-						if( array_key_exists($ecommIBlockCode, $arCurPriceConfig['IBLOCK_PROPS']) ) {
-							$ibPricePropCode = $arCurPriceConfig['IBLOCK_PROPS'][$ecommIBlockCode];
-						}
-						else {
-							$ibPricePropCode = $priceCode;
-						}
-						$arCurPriceConfig['IBLOCK_PROPS'][$ecommIBlockCode] = $ibPricePropCode;
-						if( !array_key_exists($ecommIBlockCode, $this->_arIBlockPricesDependencies) ) {
-							$this->_arIBlockPricesDependencies[$ecommIBlockCode] = array();
-						}
-						$this->_arIBlockPricesDependencies[$ecommIBlockCode][$ibPricePropCode] = $priceCode;
+				$arCurPriceConfig['IBLOCK_PROPS'] = array();
+				foreach($this->_arConfig['ECOMMERCE_IBLOCK'] as $ecommIBlockCode) {
+					if( array_key_exists($ecommIBlockCode, $arCurPriceConfig['IBLOCK_PROPS']) ) {
+						$ibPricePropCode = $arCurPriceConfig['IBLOCK_PROPS'][$ecommIBlockCode];
 					}
+					else {
+						$ibPricePropCode = $priceCode;
+					}
+					$arCurPriceConfig['IBLOCK_PROPS'][$ecommIBlockCode] = $ibPricePropCode;
+					if( !array_key_exists($ecommIBlockCode, $this->_arIBlockPricesDependencies) ) {
+						$this->_arIBlockPricesDependencies[$ecommIBlockCode] = array();
+					}
+					$this->_arIBlockPricesDependencies[$ecommIBlockCode][$ibPricePropCode] = $priceCode;
 				}
 			}
 		}

@@ -845,7 +845,74 @@ if(!defined("BX_ROOT")) {
 		return $index;
 	}
 
-	static public function replaceComponentParameters($path, $arComponentReplaces) {
+	/**
+	 * Заменяет параметры компонентов в файлах, указанных в конфиге
+	 * @param $configPath
+	 * Пример конфига
+	 * <?php
+	 * 		return array(
+	 * 			'/ru/index.php' => array(
+	 * 				array(
+	 * 					'NAME' => 'obx.market:catalog',
+	 * 					'TEMPLATE' => '',
+	 * 					'NUMBER' => 0,
+	 * 					'PARAMS' => array(
+	 * 						'IBLOCK_TYPE' => '#DVT_PIZZA_CATALOG_IBLOCK_TYPE#',
+	 * 						'IBLOCK_ID' => '#DVT_PIZZA_CATALOG_IBLOCK_ID#',
+	 * 					)
+	 * 				),
+	 * 			),
+	 * 			'/ru/catalog/pizza/index.php' => array(
+	 * 				array(
+	 * 					'NAME' => 'obx.market:catalog',
+	 * 					'TEMPLATE' => '',
+	 * 					'NUMBER' => 0,
+	 * 					'PARAMS' => array(
+	 * 						'IBLOCK_TYPE' => '#DVT_PIZZA_PIZZA_CATALOG_IBLOCK_TYPE#',
+	 * 						'IBLOCK_ID' => '#DVT_PIZZA_PIZZA_CATALOG_IBLOCK_ID#',
+	 * 					)
+	 * 				),
+	 * 			),
+	 * 			'/ru/catalog/pizza/.catalog-child.menu_ext.php' => array(
+	 * 				array(
+	 * 					'NAME' => 'obx.market:catalog',
+	 * 					'TEMPLATE' => '',
+	 * 					'NUMBER' => 0,
+	 * 					'PARAMS' => array(
+	 * 						'IBLOCK_TYPE' => '#DVT_PIZZA_PIZZA_CATALOG_IBLOCK_TYPE#',
+	 * 						'IBLOCK_ID' => '#DVT_PIZZA_PIZZA_CATALOG_IBLOCK_ID#',
+	 * 					)
+	 * 				),
+	 * 			),
+	 * 		);
+	 */
+	public function replaceComponentParameters($configPath) {
+		$configPath = rtrim(str_replace(
+			array(
+				'%MODULE_FOLDER%',
+				'%INSTALL_FOLDER%',
+				'%BX_ROOT%'
+			),
+			array(
+				$this->_modulesFolder.'/'.$this->_moduleName,
+				$this->_modulesFolder.'/'.$this->_moduleName.'/install',
+				$this->_bxRootFolder
+			),
+			$configPath
+		), '/');
+		$path = dirname($configPath);
+		$configPath = $this->_docRootDir.$configPath;
+		$path = $this->_docRootDir.$path;
+
+		if( file_exists($configPath) ) {
+			$arComponentParamsPlaceholdersList = require($configPath);
+			foreach($arComponentParamsPlaceholdersList as $pubFileRelPath => $arComponentReplaces) {
+				self::__replaceComponentParameters($path.$pubFileRelPath, $arComponentReplaces);
+			}
+		}
+	}
+
+	static public function __replaceComponentParameters($path, $arComponentReplaces) {
 		if( !file_exists($path) ) {
 			return false;
 		}
@@ -923,6 +990,8 @@ if(!defined("BX_ROOT")) {
 		//echo $newFileContent;
 		file_put_contents($path, $newFileContent);
 	}
+
+
 
 	/**
 	 * Построить индекс массива
@@ -1086,26 +1155,46 @@ if(!defined("BX_ROOT")) {
 		$arSectionFilter = array('IBLOCK_ID' => $arIB['IBLOCK_ID']);
 		$arElementFilter = array('IBLOCK_ID' => $arIB['IBLOCK_ID']);
 		$INTERVAL = 0;
+		/**
+		 * @var CIBlockCMLExport $obExport
+		 */
 		$obExport = new CIBlockCMLExport;
 		if($obExport->Init($fpXmlFile, $arIB['IBLOCK_ID'], $nextStep, true, $arIB['EXPORT_FULL_PATH'], $arIB['EXPORT_WORK_DIR'])) {
+			// <КоммерческаяИнформация>
 			$obExport->StartExport();
-			$obExport->StartExportMetadata();
-			$obExport->ExportProperties($arPropertyMap);
-			$result = $obExport->ExportSections(
-				$arSectionMap,
-				$start_time,
-				$INTERVAL,
-				$arSectionFilter
-			);
-			$result = $obExport->ExportElements(
-				$arPropertyMap,
-				$arSectionMap,
-				$start_time,
-				$INTERVAL,
-				0,
-				$arElementFilter
-			);
-			$obExport->EndExportCatalog();
+
+				// <Классификатор>
+				$obExport->StartExportMetadata();
+					// <Свойства>
+				 	$obExport->ExportProperties($arPropertyMap);
+					// </Свойства>
+					// <Группы>
+					$result = $obExport->ExportSections(
+						$arSectionMap,
+						$start_time,
+						$INTERVAL,
+						$arSectionFilter
+					);
+					// </Группы>
+				// </Классификатор>
+				$obExport->EndExportMetadata();
+
+				// <Каталог>
+				$obExport->StartExportCatalog();
+					// <Товары>
+					$result = $obExport->ExportElements(
+						$arPropertyMap,
+						$arSectionMap,
+						$start_time,
+						$INTERVAL,
+						0,
+						$arElementFilter
+					);
+					// </Товары>
+				// </Каталог>
+				$obExport->EndExportCatalog();
+
+			// </КоммерческаяИнформация>
 			$obExport->EndExport();
 		}
 		else {
@@ -1114,7 +1203,7 @@ if(!defined("BX_ROOT")) {
 		if($fpXmlFile)
 			fclose($fpXmlFile);
 	}
-	public function exportIBlockXML($iblockCode = null) {
+	public function exportIBlockCML($iblockCode = null) {
 		$bSuccess = true;
 		if($iblockCode === null) {
 			foreach($this->_arIBlockData as $iblockCode => &$arIB) {
@@ -1138,4 +1227,27 @@ if(!defined("BX_ROOT")) {
 	public function exportIBlockFormSettings() {
 
 	}
+
+
+	public function processCommandOptions() {
+		$arCommandOptions = getopt('', array(
+			'build-cml::'
+		));
+
+		$arBuildXML4IBlocks = array();
+		if( array_key_exists('build-cml', $arCommandOptions) ) {
+			$arCommandOptions['build-cml'] = trim($arCommandOptions['build-cml']);
+			if( strlen($arCommandOptions['build-cml']) > 0 ) {
+				$arBuildXML4IBlocks = explode(',', $arCommandOptions['build-cml']);
+				foreach($arBuildXML4IBlocks as $iblockCode) {
+					$this->exportIBlockCML($iblockCode);
+				}
+			}
+			else {
+				$this->exportIBlockCML();
+			}
+		}
+	}
+
+
 }

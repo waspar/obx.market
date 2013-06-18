@@ -49,7 +49,7 @@ if (!CModule::IncludeModule('obx.market')) {
 
 	if (!empty($_REQUEST["MAKE_ORDER"])) {
 
-		if(empty($_REQUEST["PHONE"])) {
+		if (empty($_REQUEST["PHONE"])) {
 			$arJSON['success'] = "N";
 			$arJSON['messages'][] = "Не указан телефон";
 			echo json_encode($arJSON);
@@ -57,10 +57,19 @@ if (!CModule::IncludeModule('obx.market')) {
 		}
 		$CurrentBasket = Basket::getCurrent();
 
-		$newOrderID = OrderList::add(array("USER_ID" => $CurrentBasket->getFields("USER_ID")));
-		if ($newOrderID <= 0) {
-			$arError = OrderList::popLastError("ARRAY");
+		$NewOrder = Order::add(array("USER_ID" => $CurrentBasket->getFields("USER_ID")));
+		if ($NewOrder->getLastError()) {
+			$arError = $NewOrder->popLastError("ARRAY");
 		}
+
+		$phone = preg_replace('~[^\d]~', '', $_REQUEST["PHONE"]);
+
+		$arProps = array(
+			"PHONE" => $phone
+		);
+
+		$NewOrder->setProperties($arProps);
+		$newOrderID = $NewOrder->getID();
 
 		$OrderBasket = Basket::getByOrderID($newOrderID);
 
@@ -69,7 +78,7 @@ if (!CModule::IncludeModule('obx.market')) {
 
 		if ($OrderBasket->getLastError() == null) {
 			$arJSON['success'] = "Y";
-		}else{
+		} else {
 			$arJSON['success'] = "N";
 			$arJSON['messages'][] = $OrderBasket->getLastError();
 		}

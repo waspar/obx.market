@@ -19,7 +19,9 @@ use OBX\Market\OrderPropertyEnumDBS;
 
 /*
  * TODO: Сейчас свойства и статусы работают на позапросах внутри цикла. Это исправимо. Займемся позже. надо переделать под класс Order
- *
+ * TODO: Пока в DBSimple не будет реализована поддержка полей типа datetime в фильтре будет отключена сортировка по дате создания и изменния
+ * TODO: Временно отключаем фильтр по валюту. Фильтр по ней надо тестировать сначала на уровне API
+ * TODO: Временно отключаем фильтр по стоимости. Необходимо подзапрос в obx_basket.ITEMS_COST сменить на реальное поле и на событиях его обвновлять
  */
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
@@ -82,12 +84,16 @@ foreach($arOrderStatusListRaw as &$arOrderStatus) {
 	if (!empty($arOrderStatus["COLOR"])){
 	?>
 	#tbl_obx_orders tr[ondblclick*="statusID=<?=$arOrderStatus['ID']?>"] td{
-		background: #<?=$arOrderStatus["COLOR"]?>;
+		background: <?='#'.$arOrderStatus["COLOR"]?>;
 	}
 	<?}?>
 <?}?>
 </style>
 <?
+$arOrderStatusList4Select = array();
+foreach($arOrderStatusList as &$arStatus) {
+	$arOrderStatusList4Select[$arStatus['ID']] = '['.$arStatus['ID'].']&nbsp;'.$arStatus['NAME'];
+}
 unset($arOrderStatusListRaw);
 
 $arCurrencyList = $CurrencyFormatDBS->getListGroupedByLang();
@@ -248,18 +254,21 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 	}
 }
 
-$arOrdersPagination = array("nPageSize"=>CAdminResult::GetNavSize($tableID));
+$arFilterFields = array(
+	'filter_id_start',
+	'filter_id_end',
+	'filter_status',
+	'filter_user_id',
+	'filter_cost_from',
+	'filter_cost_to',
+	'filter_created_from',
+	'filter_created_to',
+	'filter_timestamp_from',
+	'filter_timestamp_to',
+	'filter_currency'
+);
 
-/**
- * Выборка
- */
-$rsData = $OrderDBS->getList(array($by=>$order), $arFilter, null, $arOrdersPagination, array(
-	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS_JSON', 'PROPERTIES_JSON'
-));
-$rsData = new CAdminResult($rsData, $tableID);
 
-$rsData->NavStart();
-$lAdmin->NavText($rsData->GetNavPrint(GetMessage('OBX_MARKET_ORDERS_LIST_NAV')));
 
 // Заголовки
 $aHeaders = array(
@@ -274,30 +283,49 @@ $aHeaders = array(
 	array('id'=>'PROPERTIES_JSON', 'content'=> GetMessage('OBX_MARKET_ORDERS_F_PROPERTIES_JSON'), 'default'=>false),
 );
 
-$arEnumValuesList = $OrderPropertyEnumDBS->getListArray(
-//	null,
-//	array(
-//		'PROPERTY_ID' => $arPropValue['PROPERTY_ID'],
-//	)
-);
+$arEnumValuesList = $OrderPropertyEnumDBS->getListArray();
 $arEnumValuesListPropIDIndex = Tools::getListIndex($arEnumValuesList, 'PROPERTY_ID', false, true);
+$arEnumValuesListIDIndex = Tools::getListIndex($arEnumValuesList, 'ID', true, true);
 foreach($arOrderProperties as $propertyID => &$arProperty) {
+	$arFilterFields['filter_prop_'.$propertyID];
 	$aHeaders[] = array('id'=>'PROPERTY_'.$propertyID, 'content' => $arProperty['NAME'], 'default'=>false);
 }
 
-$arFindFields = array(
-	'id' => 'ID',
-	'status' => GetMessage('OBX_MARKET_ORDERS_F_STATUS'),
-	'user_id' => GetMessage('OBX_MARKET_ORDERS_F_USER'),
-	'cost' => GetMessage('OBX_MARKET_ORDERS_F_COST'),
-	'created' => GetMessage('OBX_MARKET_ORDERS_F_CREATED'),
-	'timestamp_x' => GetMessage('OBX_MARKET_ORDERS_F_TIMESTAMP_X'),
-	'currency' => GetMessage('OBX_MARKET_ORDERS_F_CURRENCY'),
-);
-$oFilter = new CAdminFilter($tableID."_filter", $arFindFields);
+
+$lAdmin->InitFilter($arFilterFields);
+
+$arOrderListFilter = array();
+if( !empty($filter_id_start) ) { $arOrderListFilter['>=ID'] = $filter_id_start; }
+if( !empty($filter_id_start) ) { $arOrderListFilter['<=ID'] = $filter_id_end; }
+if( !empty($filter_status) ) { $arOrderListFilter['STATUS_ID'] = $filter_status; }
+if( !empty($filter_user_id) ) { $arOrderListFilter['USER_ID'] = $filter_user_id; }
+//if( !empty($filter_cost_from) ) { $arOrderListFilter['>=COST'] = $filter_cost_from; }
+//if( !empty($filter_cost_to) ) { $arOrderListFilter['<=COST'] = $filter_cost_to; }
+//if( !empty($filter_created_from) ) { $arOrderListFilter['DATE_CREATED'] = $filter_created_from; }
+//if( !empty($filter_created_to) ) { $arOrderListFilter['DATE_CREATED'] = $filter_created_to; }
+//if( !empty($filter_timestamp_from) ) { $arOrderListFilter['<=TIMESTAMP_X'] = $filter_timestamp_from; }
+//if( !empty($filter_timestamp_to) ) { $arOrderListFilter['>=TIMESTAMP_X'] = $filter_timestamp_to; }
+if( !empty($filter_currency) ) { $arOrderListFilter['CURRENCY'] = $filter_currency; }
 
 
 $lAdmin->AddHeaders($aHeaders);
+
+/**
+ * Параметры постраничной навигации
+ */
+$arOrdersPagination = array("nPageSize"=>CAdminResult::GetNavSize($tableID));
+
+/**
+ * Выборка
+ */
+$rsData = $OrderDBS->getList(array($by=>$order), $arOrderListFilter, null, $arOrdersPagination, array(
+	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS_JSON', 'PROPERTIES_JSON'
+));
+$rsData = new CAdminResult($rsData, $tableID);
+$rsData->NavStart();
+$lAdmin->NavText($rsData->GetNavPrint(GetMessage('OBX_MARKET_ORDERS_LIST_NAV')));
+
+
 // Обработка строк
 while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	$row =& $lAdmin->AddRow($f_ID, $arRes,"obx_market_order_edit.php?ID=".$f_ID."&#39;+/*&#39;#statusID=".$f_STATUS_ID.'*/&#39;',"изменить.");
@@ -305,10 +333,6 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	$row->AddViewField('USER_ID', '['.$f_USER_ID.']&nbsp;'.$f_USER_NAME);
 
 	$row->AddViewField('STATUS_ID', '['.$f_STATUS_ID.']&nbsp;'.$arOrderStatusList[$f_STATUS_ID]['NAME']);
-	$arOrderStatusList4Select = array();
-	foreach($arOrderStatusList as &$arStatus) {
-		$arOrderStatusList4Select[$arStatus['ID']] = '['.$arStatus['ID'].']&nbsp;'.$arStatus['NAME'];
-	}
 	$row->AddSelectField('STATUS_ID', $arOrderStatusList4Select);
 	$row->AddViewField('CURRENCY', $arCurrencyList[$f_CURRENCY]['LANG'][LANGUAGE_ID]['NAME']);
 	$row->AddViewField("COST", ($f_DELIVERY_COST + $f_ITEMS_COST + $f_PAY_TAX_VALUE - $f_DISCOUNT_VALUE));
@@ -472,13 +496,93 @@ $lAdmin->CheckListMode();
 $APPLICATION->SetTitle(GetMessage('OBX_MARKET_ORDERS_LIST_TITLE'));
 require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 
+
+//filter
+$arFindFields = array(
+	'id' => 'ID',
+	'user_id' => GetMessage('OBX_MARKET_ORDERS_F_USER'),
+//	'cost' => GetMessage('OBX_MARKET_ORDERS_F_COST'),
+//	'created' => GetMessage('OBX_MARKET_ORDERS_F_CREATED'),
+//	'timestamp_x' => GetMessage('OBX_MARKET_ORDERS_F_TIMESTAMP_X'),
+//	'currency' => GetMessage('OBX_MARKET_ORDERS_F_CURRENCY'),
+);
+$oFilter = new CAdminFilter($tableID."_filter", $arFindFields);
 ?>
 <form name="filter_form" method="get" action="<?echo $APPLICATION->GetCurPage()?>">
 	<?$oFilter->Begin();?>
 	<tr>
-		<td></td>
-		<td></td>
+		<td><b><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_STATUS")?></b></td>
+		<td>
+			<select name="filter_status">
+				<option value=""><?=GetMessage('OBX_MARKET_ORDERS_LIST_FILTER_STATUS_ALL')?></option>
+			<?foreach($arOrderStatusList4Select as $statusID => $statusName):?>
+				<option value="<?=$statusID?>"><?=$statusName?></option>
+			<?endforeach?>
+			</select>
+		</td>
 	</tr>
+	<tr>
+		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_ID")?></td>
+		<td>
+			<nobr>
+				<input type="text" name="filter_id_start" size="10" value="<?echo htmlspecialcharsex($filter_id_start)?>">
+				...
+				<input type="text" name="filter_id_end" size="10" value="<?echo htmlspecialcharsex($filter_id_end)?>">
+			</nobr>
+		</td>
+	</tr>
+	<?/*/?>
+	<tr>
+		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_COST")?></td>
+		<td>
+			<nobr>
+				<input type="text" name="filter_cost_from" size="5" value="<?echo htmlspecialcharsex($filter_cost_from)?>">
+				...
+				<input type="text" name="filter_cost_to" size="5" value="<?echo htmlspecialcharsex($filter_cost_to)?>">
+			</nobr>
+		</td>
+	</tr>
+	<?//*/?>
+	<tr>
+		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_USER_ID")?></td>
+		<td>
+			<input type="text" name="filter_user_id" size="3" value="<?echo htmlspecialcharsex($filter_user_id)?>">
+		</td>
+	</tr>
+	<?/*/?>
+	<tr>
+		<td><?=GetMessage('OBX_MARKET_ORDERS_LIST_FILTER_CREATED')?></td>
+		<td>
+			<?=CalendarPeriod(
+				"filter_created_from", htmlspecialcharsex($filter_created_from),
+				"filter_created_to", htmlspecialcharsex($filter_created_to),
+				"filter_form"
+			)?>
+		</td>
+	</tr>
+	<tr>
+		<td><?=GetMessage('OBX_MARKET_ORDERS_LIST_FILTER_TIMESTAMP_X')?></td>
+		<td>
+			<?=CalendarPeriod(
+				"filter_timestamp_from", htmlspecialcharsex($filter_timestamp_from),
+				"filter_timestamp_to", htmlspecialcharsex($filter_timestamp_from),
+				"filter_form"
+			)?>
+		</td>
+	</tr>
+
+	<tr>
+		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_CURRENCY")?></td>
+		<td>
+			<select name="filter_status">
+				<?foreach($arCurrencyList as $currency => $arCurrency):?>
+					<option value="<?=$currency?>"><?=$arCurrency['LANG'][LANGUAGE_ID]['NAME']?></option>
+				<?endforeach?>
+			</select>
+		</td>
+	</tr>
+	<?//*/?>
+
 	<?
 	$oFilter->Buttons(array(
 		"url" => "/bitrix/admin/obx_market_orders.php?lang=".LANGUAGE_ID,

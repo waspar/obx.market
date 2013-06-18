@@ -19,4 +19,6 @@ $MESS['OBX_MARKET_ORDERS_F_CREATED'] = 'Создан';
 $MESS['OBX_MARKET_ORDERS_F_TIMESTAMP_X'] = 'Изменён';
 $MESS['OBX_MARKET_ORDERS_F_PROPERTIES_JSON'] = 'Свойства';
 
+$MESS['OBX_MARKET_ORDERS_FILTER_USER_ID'] = 'Пользователь';
+
 $MESS['OBX_STATUS_CHANGE_ERROR_1'] = 'Ошибка изменения заказа';

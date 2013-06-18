@@ -9,6 +9,7 @@
  ***********************************************/
 
 use OBX\Market\Basket;
+use OBX\Market\CurrencyInfo;
 
 OBX_Market_TestCase::includeLang(__FILE__);
 
@@ -229,7 +230,7 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 		$arItemsListRaw = self::$_BasketItemDBS->getListArray(null, array(
 			'BASKET_ID' => $Basket->getFields('ID')
 		));
-		$arItemsList = \OBX_Tools::getListIndex($arItemsListRaw, 'PRODUCT_ID', false, true);
+		$arItemsList = \OBX_Tools::getListIndex($arItemsListRaw, 'PRODUCT_ID', true, true);
 		$this->assertNotEmpty($arItemsList);
 
 		$dbCheckBasketCost = 0;
@@ -252,7 +253,10 @@ final class OBX_Test_Basket extends OBX_Test_Lib_Basket
 			$this->assertEquals($itemCostDB, $productCost);
 		}
 		$this->assertEquals($dbCheckBasketCost, $Basket->getCost());
-		$this->assertTrue( (strpos($Basket->getCost(true), GetMessage('OBX_MARKET_TEST_BASKET_RUB')) !==false) );
+		$arCurrency = CurrencyInfo::getInstance($Basket->getFields('CURRENCY'))->getFields();
+		$formatString = $arCurrency['FORMAT'][LANGUAGE_ID]['FORMAT'];
+		$checkString = str_replace(array('#',' ', '.'), '', $formatString);
+		$this->assertTrue( (strpos($Basket->getCost(true), $checkString) !==false) );
 	}
 
 

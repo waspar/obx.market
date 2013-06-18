@@ -8,6 +8,7 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
+use OBX\Core\Tools;
 use OBX\Market\CurrencyFormatDBS;
 use OBX\Market\Order;
 use OBX\Market\OrderDBS;
@@ -247,11 +248,12 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 	}
 }
 
+$arOrdersPagination = array("nPageSize"=>CAdminResult::GetNavSize($tableID));
 
 /**
  * Выборка
  */
-$rsData = $OrderDBS->getList(array($by=>$order), $arFilter, null, null, array(
+$rsData = $OrderDBS->getList(array($by=>$order), $arFilter, null, $arOrdersPagination, array(
 	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS_JSON', 'PROPERTIES_JSON'
 ));
 $rsData = new CAdminResult($rsData, $tableID);
@@ -272,9 +274,28 @@ $aHeaders = array(
 	array('id'=>'PROPERTIES_JSON', 'content'=> GetMessage('OBX_MARKET_ORDERS_F_PROPERTIES_JSON'), 'default'=>false),
 );
 
+$arEnumValuesList = $OrderPropertyEnumDBS->getListArray(
+//	null,
+//	array(
+//		'PROPERTY_ID' => $arPropValue['PROPERTY_ID'],
+//	)
+);
+$arEnumValuesListPropIDIndex = Tools::getListIndex($arEnumValuesList, 'PROPERTY_ID', false, true);
 foreach($arOrderProperties as $propertyID => &$arProperty) {
 	$aHeaders[] = array('id'=>'PROPERTY_'.$propertyID, 'content' => $arProperty['NAME'], 'default'=>false);
 }
+
+$arFindFields = array(
+	'id' => 'ID',
+	'status' => GetMessage('OBX_MARKET_ORDERS_F_STATUS'),
+	'user_id' => GetMessage('OBX_MARKET_ORDERS_F_USER'),
+	'cost' => GetMessage('OBX_MARKET_ORDERS_F_COST'),
+	'created' => GetMessage('OBX_MARKET_ORDERS_F_CREATED'),
+	'timestamp_x' => GetMessage('OBX_MARKET_ORDERS_F_TIMESTAMP_X'),
+	'currency' => GetMessage('OBX_MARKET_ORDERS_F_CURRENCY'),
+);
+$oFilter = new CAdminFilter($tableID."_filter", $arFindFields);
+
 
 $lAdmin->AddHeaders($aHeaders);
 // Обработка строк
@@ -337,12 +358,8 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	foreach($arPropValues as &$arPropValue) {
 		if($arPropValue['PROPERTY_TYPE'] == 'L') {
 			$row->AddViewField('PROPERTY_'.$arPropValue['PROPERTY_ID'], '['.$arPropValue['VALUE_ENUM_CODE'].'] '.$arPropValue['VALUE']);
-			$arEnumValuesListRaw = $OrderPropertyEnumDBS->getListArray(null, array(
-				'PROPERTY_ID' => $arPropValue['PROPERTY_ID'],
-				'ORDER_ID' => $arPropValue['ORDER_ID'],
-			));
 			$sSelectHTML = '<select name="PROPERTIES['.$arPropValue['ORDER_ID'].']['.$arPropValue['PROPERTY_ID'].']">';
-			foreach($arEnumValuesListRaw as $arEnumValue) {
+			foreach($arEnumValuesList as $arEnumValue) {
 				$sSelected = '';
 				if($arEnumValue['ID'] == $arPropValue['VALUE_L']) {
 					$sSelected = ' selected="selected"';
@@ -454,6 +471,24 @@ $lAdmin->CheckListMode();
 // Заголовок
 $APPLICATION->SetTitle(GetMessage('OBX_MARKET_ORDERS_LIST_TITLE'));
 require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+
+?>
+<form name="filter_form" method="get" action="<?echo $APPLICATION->GetCurPage()?>">
+	<?$oFilter->Begin();?>
+	<tr>
+		<td></td>
+		<td></td>
+	</tr>
+	<?
+	$oFilter->Buttons(array(
+		"url" => "/bitrix/admin/obx_market_orders.php?lang=".LANGUAGE_ID,
+		"table_id" => $tableID,
+	));
+	?>
+	<?$oFilter->End();?>
+</form>
+<?
+
 
 $lAdmin->DisplayList();
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');

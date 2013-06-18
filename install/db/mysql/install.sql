@@ -164,14 +164,14 @@ create table if not exists obx_order_status (
 	SORT int(11) not null default '100',
 	ACTIVE char(1) not null default 'Y',
 	PERMISSION SMALLINT not null default 3,
-	-- DENY_CHANGES								0 - обратить внимание сюда. Это для финального статуса заказа
-	-- ALLOW_CHANGE_STATUS				1
-	-- ALLOW_CHANGE_ITEMS 				2
+	-- DENY_CHANGES					0 - обратить внимание сюда. Это для финального статуса заказа
+	-- ALLOW_CHANGE_STATUS			1
+	-- ALLOW_CHANGE_ITEMS 			2
 	-- ALLOW_CHANGE_DELIVERY_ID		4
-	-- ALLOW_CHANGE_PAY_ID				8
-	-- ALLOW_CHANGE_VAT						16
-	-- ALLOW_CHANGE_DISCOUNT			32
-	-- ALLOW_CHANGE_ALL						63
+	-- ALLOW_CHANGE_PAY_ID			8
+	-- ALLOW_CHANGE_VAT				16
+	-- ALLOW_CHANGE_DISCOUNT		32
+	-- ALLOW_CHANGE_ALL				63
 	IS_SYS char(1) not null default 'N',
 	-- Системный стутус, нельзя удалить и сменить CODE
 	primary key (ID),

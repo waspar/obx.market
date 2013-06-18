@@ -91,7 +91,7 @@ final class OBX_Test_OrderStatus extends OBX_Market_TestCase
 			$arError = OBX_OrderStatus::popLastError('ARRAY');
 			$this->assertGreaterThan(0, $statusID, 'Error: code: "'.$arError['CODE'].'"; text: "'.$arError['TEXT'].'"');
 		}
-		$arSystemStatus = OBX_OrderStatus::getListArray(null, array('CODE' => 'TT_CANCELED'), null. null, array('ID', 'CODE', 'IS_SYS'));
+		$arSystemStatus = OBX_OrderStatus::getListArray(null, array('CODE' => 'TT_CANCELED'), null, null, array('ID', 'CODE', 'IS_SYS'));
 		$this->assertGreaterThan(0, count($arSystemStatus));
 		$arSystemStatus = $arSystemStatus[0];
 		$this->assertEquals('Y', $arSystemStatus['IS_SYS']);

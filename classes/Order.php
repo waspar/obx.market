@@ -3,8 +3,10 @@
  ** @product OBX:Market Bitrix Module         **
  ** @authors                                  **
  **         Maksim S. Makarov aka pr0n1x      **
+ **         Artem P. Morozov  aka tashiro     **
  ** @license Affero GPLv3                     **
  ** @mailto rootfavell@gmail.com              **
+ ** @mailto tashiro@yandex.ru                 **
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
@@ -79,14 +81,33 @@ class Order extends CMessagePoolDecorator {
 	protected function __clone() {
 	}
 
+	/**
+	 * @param null $arSort
+	 * @param null $arFilter
+	 * @param null $arGroupBy
+	 * @param null $arPagination
+	 * @param null $arSelect
+	 * @param bool $bShowNullFields
+	 * @return OrderDBResult
+	 */
 	public static function getList($arSort = null, $arFilter = null, $arGroupBy = null, $arPagination = null, $arSelect = null, $bShowNullFields = true) {
 		$OrderList = OrderDBS::getInstance();
 		$res = $OrderList->getList($arSort, $arFilter, $arGroupBy, $arPagination, $arSelect, $bShowNullFields);
+
 		$OrderDBResult = new OrderDBResult($res, $arSelect);
 
 		return $OrderDBResult;
 	}
 
+	/**
+	 * @param null $arSort
+	 * @param null $arFilter
+	 * @param null $arGroupBy
+	 * @param null $arPagination
+	 * @param null $arSelect
+	 * @param bool $bShowNullFields
+	 * @return array
+	 */
 	public static function getListArray($arSort = null, $arFilter = null, $arGroupBy = null, $arPagination = null, $arSelect = null, $bShowNullFields = true) {
 		$arResult = array();
 		$res = self::getList($arSort, $arFilter, $arGroupBy, $arPagination, $arSelect, $bShowNullFields);
@@ -96,6 +117,11 @@ class Order extends CMessagePoolDecorator {
 		return $arResult;
 	}
 
+	/**
+	 * @param $orderID
+	 * @param null $arSelect
+	 * @return array|bool|mixed
+	 */
 	public static function getByID($orderID, $arSelect = null) {
 		$OrderDBS = OrderDBS::getInstance();
 		$rsOrder = $OrderDBS->getList(null, array('ID' => $orderID), null, null, $arSelect, false);
@@ -106,6 +132,11 @@ class Order extends CMessagePoolDecorator {
 		return $arOrder;
 	}
 
+	/**
+	 * @param null $arFields
+	 * @param array $arErrors
+	 * @return null|Order
+	 */
 	public static function add($arFields = null, &$arErrors = array()) {
 		$Order = new self;
 		$Order->_OrderDBS->clearErrors();
@@ -123,11 +154,19 @@ class Order extends CMessagePoolDecorator {
 		return $Order;
 	}
 
+	/**
+	 * @param $orderID
+	 */
 	public static function delete($orderID) {
 		$OrderDBS = OrderDBS::getInstance();
 		$OrderDBS->delete($orderID);
 	}
 
+	/**
+	 * @param $ID
+	 * @param array $arErrors
+	 * @return null|Order
+	 */
 	public static function getOrder($ID, &$arErrors = array()) {
 		$Order = new self;
 		$bSuccess = $Order->read($ID);
@@ -138,6 +177,10 @@ class Order extends CMessagePoolDecorator {
 		return $Order;
 	}
 
+	/**
+	 * @param $orderID
+	 * @return bool
+	 */
 	protected function read($orderID) {
 		if ($orderID instanceof OrderDBResult) {
 			$arOrder = $orderID->Fetch();
@@ -162,6 +205,9 @@ class Order extends CMessagePoolDecorator {
 		return true;
 	}
 
+	/**
+	 * @param $basketID
+	 */
 	public function setBasketID($basketID) {
 		$Basket = Basket::getInstance($basketID);
 		if ($Basket !== null) {
@@ -169,6 +215,9 @@ class Order extends CMessagePoolDecorator {
 		}
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getFields() {
 		if ($this->_bFieldsChanged) {
 			$this->read($this->_arOrder['ID']);
@@ -176,6 +225,14 @@ class Order extends CMessagePoolDecorator {
 		return $this->_arOrder;
 	}
 
+	public function getID() {
+		return $this->_arOrder['ID'];
+	}
+
+	/**
+	 * @param $arFields
+	 * @return bool
+	 */
 	public function setFields($arFields) {
 		$arFields['ID'] = $this->_arOrder['ID'];
 
@@ -186,9 +243,16 @@ class Order extends CMessagePoolDecorator {
 		return false;
 	}
 
+
 	/**
 	 * Получить значения свойств заказа
-	 * @return null
+	 * @param null|array $arSort
+	 * @param null $arFilter
+	 * @param null $arGroupBy
+	 * @param null $arPagination
+	 * @param null $arSelect
+	 * @param bool $bShowNullFields
+	 * @return array
 	 */
 	public function getProperties($arSort = null, $arFilter = null, $arGroupBy = null, $arPagination = null, $arSelect = null, $bShowNullFields = true) {
 		$arResult = array();
@@ -266,6 +330,7 @@ class Order extends CMessagePoolDecorator {
 				}
 			}
 		}
+		unset ($arPropVal);
 		if ($bEvenOneUpdateSuccess) {
 			$curTime = date('Y-m-d H:i:s');
 			$this->_OrderDBS->update(array('ID' => $this->_arOrder['ID'], 'TIMESTAMP_X' => $curTime));
@@ -324,10 +389,19 @@ class Order extends CMessagePoolDecorator {
 		return false;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getItems() {
 		return $this->_BasketItemDBS->getListArray(array('ID' => 'ASC'), array('ORDER_ID' => $this->_arOrder['ID']));
 	}
 
+	/**
+	 * @param $arItems
+	 * @param bool $bHardListSet
+	 * @param bool $bQuantityAdd
+	 * @return bool
+	 */
 	public function setItems($arItems, $bHardListSet = false, $bQuantityAdd = false) {
 		/*
 		$arItems = array(
@@ -443,10 +517,16 @@ class Order extends CMessagePoolDecorator {
 		return $bSuccess;
 	}
 
+	/**
+	 * @param bool $delivery
+	 */
 	public function getOrderCost($delivery = true) {
 
 	}
 
+	/**
+	 *
+	 */
 	public function setProductListFromBasket() {
 		$arItems = $this->_Basket->getItemsList();
 		$arProducts = $this->_Basket->getProductsList();

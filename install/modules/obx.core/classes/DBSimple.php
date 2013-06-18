@@ -227,6 +227,11 @@ abstract class DBSimple extends CMessagePoolDecorator
 	 */
 
 	/**
+	 * @var bool
+	 */
+	protected $_bDistinctGetList = false;
+
+	/**
 	 * Массив с описанием таблиц сущности
 	 * В качестве ключа используется alias таблица (long_table_name as ARKEY)
 	 * <code>
@@ -1066,6 +1071,8 @@ abstract class DBSimple extends CMessagePoolDecorator
 		$arTableLeftJoin = $this->_arTableLeftJoin;
 		$arTableRightJoin = $this->_arTableRightJoin;
 
+		$bUsePagination = is_array($arPagination);
+
 		$sFields = '';
 		$arSelectFromTables = array();
 		$sSelectFrom = '';
@@ -1167,12 +1174,25 @@ abstract class DBSimple extends CMessagePoolDecorator
 			}
 		}
 		$sGroupBy = '';
+		$sRecordCounterGroupBy = '';
 		$arSqlGroupedByField = array();
+		$arSqlRecordCounterGroupBy = array();
 		foreach($arGroupByFields as $tblAlias => $tblFieldName) {
 			$arSqlGroupedByField[] = $tblAlias.'.'.$tblFieldName;
+			// Строим отдельную группировку для предварительного запроса
+			// на количество записей по запросу для постранички
+			if( $bUsePagination
+				&& $tblAlias != $this->_mainTable
+				&& $tblFieldName != $this->_mainTablePrimaryKey
+			) {
+				$arSqlRecordCounterGroupBy[] = $tblAlias.'.'.$tblFieldName;
+			}
 		}
-		if (count($arSqlGroupedByField) > 0){
+		if( count($arSqlGroupedByField) > 0 ) {
 			$sGroupBy = "\nGROUP BY ( ".implode(", ",$arSqlGroupedByField)." )";
+		}
+		if( count($arSqlRecordCounterGroupBy) > 0 ) {
+			$sRecordCounterGroupBy = "\nGROUP BY ( ".implode(", ",$arSqlRecordCounterGroupBy)." )";
 		}
 
 		// Часть WHERE в которой связываем таблицы
@@ -1226,15 +1246,36 @@ abstract class DBSimple extends CMessagePoolDecorator
 			list($firstTableAlias, $firstTableName) = each($arTableList);
 			$sSelectFrom .= "\n\t".$firstTableName.' AS '.$firstTableAlias;
 		}
-		$sWhere = '';
-		if( !empty($sSelectFrom) || !empty($sSelectFrom) ) {
+		$sWhere = $sWhereTblLink.$sWhereFilter;
+		if( !empty($sSelectFrom) && !empty($sWhere) ) {
 			$sWhere = "\nWHERE (1=1)".$sWhereTblLink.$sWhereFilter;
 		}
 
-		$sqlList = 'SELECT '.$sFields."\nFROM ".$sSelectFrom.$sJoin.$sWhere.$sGroupBy.$sSort;
+		$sqlList = $sFields."\nFROM ".$sSelectFrom.$sJoin.$sWhere.$sGroupBy.$sSort;
+
+		$strDistinct = $this->_bDistinctGetList?'DISTINCT ':'';
+		if($bUsePagination && $this->_mainTablePrimaryKey !== null) {
+			$sqlCount = 'SELECT COUNT('.$strDistinct
+									.$this->_mainTable
+									.'.'
+									.$this->_mainTablePrimaryKey
+								.') as C '
+						.'FROM '.$sSelectFrom.' '
+						.$sWhere.$sRecordCounterGroupBy.$sSort;
+			$res_cnt = $DB->Query($sqlCount);
+			$res_cnt = $res_cnt->Fetch();
+			$res = new DBSResult();
+			$sqlList = 'SELECT '.$strDistinct.$sqlList;
+			$res->NavQuery($sqlList, $res_cnt["C"], $arPagination);
+		}
+		else {
+			$sqlList = 'SELECT '.$strDistinct.$sqlList;
+			$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
+			$res = new DBSResult($res);
+		}
 		$this->_lastQueryString = $sqlList;
-		$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
-		$res = new DBSResult($res);
+		//$res = $DB->Query($sqlList, false, 'File: '.__FILE__."<br />\nLine: ".__LINE__);
+
 		$res->setAbstractionName(get_called_class());
 		return $res;
 	}

@@ -78,9 +78,24 @@ class OrderDBS extends DBSimple {
 SQL
 				, 'REQUIRED_TABLES' => array('B')
 		),
-		'PRODUCT_COUNT' => array('BI' => 'SUM(1)', 'REQUIRED_TABLES' => 'B'),
-		'ITEMS_COUNT' => array('BI' => 'SUM(BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
-		'ITEMS_COST' => array('BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)', 'REQUIRED_TABLES' => 'B'),
+		'PRODUCT_COUNT' => array(
+			'BI' => 'SUM(1)',
+			'REQUIRED_TABLES' => 'B',
+			'GET_LIST_FILTER' => '(
+					SELECT COUNT(WBI.ID)
+					FROM obx_basket_items as WBI
+					WHERE WBI.BASKET_ID = B.ID
+				)'
+		),
+		'ITEMS_COST' => array(
+			'BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)',
+			'REQUIRED_TABLES' => 'B',
+			'GET_LIST_FILTER' => '(
+					SELECT SUM(WBI.PRICE_VALUE * WBI.QUANTITY)
+					FROM obx_basket_items as WBI
+					WHERE WBI.BASKET_ID = B.ID
+				)'
+		),
 		'PROPERTIES_JSON' => array('O' => <<<SQL
 			(SELECT
 				concat(

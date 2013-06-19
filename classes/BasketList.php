@@ -33,27 +33,43 @@ class BasketDBS extends DBSimple
 		'CURRENCY'			=> array('B' => 'CURRENCY'),
 		'ITEMS_JSON' => array('BI' => <<<SQLCHUNK
 				concat(
-					'{ ',
+					'{',
 						'"items": [',
 							group_concat(
-								concat('{ ',
-											'"ID": "',				BI.ID,				'", ',
-											'"PRODUCT_ID": "',		BI.PRODUCT_ID,		'", ',
-											'"PRODUCT_NAME": "',	BI.PRODUCT_NAME,	'", ',
-											'"QUANTITY": "',		BI.QUANTITY,		'", ',
-											'"PRICE_VALUE": "',		BI.PRICE_VALUE,		'"',
-									'" }'
+								concat('{',
+											'"ID":"',	BI.ID,				'",',
+											'"PID":"',	BI.PRODUCT_ID,		'",',
+											'"PN":"',	BI.PRODUCT_NAME,	'",',
+											'"Q":"',	BI.QUANTITY,		'",',
+											'"PRI":"',	BI.PRICE_ID,		'",',
+											'"PRV":"',	BI.PRICE_VALUE,		'"',
+									'}'
 								)
 							),
 						' ], ',
 						'"product_count": "', SUM(1) ,'", '
-						'"items_count": "', SUM(BI.QUANTITY) ,'", '
 						'"cost": "', SUM(BI.PRICE_VALUE * BI.QUANTITY) ,'"'
-					' }'
+					'}'
 				)
 SQLCHUNK
 		),
-		'ITEMS_COST' => array('BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)'),
+		'ITEMS_COST' => array(
+			'BI' => 'SUM(BI.PRICE_VALUE * BI.QUANTITY)',
+			'GET_LIST_FILTER' => '(
+					SELECT SUM(WBI.PRICE_VALUE * WBI.QUANTITY)
+					FROM obx_basket_items as WBI
+					WHERE WBI.BASKET_ID = B.ID
+				)'
+		),
+		'PRODUCT_COUNT' => array(
+			'BI' => 'SUM(1)',
+			'REQUIRED_TABLES' => 'B',
+			'GET_LIST_FILTER' => '(
+					SELECT COUNT(WBI.ID)
+					FROM obx_basket_items as WBI
+					WHERE WBI.BASKET_ID = B.ID
+				)'
+		),
 	);
 	protected $_arTableLeftJoin = array(
 		'BI' => 'B.ID = BI.BASKET_ID'

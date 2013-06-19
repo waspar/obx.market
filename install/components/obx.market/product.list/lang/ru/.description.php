@@ -10,5 +10,5 @@
  ***************************************/
 
 $MESS['OBX_MARKET_BASKET_CMP_NAME'] = 'Корзина';
-$MESS['OBX_MARKET_BASKET_CMP_DESCRIPTION'] = 'Корзина товаров от Студии А68';
+$MESS['OBX_MARKET_BASKET_CMP_DESCRIPTION'] = 'Корзина товаров';
 ?>

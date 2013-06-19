@@ -20,8 +20,7 @@ use OBX\Market\OrderPropertyEnumDBS;
 /*
  * TODO: Сейчас свойства и статусы работают на позапросах внутри цикла. Это исправимо. Займемся позже. надо переделать под класс Order
  * TODO: Пока в DBSimple не будет реализована поддержка полей типа datetime в фильтре будет отключена сортировка по дате создания и изменния
- * TODO: Временно отключаем фильтр по валюту. Фильтр по ней надо тестировать сначала на уровне API
- * TODO: Временно отключаем фильтр по стоимости. Необходимо подзапрос в obx_basket.ITEMS_COST сменить на реальное поле и на событиях его обвновлять
+ * TODO: Временно отключаем фильтр по валюте. Фильтр по ней надо тестировать сначала на уровне API
  */
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
@@ -299,8 +298,8 @@ if( !empty($filter_id_start) ) { $arOrderListFilter['>=ID'] = $filter_id_start; 
 if( !empty($filter_id_start) ) { $arOrderListFilter['<=ID'] = $filter_id_end; }
 if( !empty($filter_status) ) { $arOrderListFilter['STATUS_ID'] = $filter_status; }
 if( !empty($filter_user_id) ) { $arOrderListFilter['USER_ID'] = $filter_user_id; }
-//if( !empty($filter_cost_from) ) { $arOrderListFilter['>=COST'] = $filter_cost_from; }
-//if( !empty($filter_cost_to) ) { $arOrderListFilter['<=COST'] = $filter_cost_to; }
+if( !empty($filter_cost_from) ) { $arOrderListFilter['>=ITEMS_COST'] = $filter_cost_from; }
+if( !empty($filter_cost_to) ) { $arOrderListFilter['<=ITEMS_COST'] = $filter_cost_to; }
 //if( !empty($filter_created_from) ) { $arOrderListFilter['DATE_CREATED'] = $filter_created_from; }
 //if( !empty($filter_created_to) ) { $arOrderListFilter['DATE_CREATED'] = $filter_created_to; }
 //if( !empty($filter_timestamp_from) ) { $arOrderListFilter['<=TIMESTAMP_X'] = $filter_timestamp_from; }
@@ -319,7 +318,7 @@ $arOrdersPagination = array("nPageSize"=>CAdminResult::GetNavSize($tableID));
  * Выборка
  */
 $rsData = $OrderDBS->getList(array($by=>$order), $arOrderListFilter, null, $arOrdersPagination, array(
-	'ID', 'USER_ID', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS_JSON', 'PROPERTIES_JSON'
+	'ID', 'USER_ID', 'USER_NAME', 'STATUS_ID', 'DATE_CREATED', 'TIMESTAMP_X', 'CURRENCY', 'ITEMS_COST', 'ITEMS_JSON', 'PROPERTIES_JSON'
 ));
 $rsData = new CAdminResult($rsData, $tableID);
 $rsData->NavStart();
@@ -500,8 +499,8 @@ require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_adm
 //filter
 $arFindFields = array(
 	'id' => 'ID',
-	'user_id' => GetMessage('OBX_MARKET_ORDERS_F_USER'),
-//	'cost' => GetMessage('OBX_MARKET_ORDERS_F_COST'),
+	'user_ id' => GetMessage('OBX_MARKET_ORDERS_F_USER'),
+	'cost' => GetMessage('OBX_MARKET_ORDERS_F_COST'),
 //	'created' => GetMessage('OBX_MARKET_ORDERS_F_CREATED'),
 //	'timestamp_x' => GetMessage('OBX_MARKET_ORDERS_F_TIMESTAMP_X'),
 //	'currency' => GetMessage('OBX_MARKET_ORDERS_F_CURRENCY'),
@@ -516,7 +515,7 @@ $oFilter = new CAdminFilter($tableID."_filter", $arFindFields);
 			<select name="filter_status">
 				<option value=""><?=GetMessage('OBX_MARKET_ORDERS_LIST_FILTER_STATUS_ALL')?></option>
 			<?foreach($arOrderStatusList4Select as $statusID => $statusName):?>
-				<option value="<?=$statusID?>"><?=$statusName?></option>
+				<option value="<?=$statusID?>"<?if($statusID==$filter_status):?> selected="selected"<?endif?>><?=$statusName?></option>
 			<?endforeach?>
 			</select>
 		</td>
@@ -531,7 +530,12 @@ $oFilter = new CAdminFilter($tableID."_filter", $arFindFields);
 			</nobr>
 		</td>
 	</tr>
-	<?/*/?>
+	<tr>
+		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_USER_ID")?></td>
+		<td>
+			<input type="text" name="filter_user_id" size="3" value="<?echo htmlspecialcharsex($filter_user_id)?>">
+		</td>
+	</tr>
 	<tr>
 		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_COST")?></td>
 		<td>
@@ -540,13 +544,6 @@ $oFilter = new CAdminFilter($tableID."_filter", $arFindFields);
 				...
 				<input type="text" name="filter_cost_to" size="5" value="<?echo htmlspecialcharsex($filter_cost_to)?>">
 			</nobr>
-		</td>
-	</tr>
-	<?//*/?>
-	<tr>
-		<td><?echo GetMessage("OBX_MARKET_ORDERS_LIST_FILTER_USER_ID")?></td>
-		<td>
-			<input type="text" name="filter_user_id" size="3" value="<?echo htmlspecialcharsex($filter_user_id)?>">
 		</td>
 	</tr>
 	<?/*/?>

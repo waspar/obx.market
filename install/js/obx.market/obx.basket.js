@@ -405,8 +405,11 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					basket.total += price*qty; // basket total cost
 					basket.count++;
 					// buttons
-					if(conf.toBasketButtons)
-						jq.buttons.filter('[data-id='+id+']').addClass(conf.toBasketAddedClass).val(conf.toBasketHasValue);
+					if(conf.toBasketButtons) {
+						var btn = jq.buttons.filter('[data-id='+id+']')
+						btn.addClass(conf.toBasketAddedClass).val(conf.toBasketHasValue);
+						btn.parent().addClass(conf.toBasketAddedClass);
+					}
 					// item render
 					//var e = $.Event('onBeforeItemRender');
 					self.$.trigger('onBeforeItemRender', [item, bAnimate]);
@@ -509,7 +512,11 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					if(bAnimate) jqBasketAnimatePrice(from); // animate basket total cost
 					else jqBasketSetPrice();
 					// buttons
-					if(conf.toBasketButtons) jq.buttons.filter('[data-id='+id+']').removeClass(conf.toBasketAddedClass).val(conf.toBasketValue);
+					if(conf.toBasketButtons) {
+						var btn = jq.buttons.filter('[data-id='+id+']');
+						btn.removeClass(conf.toBasketAddedClass).val(conf.toBasketValue);
+						btn.parent().removeClass(conf.toBasketAddedClass);
+					}
 					// animate & remove
 					if(conf.animateClose && bAnimate){ // animate item?
 						duration = conf.durationClose ? parseInt(conf.durationClose) : 300; // animate duration

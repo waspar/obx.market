@@ -37,9 +37,10 @@ if (!CModule::IncludeModule('obx.market')) {
 			if ($Basket->isEmpty($productID)) {
 				$bSuccess = $Basket->addProduct($productID, $quantity);
 			} else {
-				$bSuccess = $Basket->setProductQuantity($productID, $quantity);
+				$newProductQuantity = $Basket->setProductQuantity($productID, $quantity);
+				$bSuccess = ($newProductQuantity>0)?true:false;
 			}
-			if (!$bSuccess) {
+			if (!$bSuccess<=0) {
 				$arJSON['messages'][] = $Basket->popLastError('ARRAY');
 			}
 		}

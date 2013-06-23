@@ -18,7 +18,11 @@ use OBX\Core\DBSimpleStatic;
 
 IncludeModuleLangFile(__FILE__);
 
-class BasketItemDBS extends DBSimple {
+class BasketItemDBS extends DBSimple
+{
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'BasketItem';
+
 	protected $_arTableList = array(
 		'I'		=> 'obx_basket_items',
 		'B'		=> 'obx_basket',
@@ -220,6 +224,7 @@ SQL
 			),
 
 		);
+		$this->_getEntityEvents();
 	}
 
 	public function __check_PRICE_ID(&$fieldValue, &$arCheckData = null) {
@@ -267,14 +272,14 @@ SQL
 		if( array_key_exists('TOTAL_PRICE_VALUE', $arFields) ) {
 			unset($arFields['TOTAL_PRICE_VALUE']);
 		}
-		return true;
+		return parent::_onStartAdd($arFields);
 	}
 
 	protected function _onStartUpdate(&$arFields){
 		if( array_key_exists('TOTAL_PRICE_VALUE', $arFields) ) {
 			unset($arFields['TOTAL_PRICE_VALUE']);
 		}
-		return true;
+		return parent::_onStartUpdate($arFields);
 	}
 
 	protected function _onBeforeAdd(&$arFields, &$arCheckData) {
@@ -412,7 +417,7 @@ SQL
 			$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_12_13'), 12);
 			return false;
 		}
-		return true;
+		return parent::_onBeforeAdd($arFields, $arCheckData);
 	}
 
 	protected function _onBeforeExecUpdate(&$arFields, &$arCheckData = null) {
@@ -472,7 +477,7 @@ SQL
 			}
 		// ^^^ check TOTAL_PRICE_VALUE
 		}
-		return true;
+		return parent::_onBeforeExecUpdate($arFields, $arCheckData);
 	}
 
 	public function update($arFields) {

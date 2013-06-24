@@ -24,6 +24,8 @@ IncludeModuleLangFile(__FILE__);
  */
 class CurrencyFormatDBS extends DBSimple
 {
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'CurrencyFormat';
 	protected $_arTableList = array(
 		'C' => 'obx_currency',
 		'L' => 'b_language',
@@ -138,6 +140,7 @@ class CurrencyFormatDBS extends DBSimple
 				'CODE' => 6
 			)
 		);
+		$this->_getEntityEvents();
 	}
 
 	public function getListGroupedByLang($arSort = null) {

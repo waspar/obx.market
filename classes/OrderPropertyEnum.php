@@ -20,7 +20,10 @@ IncludeModuleLangFile(__FILE__);
 /**
  *
  */
-class OrderPropertyEnumDBS extends DBSimple {
+class OrderPropertyEnumDBS extends DBSimple
+{
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'OrderPropertyEnum';
 	protected $_arTableList = array(
 		'OPE' => 'obx_order_property_enum',
 		'OP' => 'obx_order_property'
@@ -84,6 +87,7 @@ class OrderPropertyEnumDBS extends DBSimple {
 				'CODE' => 5
 			)
 		);
+		$this->_getEntityEvents();
 	}
 
 	public function __check_PROPERTY_ID(&$fieldValue, &$arCheckData) {

@@ -18,6 +18,8 @@ use OBX\Core\DBSimpleStatic;
 IncludeModuleLangFile(__FILE__);
 
 class CurrencyDBS extends DBSimple {
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'Currency';
 	protected $_arTableList = array(
 		'C' => 'obx_currency'
 	);
@@ -77,6 +79,7 @@ class CurrencyDBS extends DBSimple {
 				'CODE' => 4
 			),
 		);
+		$this->_getEntityEvents();
 	}
 
 	public function __check_CURRENCY(&$value, &$arCheckResult = null) {

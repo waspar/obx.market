@@ -19,6 +19,8 @@ IncludeModuleLangFile(__FILE__);
 
 class ECommerceIBlockDBS extends DBSimple
 {
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'ECommerceIBlock';
 	protected $_arTableList = array(
 		'E' => 'obx_ecom_iblock',
 		'B' => 'b_iblock',
@@ -76,6 +78,7 @@ class ECommerceIBlockDBS extends DBSimple
 				'CODE' => 1
 			)
 		);
+		$this->_getEntityEvents();
 	}
 
 	protected function _onBeforeAdd(&$arFields, &$arCheckResult){

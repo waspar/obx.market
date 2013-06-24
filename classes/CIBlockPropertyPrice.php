@@ -24,6 +24,8 @@ IncludeModuleLangFile(__FILE__);
 
 class CIBlockPropertyPriceDBS extends DBSimple
 {
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'IBlockPropertyPrice';
 	protected $_arTableDefaultFields = array();
 	protected $_arTableList = array(
 		'P'		=> 'obx_price',
@@ -169,6 +171,7 @@ class CIBlockPropertyPriceDBS extends DBSimple
 				'CODE' => 11
 			),
 		);
+		$this->_getEntityEvents();
 	}
 
 	/**

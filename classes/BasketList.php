@@ -20,6 +20,8 @@ IncludeModuleLangFile(__FILE__);
 
 class BasketDBS extends DBSimple
 {
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'Basket';
 	protected $_mainTable = 'B';
 	protected $_arTableList = array(
 		'B'		=> 'obx_basket',
@@ -90,6 +92,7 @@ SQLCHUNK
 			'HASH_STRING' => self::FLD_T_IDENT | self::FLD_CUSTOM_CK,
 			'CURRENCY' => self::FLD_T_NO_CHECK | self::FLD_CUSTOM_CK | self::FLD_REQUIRED | self::FLD_BRK_INCORR
 		);
+		$this->_getEntityEvents();
 	}
 
 	public function __check_HASH_STRING(&$value, &$arCheckData = null) {

@@ -19,7 +19,10 @@ use OBX\Core\DBSimpleStatic;
 use OBX\Core\DBSResult;
 
 IncludeModuleLangFile(__FILE__);
-class OrderPropertyDBS extends DBSimple {
+class OrderPropertyDBS extends DBSimple
+{
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'OrderProperty';
 	protected $_arTableList = array(
 		'OP' => 'obx_order_property'
 	);
@@ -110,6 +113,7 @@ class OrderPropertyDBS extends DBSimple {
 				'DESCR' => GetMessage('OBX_MARKET_ORDER_PROP_PROPERTY_TYPE_DESCR')
 			)
 		);
+		$this->_getEntityEvents();
 	}
 
 	protected function _onStartAdd(&$arFields) {

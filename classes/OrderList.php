@@ -26,8 +26,10 @@ IncludeModuleLangFile(__FILE__);
  * Class OrderDBS
  * @method @static self getInstance()
  */
-class OrderDBS extends DBSimple {
-
+class OrderDBS extends DBSimple
+{
+	protected $_entityModuleID = 'obx.market';
+	protected $_entityEventsID = 'Order';
 	protected $_arTableList = array(
 		'O'		=> 'obx_orders',
 		'S'		=> 'obx_order_status',
@@ -256,6 +258,7 @@ SQL
 				"DESCR" => GetMessage("OBX_ORDERLIST_ITEMS_COST_DESCR"),
 			),
 		);
+		$this->_getEntityEvents();
 	}
 
 	protected function _onStartAdd(&$arFields) {

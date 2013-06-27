@@ -1,0 +1,49 @@
+<?php
+class Example extends PHPUnit_Extensions_SeleniumTestCase
+{
+  protected function setUp()
+  {
+    $this->setBrowser("*chrome");
+    $this->setBrowserUrl("http://smokeoffice.loc/");
+  }
+
+  public function testMyTestCase()
+  {
+    $this->open("/bitrix/admin/obx_market_orders.php");
+    $this->click("css=span.bx-panel-admin-tab-center");
+    $this->waitForPageToLoad("30000");
+    $this->click("id=button_obx_market");
+    $this->click("link=Заказы");
+    $this->waitForPageToLoad("30000");
+    $this->click("id=btn_new");
+    $this->waitForPageToLoad("30000");
+    $this->select("name=PROPERTIES[2]", "label=[1] Самовывоз");
+    $this->select("name=PROPERTIES[3]", "label=[1] Наличные курьеру");
+    $this->click("id=tab_obx_order_items_edit");
+    $this->click("xpath=(//input[@value='Добавить еще'])[2]");
+    $this->waitForPopUp("", "30000");
+    $this->selectWindow("title=Поиск товаров");
+    $this->select("id=filter_type", "label=Пиццерия [pizza]");
+    $this->select("id=filter_iblock_id", "label=Пицца [5]");
+    $this->select("id=filter_price_id", "label=Розничная цена");
+    $this->click("name=set_filter");
+    $this->click("css=input[type=\"button\"]");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->click("//input[@value='Добавить']");
+    $this->close();
+    $this->click("name=apply");
+    $this->waitForPageToLoad("30000");
+  }
+}
+?>

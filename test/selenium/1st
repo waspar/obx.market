@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://smokeoffice.loc/" />
+<title>1st</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">1st</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/bitrix/admin/obx_market_orders.php</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=span.bx-panel-admin-tab-center</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=button_obx_market</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Заказы</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=btn_new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=PROPERTIES[2]</td>
+	<td>label=[1] Самовывоз</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=PROPERTIES[3]</td>
+	<td>label=[1] Наличные курьеру</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=tab_obx_order_items_edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//input[@value='Добавить еще'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPopUp</td>
+	<td></td>
+	<td>30000</td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>title=Поиск товаров</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=filter_type</td>
+	<td>label=Пиццерия [pizza]</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=filter_iblock_id</td>
+	<td>label=Пицца [5]</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=filter_price_id</td>
+	<td>label=Розничная цена</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>name=set_filter</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=input[type=&quot;button&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value='Добавить']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>close</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=apply</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

@@ -71,34 +71,35 @@ foreach($arFiles as $filePath) {
 	//$bMatched			= preg_match($regOneLineComments, $fileCodeContent, $arMatches);
 	$fileCodeContent  = preg_replace($regOneLineComments, '', $fileCodeContent);
 
-	// удаляем лишние отступы
-	$fileCodeContent = preg_replace('~\n{2,}~is', "\n", $fileCodeContent);
-
 	// Заменяем табы на два проблела в начале строк
-	$fileCodeContent = preg_replace('~^[\s\t]{1}?~im', ' ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{2}?~im', '  ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{3}?~im', '   ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{4}?~im', '    ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{5}?~im', '     ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{6}?~im', '      ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{7}?~im', '       ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{8}?~im', '        ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{9}?~im', '         ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{10}?~im', '          ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{11}?~im', '           ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{12}?~im', '            ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{13}?~im', '             ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{14}?~im', '              ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{15}?~im', '               ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{16}?~im', '                ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{17}?~im', '                 ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{18}?~im', '                  ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{19}?~im', '                   ', $fileCodeContent);
-	$fileCodeContent = preg_replace('~^[\s\t]{20}?~im', '                    ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~[\ ]{4}?~im', '	', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{20}?~im', '                    ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{19}?~im', '                   ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{18}?~im', '                  ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{17}?~im', '                 ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{16}?~im', '                ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{15}?~im', '               ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{14}?~im', '              ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{13}?~im', '             ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{12}?~im', '            ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{11}?~im', '           ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{10}?~im', '          ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{9}?~im', '         ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{8}?~im', '        ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{7}?~im', '       ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{6}?~im', '      ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{5}?~im', '     ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{4}?~im', '    ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{3}?~im', '   ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{2}?~im', '  ', $fileCodeContent);
+	$fileCodeContent = preg_replace('~^[\t]{1}?~im', ' ', $fileCodeContent);
 
 	// Убираем конструкции типа 'asdf'			=>			 или $var			= 		'val';
 	$fileCodeContent = preg_replace('~[\s\t]{1,}?=>[\s\t]{1,}?~im', ' => ', $fileCodeContent);
 	$fileCodeContent = preg_replace('~[\s\t]{1,}?=[\s\t]{1,}?~im', ' => ', $fileCodeContent);
+
+	// удаляем пустые строки
+	$fileCodeContent = preg_replace('~^[\s\t]*?\n~im', "", $fileCodeContent);
 
 	$fileCodeContent = htmlspecialchars($fileCodeContent);
 	$fileCodeContent = str_replace(' ', '&nbsp;', $fileCodeContent);

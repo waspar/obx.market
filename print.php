@@ -44,11 +44,15 @@ $printContent = <<<HTML
 	<head>
 		<meta charset="utf-8"/>
 		<style type="text/css">
+			body {
+				font-weight: bolder;
+				font-family: monospace, sans-serif;
+			}
 			h1 {
 				font-size: 12px;
 			}
 			pre {
-				font-size: 9px;
+				font-size: 8px;
 			}
 		</style>
 	</head>

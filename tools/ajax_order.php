@@ -8,6 +8,7 @@ use OBX\Market\CurrencyFormatDBS;
 use OBX\Market\Order;
 use OBX\Market\OrderList;
 
+IncludeModuleLangFile(__FILE__);
 
 //Заголовки для предотвращения кеширования и указания типа данных JSON
 header('Cache-Control: no-cache, must-revalidate');
@@ -51,7 +52,7 @@ if (!CModule::IncludeModule('obx.market')) {
 
 		if (empty($_REQUEST["PHONE"])) {
 			$arJSON['success'] = "N";
-			$arJSON['messages'][] = "Не указан телефон";
+			$arJSON['messages'][] = GetMessage('OBX_MARKET_AJAX_ORDER_ERROR_1');
 			echo json_encode($arJSON);
 			return false;
 		}

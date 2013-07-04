@@ -20,22 +20,25 @@
 //exit;
 
 $arFiles = array(
-	 './classes/OrderList.php'
-	,'./classes/OrderStatus.php'
-	,'./classes/OrderPropertyEnum.php'
-	,'./classes/Order.php'
+	 './install/modules/obx.core/classes/DBSimple.php'
+	,'./install/modules/obx.core/classes/Build.php'
+	,'./classes/OrderList.php'
+	//,'./classes/OrderStatus.php'
+	//,'./classes/OrderPropertyEnum.php'
+	//,'./classes/Order.php'
 	,'./classes/WizardECommerceImport.php'
 	,'./classes/ECommerceIBlock.php'
-	,'./classes/CurrencyInfo.php'
-	,'./classes/Price.php'
+	//,'./classes/CurrencyInfo.php'
+	//,'./classes/Price.php'
 	,'./classes/Currency.php'
-	,'./classes/BasketItem.php'
+	//,'./classes/BasketItem.php'
 	,'./classes/CurrencyFormat.php'
 	,'./classes/CIBlockPropertyPrice.php'
-	,'./classes/OrderProperty.php'
-	,'./classes/BasketList.php'
-	,'./classes/Basket.php'
-	,'./classes/OrderPropertyValues.php'
+	//,'./classes/OrderProperty.php'
+	//,'./classes/BasketList.php'
+	//,'./classes/Basket.php'
+	//,'./classes/OrderPropertyValues.php'
+	,'install/db/mysql/install.sql'
 );
 
 $printContent = <<<HTML

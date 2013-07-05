@@ -22,8 +22,9 @@
 
 [DEPENDENCIES]
 obx.core
-[INCLUDE_IT_LATER]
 obx.sms
+
+[RAW_LANG_CHECK_EXCLUDE]
 
 [END]
 //*/?>

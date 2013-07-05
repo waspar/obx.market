@@ -9,9 +9,6 @@
  ***********************************************/
 
 class OBX_Build {
-
-	protected $_arResources = array();
-	protected $_arIBlockData = array();
 	protected $_moduleName = null;
 	protected $_moduleClass = null;
 
@@ -27,6 +24,11 @@ class OBX_Build {
 	protected $_bxRootDir = null;
 	protected $_arDepModules = array();
 	protected $_ParentModule = null;
+
+	protected $_arResources = array();
+	protected $_arIBlockData = array();
+	protected $_arRawLangCheck = array();
+	protected $_arCompParamsConfig = array();
 
 	function __construct($moduleName, OBX_Build $ParentModule = null) {
 		error_reporting(E_ALL ^ E_NOTICE);
@@ -127,6 +129,36 @@ class OBX_Build {
 		return true;
 	}
 
+	/**
+	 * @param null $moduleName
+	 * @return array|null|self
+	 */
+	public function getDependency($moduleName = null) {
+		if($moduleName == null) {
+			return $this->_arDepModules;
+		}
+		if( array_key_exists($moduleName, $this->_arDepModules) ) {
+			return $this->_arDepModules[$moduleName];
+		}
+		return null;
+	}
+
+	protected function replacePathMacros($path) {
+		return str_replace(
+			array(
+				'%MODULE_FOLDER%',
+				'%INSTALL_FOLDER%',
+				'%BX_ROOT%'
+			),
+			array(
+				$this->_modulesFolder.'/'.$this->_moduleName,
+				$this->_modulesFolder.'/'.$this->_moduleName.'/install',
+				$this->_bxRootFolder
+			),
+			$path
+		);
+	}
+
 	public function parseResourcesFile() {
 		if( !$this->isInit() ) {
 			echo "Error: Build system not initialized!\n";
@@ -134,15 +166,18 @@ class OBX_Build {
 		}
 		$buildModuleDir = $this->_modulesDir."/".$this->_moduleName;
 
-		if( is_file($buildModuleDir.'/install/resources.php') ) {
-			$strResources = file_get_contents($buildModuleDir.'/install/resources.php');
+		if( is_file($buildModuleDir.'/install/module.res') ) {
+			$strResources = file_get_contents($buildModuleDir.'/install/module.res');
 			$arTmpResources = explode("\n", $strResources);
 			//rint_r($arTmpResources);
-			$configSection = '__UNKNOWN__';
+			$configSection = null;
 			$lineNumber = 0;
 
 			$this->_arResources = array();
 			$this->_arDepModules = array();
+
+			$bOpenedBlock = false;
+			$blockSection = null;
 
 			foreach($arTmpResources as $strResource) {
 				$lineNumber++;
@@ -153,18 +188,41 @@ class OBX_Build {
 				if( substr($strResource, 0, 1) == "#" ) {
 					continue;
 				}
+
+				if(strpos($strResource, '{') !== false) {
+					if(trim($strResource) != '{') {
+						echo 'Config parse error in line '.$lineNumber.': symbol "{" must be alone at the line '."\n";
+						die();
+					}
+					if($bOpenedBlock == true) {
+						echo 'Config parse error in line '.$lineNumber.': trying to open block when it\'s already opened'."\n";
+						die();
+					}
+					$bOpenedBlock = true;
+				}
+
+				if(strpos($strResource, '}') !== false) {
+					if(trim($strResource) != '}') {
+						echo 'Config parse error in line '.$lineNumber.': symbol "}" must be alone at the line '."\n";
+						die();
+					}
+					if($bOpenedBlock == false) {
+						echo 'Config parse error in line '.$lineNumber.': trying to close block "}" when it\'s not opened'."\n";
+						die();
+					}
+					$blockSection = null;
+					$bOpenedBlock = false;
+					continue;
+				}
+
 				if( substr($strResource, 0, 1) == "[" ) {
-					if( preg_match('~\[\s*RESOURCES\s*\]~', $strResource) ) {
-						$configSection = 'RESOURCES';
-					}
-					elseif( preg_match('~\[\s*DEPENDENCIES\s*\]~', $strResource) ) {
-						$configSection = 'DEPENDENCIES';
-					}
-					elseif( preg_match('~\[\s*IBLOCK\_DATA\s*\]~', $strResource) ) {
-						$configSection = 'IBLOCK_DATA';
-					}
-					elseif(preg_match('~\[\s*([0-9A-Za-z\_\-\.]*)\s*\]~', $strResource)) {
-						$configSection = '__UNKNOWN__';
+					if(preg_match('~\[\s*([0-9A-Za-z\_\-\.]*)\s*\]~', $strResource, $arSectionMatches)) {
+						if($bOpenedBlock) {
+							$blockSection = $arSectionMatches[1];
+						}
+						else {
+							$configSection = $arSectionMatches[1];
+						}
 					}
 					continue;
 				}
@@ -193,34 +251,13 @@ class OBX_Build {
 					$arResource["PATTERN"] = trim($arTmpResource[1]);
 					$arResource["TARGET_FOLDER"] = trim($arTmpResource[2]);
 
-					$arResource["INSTALL_FOLDER"] = rtrim(str_replace(
-						array(
-							'%MODULE_FOLDER%',
-							'%INSTALL_FOLDER%',
-							'%BX_ROOT%'
-						),
-						array(
-							$this->_modulesFolder.'/'.$this->_moduleName,
-							$this->_modulesFolder.'/'.$this->_moduleName.'/install',
-							$this->_bxRootFolder
-						),
-						$arResource["INSTALL_FOLDER"]
-					), '/');
-					$arResource["TARGET_FOLDER"] = rtrim(str_replace(
-						array(
-							'%MODULE_FOLDER%',
-							'%INSTALL_FOLDER%',
-							'%BX_ROOT%'
-						),
-						array(
-							$this->_modulesFolder.'/'.$this->_moduleName,
-							$this->_modulesFolder.'/'.$this->_moduleName.'/install',
-							$this->_bxRootFolder
-						),
-						$arResource["TARGET_FOLDER"]
-					), '/');
+					$arResource["INSTALL_FOLDER"] = rtrim($this->replacePathMacros($arResource["INSTALL_FOLDER"]), '/');
+					$arResource["TARGET_FOLDER"] = rtrim($this->replacePathMacros($arResource["TARGET_FOLDER"]), '/');
 
 					$this->_arResources[] = $arResource;
+				}
+				elseif($configSection == 'COMPONENT_PARAMETERS') {
+					$this->addCompParamsConfig($strResource);
 				}
 				elseif($configSection == 'DEPENDENCIES') {
 					$subModuleName = $strResource;
@@ -244,21 +281,38 @@ class OBX_Build {
 					$arIBlockResource['EXPORT_PATH'] = trim($arTmpIBlockResource[1]);
 					$arIBlockResource['XML_FILE'] = trim($arTmpIBlockResource[2]);
 					$arIBlockResource['FORM_SETTINGS_FILE'] = trim($arTmpIBlockResource[3]);
-					$arIBlockResource["EXPORT_PATH"] = rtrim(str_replace(
-						array(
-							'%MODULE_FOLDER%',
-							'%INSTALL_FOLDER%',
-							'%BX_ROOT%'
-						),
-						array(
-							$this->_modulesFolder.'/'.$this->_moduleName,
-							$this->_modulesFolder.'/'.$this->_moduleName.'/install',
-							$this->_bxRootFolder
-						),
-						$arIBlockResource["EXPORT_PATH"]
-					), '/');
+					$arIBlockResource["EXPORT_PATH"] = rtrim($this->replacePathMacros($arIBlockResource["EXPORT_PATH"]), '/');
 					$this->addIBlockData($arIBlockResource);
 				}
+				elseif($configSection == 'RAW_LANG_CHECK') {
+					if( strlen($blockSection)>0 ) {
+						if( !isset($arCheckPath) ) {
+							$arCheckPath = array();
+						}
+						if( !array_key_exists($blockSection, $arCheckPath) ) {
+							$arCheckPath[$blockSection] = array(
+								'PATH' => null,
+								'EXCLUDE' => array(),
+								'EXCLUDE_PATH' => array()
+							);
+						}
+						$arTmpCheckPathOpt = explode(':', $strResource);
+						$checkPathOptName = trim($arTmpCheckPathOpt[0]);
+						$checkPathOptValue = trim($arTmpCheckPathOpt[1]);
+						if($checkPathOptName == 'path') {
+							$arCheckPath[$blockSection]['PATH'] = $this->replacePathMacros($checkPathOptValue);
+						}
+						elseif($checkPathOptName == 'exclude_path') {
+							$arCheckPath[$blockSection]['EXCLUDE_PATH'][] = $this->replacePathMacros($checkPathOptValue);
+						}
+						elseif($checkPathOptName == 'exclude') {
+							$arCheckPath[$blockSection]['EXCLUDE'][] = $checkPathOptValue;
+						}
+					}
+				}
+			}
+			if(isset($arCheckPath)) {
+				$this->addPathToRawLangCheck($arCheckPath);
 			}
 		}
 	}
@@ -281,6 +335,9 @@ class OBX_Build {
 				foreach($arInstallFiles as $installFileFullPath) {
 					$fsEntry = str_replace($this->_docRootDir.$arResource['INSTALL_FOLDER'], '', $installFileFullPath);
 					$fsEntry = trim($fsEntry, '/');
+					if( substr($fsEntry, strlen($fsEntry) - 4, strlen($fsEntry)) == '.git' ) {
+						continue;
+					}
 					if( !in_array($fsEntry, $arResource['FILES']) ) {
 						$arResource['FILES'][] = $fsEntry;
 					}
@@ -290,6 +347,9 @@ class OBX_Build {
 				foreach($arTargetFiles as $targetFileFullPath) {
 					$fsEntry = str_replace($this->_docRootDir.$arResource['TARGET_FOLDER'], '', $targetFileFullPath);
 					$fsEntry = trim($fsEntry, '/');
+					if( substr($fsEntry, strlen($fsEntry) - 4, strlen($fsEntry)) == '.git' ) {
+						continue;
+					}
 					if( !in_array($fsEntry, $arResource['FILES']) ) {
 						$arResource['FILES'][] = $fsEntry;
 					}
@@ -297,6 +357,13 @@ class OBX_Build {
 				}
 
 			}
+		}
+	}
+
+	protected function addCompParamsConfig($path) {
+		$configRelPath = rtrim($this->replacePathMacros($path), '/');
+		if( is_file($this->_docRootDir.$configRelPath) ) {
+			$this->_arCompParamsConfig[] = $path;
 		}
 	}
 
@@ -411,6 +478,7 @@ class OBX_Build {
 					$debug = 1;
 				}
 			}
+			$this->_removeGitSubModuleLinks();
 		}
 	}
 
@@ -847,6 +915,30 @@ if(!defined("BX_ROOT")) {
 	}
 
 	/**
+	 * Работает так же как _replaceComponentParameters
+	 * с тем отличием, что может принять в аргумент:
+	 * 		1. массив с файлами
+	 * 		2. файл
+	 * 		3. если аргумент не задан, пути до массива буду прочитаны из конфига ресурсов модуля
+	 * @param bool|array|string $Config
+	 */
+	public function replaceComponentParameters($Config = false) {
+		if($Config === false) {
+			foreach($this->_arCompParamsConfig as $path) {
+				$this->_replaceComponentParameters($path);
+			}
+		}
+		if( is_array($Config) ) {
+			foreach($Config as $path) {
+				$this->_replaceComponentParameters($path);
+			}
+		}
+		if(is_string($Config)) {
+			$this->_replaceComponentParameters($Config);
+		}
+	}
+
+	/**
 	 * Заменяет параметры компонентов в файлах, указанных в конфиге
 	 * @param $configPath
 	 * Пример конфига
@@ -887,20 +979,8 @@ if(!defined("BX_ROOT")) {
 	 * 			),
 	 * 		);
 	 */
-	public function replaceComponentParameters($configPath) {
-		$configPath = rtrim(str_replace(
-			array(
-				'%MODULE_FOLDER%',
-				'%INSTALL_FOLDER%',
-				'%BX_ROOT%'
-			),
-			array(
-				$this->_modulesFolder.'/'.$this->_moduleName,
-				$this->_modulesFolder.'/'.$this->_moduleName.'/install',
-				$this->_bxRootFolder
-			),
-			$configPath
-		), '/');
+	public function _replaceComponentParameters($configPath) {
+		$configPath = rtrim($this->replacePathMacros($configPath), '/');
 		$path = dirname($configPath);
 		$configPath = $this->_docRootDir.$configPath;
 		$path = $this->_docRootDir.$path;
@@ -1297,10 +1377,72 @@ if(!defined("BX_ROOT")) {
 
 
 	public function processCommandOptions() {
-		$arCommandOptions = getopt('h', array(
+		$arCommandOptions = getopt('bfh', array(
+			'help',
+			'build',
+			'full',
 			'iblock-cml::',
-			'iblock-form-settings::'
+			'iblock-form-settings::',
+			'replace-cmp-params::',
+			'raw-lang-check',
 		));
+
+		if( empty($arCommandOptions) ) {
+			$arCommandOptions['build'] = false;
+		}
+
+		if(
+			array_key_exists('full', $arCommandOptions)
+			|| array_key_exists('f', $arCommandOptions)
+		) {
+			$arCommandOptions['build'] = false;
+			$arCommandOptions['iblock-cml'] = false;
+			$arCommandOptions['iblock-form-settings'] = false;
+		}
+
+		if(
+			array_key_exists('help', $arCommandOptions)
+			|| array_key_exists('h', $arCommandOptions)
+		) {
+
+			$scriptName = basename($_SERVER['argv'][0]);
+			$whiteSpace = str_repeat(' ', strlen($scriptName));
+			echo <<<HELP
+$scriptName [bfh] [--help] [--build] [--full]
+$whiteSpace [--iblock-cml=ibcode1,ibcode2...] [--iblock-form-settings=ibcode1,ibcode2...]
+$whiteSpace [--raw-lang-check] [--replace-cmp-params]
+SHORT OPTIONS
+    -h: alias --help
+    -b: alias --build
+    -f: alias --full
+OPTIONS
+    --build:
+         Собирает файлы из установленного битрикса внутрь модуля
+    --full:
+         alias: --build --iblock-cml --iblock-form-settings
+    --replace-cmp-params=[config_path]:
+         Заменяет параметры компонентов собранной публички на плейсхолдеры
+         Возможно явно указать путь до конфига с параметрами
+         Так же выполняется внутри --build
+    --raw-lang-check
+         Выявляет наличие языкового текста там, где должны быть GetMessage('LANG_CODE')
+
+HELP;
+;
+			return;
+		}
+
+		if(
+			array_key_exists('build', $arCommandOptions)
+			|| array_key_exists('b', $arCommandOptions)
+		) {
+			$this->backInstallResources();
+			$this->reInit();
+			$this->generateInstallCode();
+			$this->generateUnInstallCode();
+			$this->generateBackInstallCode();
+			$this->replaceComponentParameters();
+		}
 
 		if( array_key_exists('iblock-cml', $arCommandOptions) ) {
 			$arCommandOptions['iblock-cml'] = trim($arCommandOptions['iblock-cml']);
@@ -1327,7 +1469,211 @@ if(!defined("BX_ROOT")) {
 				$this->exportIBlockFormSettings();
 			}
 		}
+
+		if( array_key_exists('replace-cmp-params', $arCommandOptions) ) {
+			$arCommandOptions['replace-cmp-params'] = trim($arCommandOptions['replace-cmp-params']);
+			if( strlen($arCommandOptions['replace-cmp-params']) > 0 ) {
+				$this->replaceComponentParameters($arCommandOptions['replace-cmp-params']);
+			}
+			else {
+				$this->replaceComponentParameters();
+			}
+		}
+
+		if( array_key_exists('raw-lang-check', $arCommandOptions) ) {
+			$rawLangCheckResult = $this->getModuleRawLangText();
+			if(strlen($rawLangCheckResult)>0) {
+				echo 'Найдены файлы в которых языковый текст не перемещен в LANG-файлы:'."\n".$rawLangCheckResult."\n";
+			}
+
+		}
 	}
 
 
+	/**
+	 * @param $needleCharList
+	 * @param $haystack
+	 * @param int $offset
+	 * @return bool|int
+	 */
+	protected function _strpos($haystack, $needleCharList, $offset = 0) {
+		$strLen = strlen($needleCharList);
+		for($i=0; $i<$strLen;$i++){
+			$pos = strpos($haystack, substr($needleCharList, $i, 1), $offset);
+			if( $pos !== false ) {
+				return $pos;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param $relPath
+	 * @param array $arExclude
+	 * @param array $arPathExclude
+	 * @param array|null $arExcludeEntries - не трогать этот аргумент. Нуженя для рекурсии
+	 * @return array
+	 */
+	public function findRawLangText($relPath = '', $arExclude = array(), $arPathExclude = array(), &$arExcludeEntries = null) {
+		static $rusLit = 'абвгдеёжзиёклмнопрстуфхцчшщэюяФБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ';
+		if($relPath == '.') $relPath = '';
+		$relPath = '/'.trim($relPath, '/ ');
+		$curPath = rtrim($this->_docRootDir.$relPath, '/ ');
+		$arFiles = array();
+		if( is_dir($curPath) ) {
+			$dir = opendir($curPath);
+			if($arExcludeEntries === null) {
+				$arExcludeEntries = array();
+				foreach($arPathExclude as $excludePattern) {
+					$excludePattern = trim($excludePattern);
+					if( strlen($excludePattern)<1 ) {
+						continue;
+					}
+					if( substr($excludePattern, 0, 1) != '/' ) {
+						$excludePattern = $curPath.'/'.$excludePattern;
+					}
+					$arFoundPatterns = glob($excludePattern);
+					foreach($arFoundPatterns as $excludePath) {
+						$arExcludeEntries[] = $excludePath;
+					}
+				}
+			}
+			while($fsEntry = readdir($dir)) {
+				$fsEntryPath = $curPath.'/'.$fsEntry;
+				$fsEntryRelPath = $relPath.'/'.$fsEntry;
+				if(
+					$fsEntry == '.' || $fsEntry == '..'
+					|| $fsEntry == '.git' || $fsEntry == '.gitignore' || $fsEntry == '.gitmodules' || $fsEntry == '.gitkeep'
+					|| in_array($fsEntry, $arExclude)
+					|| in_array($fsEntryPath, $arExcludeEntries)
+				) {
+					continue;
+				}
+				if(is_dir($fsEntryPath)) {
+					if( in_array($fsEntry.'/', $arExclude) ) {
+						continue;
+					}
+					$arFiles = array_merge($arFiles, $this->findRawLangText($fsEntryRelPath, $arExclude, $arPathExclude, $arExcludeEntries));
+				}
+				else {
+					$fsEntryExt = substr($fsEntry, strlen($fsEntry) - 4, strlen($fsEntry));
+					if($fsEntryExt != '.php') {
+						continue;
+					}
+					$this->__checkRawLangTextInFile($arFiles, $fsEntryPath, $fsEntryRelPath, $rusLit);
+				}
+			}
+		}
+		elseif(is_file($curPath)) {
+			if( substr($curPath, strlen($curPath) - 4, strlen($curPath)) == '.php' ) {
+				$this->__checkRawLangTextInFile($arFiles, $curPath, $relPath, $rusLit);
+			}
+		}
+		return $arFiles;
+	}
+
+	protected function __checkRawLangTextInFile(&$arFiles, &$fsEntryPath, &$fsEntryRelPath, &$rusLit) {
+		$bMultiLineComment = false;
+		$file = fopen($fsEntryPath, 'r');
+		$iLine = 0;
+		while( $lineContent = fgets($file) ) {
+			$iLine++;
+			$posMLCClose = strpos($lineContent, '*/');
+			if($posMLCClose!==false) $bMultiLineComment = false;
+			if($bMultiLineComment) continue;
+
+			$posMLCOpen = strpos($lineContent, '/*');
+			if( $posMLCOpen !== false ) {
+				$bMultiLineComment = true;
+			}
+			$posRusSymbol = $this->_strpos($lineContent, $rusLit);
+			$posComment = strpos($lineContent, '//');
+			if( $posRusSymbol !== false ) {
+				if($posMLCClose !== false && $posRusSymbol < $posMLCClose) {
+					continue;
+				}
+				if(
+					($posMLCOpen !== false && $posRusSymbol > $posMLCOpen)
+					&&
+					($posMLCClose===false || $posRusSymbol < $posMLCClose)
+				) {
+					$bMultiLineComment = true;
+					continue;
+				}
+				if($posComment !== false && $posRusSymbol > $posComment) {
+					continue;
+				}
+				/////
+				$arFiles[] = array(
+					'FILE' => '.'.$fsEntryRelPath,
+					'LINE' => $iLine,
+					'NEAR' => trim($lineContent, ' 	'."\n")
+				);
+			}
+		}
+	}
+
+	public function findModuleRawLangText(){
+		$arFiles = array();
+		foreach($this->_arRawLangCheck as $checkName => $arCheck) {
+			$arCheck['EXCLUDE'][] = 'ru/';
+			$arCheck['EXCLUDE'][] = 'lang/';
+			$arFiles[$checkName] = $this->findRawLangText($arCheck['PATH'], $arCheck['EXCLUDE'], $arCheck['EXCLUDE_PATH']);
+		}
+		return $arFiles;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getModuleRawLangText() {
+		$arChecks = $this->findModuleRawLangText();
+		$result = '';
+		foreach($arChecks as $checkName => $arFiles) {
+			if(!empty($arFiles)) {
+				$title = $checkName.': '.$this->_arRawLangCheck[$checkName]['PATH'];
+				$result .= "\n";
+				$result .= '####################'.str_repeat('#', strlen($title)+4).'####################'."\n";
+				$result .= '#################### ['.$title.'] ####################'."\n";
+				$result .= '####################'.str_repeat('#', strlen($title)+4).'####################'."\n";
+			}
+			foreach($arFiles as $arFile) {
+				$result .= ''
+					.'File: '.$arFile['FILE']."\n"
+					.'Line: №'.$arFile['LINE']."\n"
+					.'Text: '.$arFile['NEAR']."\n"
+					.'------------------------------------------------------------'
+					.'------------------------------------------------------------'
+				."\n";
+			}
+		}
+		return $result;
+	}
+
+	protected function addPathToRawLangCheck($arCheckPath) {
+		foreach($arCheckPath as $checkName => &$arPath) {
+			if($arPath['PATH'] != null) {
+				$this->_arRawLangCheck[$checkName] = $arPath;
+			}
+		}
+	}
+
+	protected function _removeGitSubModuleLinks($path = null) {
+		if($path === null) {
+			$path = $this->_modulesDir.'/'.$this->_moduleName.'/install';
+		}
+		if(is_dir($path) ) {
+			$dir = opendir($path);
+			while( $fsEntry = readdir($dir) ) {
+				if($fsEntry == '.' || $fsEntry == '..') continue;
+				if($fsEntry == '.git') {
+					@unlink($path.'/'.$fsEntry);
+					continue;
+				}
+				if( is_dir($path.'/'.$fsEntry) ) {
+					$this->_removeGitSubModuleLinks($path.'/'.$fsEntry);
+				}
+			}
+		}
+	}
 }

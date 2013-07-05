@@ -25,13 +25,7 @@ if(!function_exists("OBX_CopyDirFilesEx")) {
 		return CopyDirFiles($path_from, $path_to, $ReWrite, $Recursive, $bDeleteAfterCopy, $strExclude);
 	}
 }
-OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.market/install/modules/obx.core", $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.core", true, true);
-if( is_file($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.core/install/install_files.php") ) {
-	require_once $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.core/install/install_files.php";
-}
-OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.market/install/modules/obx.sms", $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.sms", true, true);
-if( is_file($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.sms/install/install_files.php") ) {
-	require_once $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.sms/install/install_files.php";
-}
+OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.sms/install/php_interface/obx.sms/EMailProvider.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/obx.sms/", true, true);
+OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/obx.sms/install/php_interface/obx.sms/SmsKontakt.php", $_SERVER["DOCUMENT_ROOT"]."/bitrix/php_interface/obx.sms/", true, true);
 if($bConnectEpilog) require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 ?>

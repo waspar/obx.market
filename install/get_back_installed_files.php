@@ -30,6 +30,11 @@ if( is_file($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.core/install/get_bac
 }
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/modules/obx.core");
 OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.core", $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.market/install/modules/", true, true, FALSE, "modules");
+if( is_file($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.sms/install/get_back_installed_files.php") ) {
+	require_once $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.sms/install/get_back_installed_files.php";
+}
+DeleteDirFilesEx("/bitrix/modules/obx.market/install/modules/obx.sms");
+OBX_CopyDirFilesEx($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.sms", $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/obx.market/install/modules/", true, true, FALSE, "modules");
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/admin/obx_market_delivery_systems.php");
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/admin/obx_market_index.php");
 DeleteDirFilesEx("/bitrix/modules/obx.market/install/admin/obx_market_order_edit.php");

@@ -187,7 +187,7 @@ class CurrencyFormatDBS extends DBSimple
 
 		if( is_array($arFormat) ) {
 			foreach($this->_arTableFieldsDefault as $formatKey => &$fmtUnitVal) {
-				if( empty($arFormat[$formatKey]) ) {
+				if( !array_key_exists($formatKey, $arFormat) || $arFormat[$formatKey] === null) {
 					$arFormat[$formatKey] = $fmtUnitVal;
 				}
 			}

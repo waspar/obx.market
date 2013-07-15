@@ -9,7 +9,7 @@
  ***********************************************/
 
 use \OBX\Core\Tools;
-use \OBX\Core\JSLang;
+use \OBX\Core\JSMessages;
 use \OBX\Market\Basket;
 use \OBX\Market\CIBlockPropertyPriceDBS;
 use \OBX\Market\CurrencyFormat;
@@ -92,7 +92,7 @@ $arResult['CURRENCY'] = array(
 		'THOUSANDS_SEP' => $arCurrencyFormat['THOUSANDS_SEP'],
 	)
 );
-$JSLang = JSLang::getInstance('obx.market');
+$JSLang = JSMessages::getInstance('obx.market');
 $JSLang->addMessage('basket.currency.currency', $arResult['CURRENCY']['CURRENCY']);
 $JSLang->addMessage('basket.currency.name', $arResult['CURRENCY']['NAME']);
 $JSLang->addMessage('basket.currency.format.string', $arResult['CURRENCY']['FORMAT']['STRING']);

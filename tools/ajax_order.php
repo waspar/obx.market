@@ -8,8 +8,6 @@ use OBX\Market\CurrencyFormatDBS;
 use OBX\Market\Order;
 use OBX\Market\OrderList;
 
-IncludeModuleLangFile(__FILE__);
-
 //Заголовки для предотвращения кеширования и указания типа данных JSON
 header('Cache-Control: no-cache, must-revalidate');
 

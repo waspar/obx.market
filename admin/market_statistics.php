@@ -23,7 +23,7 @@ IncludeModuleLangFile(__FILE__);
 
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-echo "Статистика продаж по местоположениям";
+//echo "Статистика продаж по местоположениям";
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

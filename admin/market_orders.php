@@ -327,7 +327,7 @@ $lAdmin->NavText($rsData->GetNavPrint(GetMessage('OBX_MARKET_ORDERS_LIST_NAV')))
 
 // Обработка строк
 while( $arRes = $rsData->NavNext(true, 'f_') ) {
-	$row =& $lAdmin->AddRow($f_ID, $arRes,"obx_market_order_edit.php?ID=".$f_ID."&#39;+/*&#39;#statusID=".$f_STATUS_ID.'*/&#39;',"изменить.");
+	$row =& $lAdmin->AddRow($f_ID, $arRes,"obx_market_order_edit.php?ID=".$f_ID."&#39;+/*&#39;#statusID=".$f_STATUS_ID.'*/&#39;', GetMessage('OBX_ORDER_LIST_EDIT'));
 
 	$row->AddViewField('USER_ID', '['.$f_USER_ID.']&nbsp;'.$f_USER_NAME);
 

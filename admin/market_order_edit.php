@@ -380,7 +380,7 @@ $TabControl->BeginNextTab();
 			?>
 			<select name="PROPERTIES[<?=$arPropertyValue['PROPERTY_ID']?>]">
 				<option value="null" <?if ($arPropertyValue['VALUE_ENUM_ID'] == null): ?>selected="selected"<? endif;?>>
-					[null] Не выбрано
+					<?=GetMessage('OBX_MARKET_ORDER_EDIT_NOT_SELECTED')?>
 				</option>
 
 				<?foreach ($arPropertyValue['PROPERTY_ENUM_VALUES'] as $arPropEnum): ?>
@@ -411,7 +411,7 @@ $TabControl->BeginNextTab();
 				<td class="icon">
 					<div id="sale"></div>
 				</td>
-				<td class="title">Состав заказа <input type="button" class="add_item right" value="<?=GetMessage("OBX_ORDER_ACTION_ADD_PROD")?>" align="right"></td>
+				<td class="title"><?=GetMessage('OBX_MARKET_ORDER_ITEMS_EDIT_TAB')?> <input type="button" class="add_item right" value="<?=GetMessage("OBX_ORDER_ACTION_ADD_PROD")?>" align="right"></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="delimiter">
@@ -425,7 +425,7 @@ $TabControl->BeginNextTab();
 	<td colspan="2">
 		<table id="items_list" class="internal" width="100%">
 			<tr class="heading">
-				<td>№</td>
+				<td><?=GetMessage('NUM_CHAR')?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_NAME")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_WEIGHT")?></td>
 				<td><?=GetMessage("OBX_ORDER_TITLE_PRODUCT_QUANTITY")?></td>

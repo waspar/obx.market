@@ -22,7 +22,7 @@ if (!$USER->IsAdmin()) {
 
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-echo "Редактирование систем доставки";
+//echo "Редактирование систем доставки";
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

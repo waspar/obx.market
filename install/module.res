@@ -21,4 +21,10 @@
 	obx.core
 	obx.sms
 
+[RAW_LANG_CHECK]
+{
+	[admin]
+		path: %MODULE_FOLDER%/admin/
+}
+
 [END]

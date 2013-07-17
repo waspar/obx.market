@@ -25,6 +25,14 @@
 {
 	[admin]
 		path: %MODULE_FOLDER%/admin/
+	[admin.ajax]
+		path: %MODULE_FOLDER%/admin/ajax/
+	[components]
+		path: %BX_ROOT%/components/obx.market
+	[install]
+		path: %INSTALL_FOLDER%/
+		exclude: modules
+		exclude_path: %INSTALL_FOLDER%/test/*
 }
 
 [END]

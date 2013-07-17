@@ -31,18 +31,18 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();?>
 			</div>
 
 			<a href="<?= $arItem["BUY_URL"] ?>">
-				$ купить $
+				$ <?=GetMessage('__BUY')?> $
 			</a>
 			<br>
 			<a href="<?= $arItem["DEL_URL"] ?>">
-				- удалить -
+				- <?=GetMessage('__DELETE')?> -
 			</a>
 			<br>
 			<a href="<?= $arItem["ADD_URL"] ?>">
-				+ добавить +
+				+ <?=GetMessage('__ADD')?> +
 			</a>
 			<?if ($arParams["USE_QUANTITY_VARIABLE"] == "Y"):?>
-				<label for="quant-<?=$arItem["ID"]?>">Количество:</label>
+				<label for="quant-<?=$arItem["ID"]?>"><?=GetMessage('__QUANTITY')?>:</label>
 				<input type="text" name="<?=$arParams["QUANTITY_VARIABLE"]?>" id="quant-<?=$arItem["ID"]?>"/>
 			<?endif;?>
 		</div>

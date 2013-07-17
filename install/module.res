@@ -25,6 +25,8 @@
 {
 	[classes]
 		path: %MODULE_FOLDER%/classes
+	[options]
+    		path: %MODULE_FOLDER%/options.php
 	[admin]
 		path: %MODULE_FOLDER%/admin/
 	[admin.ajax]

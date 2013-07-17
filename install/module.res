@@ -23,6 +23,8 @@
 
 [RAW_LANG_CHECK]
 {
+	[classes]
+		path: %MODULE_FOLDER%/classes
 	[admin]
 		path: %MODULE_FOLDER%/admin/
 	[admin.ajax]
@@ -32,7 +34,6 @@
 	[install]
 		path: %INSTALL_FOLDER%/
 		exclude: modules
-		exclude_path: %INSTALL_FOLDER%/test/*
 }
 
 [END]

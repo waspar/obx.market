@@ -64,3 +64,4 @@ $MESS['OBX_SETT_CATALOG_ERROR_300'] = 'Нeвозможно сделать инф
 $MESS['OBX_SETT_CATALOG_ERROR_4'] = 'Не удалось создать свойство инфоблока(#IBLOCK_ID#) хранения скидки. Ошибка:';
 $MESS['OBX_SETT_CATALOG_ERROR_5'] = 'Не удалось создать свойство инфоблока(#IBLOCK_ID#) хранения веса. Ошибка:';
 $MESS['OBX_SETT_CATALOG_ERROR_600'] = 'Не удалось привязать свойства инфоблока(#IBLOCK_ID#) к весу и/или к скидке';
+$MESS['OBX_MARKET_SETT_ADD_GROUP_ACCESS'] = 'Добавить группу доступа';

@@ -346,7 +346,7 @@ SQL
 				if(!$basketOrderID) {
 					$arError = $BasketDBS->popLastError('ARRAY');
 					$this->addError(GetMessage('OBX_ORDER_ITEMS_ERROR_11', array(
-						'#ERROR_TEXT#' => $arError['TEXT'].'; код ошибки: '.$arError['CODE'].'.'
+						'#ERROR_TEXT#' => $arError['TEXT'].'; '.GetMessage('OBX_BASKET_ITEM_ERROR_CODE').': '.$arError['CODE'].'.'
 					)), 11);
 					return false;
 				}

@@ -697,7 +697,7 @@ class Settings_Price extends Settings {
 						</div>
 						<?endif;?>
 					</div>
-					<a href="javascript:void(0)" class="bx-action-href add-new-group">Добавить группу доступа</a>
+					<a href="javascript:void(0)" class="bx-action-href add-new-group"><?=GetMessage('OBX_MARKET_SETT_ADD_GROUP_ACCESS');?></a>
 				</td>
 				<td class="center">
 					<input type="checkbox" name="obx_price_delete[<?=$arPrice["ID"]?>]" value="<?=$arPrice["ID"]?>"/>
@@ -742,7 +742,7 @@ class Settings_Price extends Settings {
 					   placeholder="<?=GetMessage("OBX_SETT_PRICE_F_NAME")?>"/></td>
 			<td><input type="text" name="obx_price_new[$index][code]" value=""
 					   placeholder="<?=GetMessage("OBX_SETT_PRICE_F_CODE")?>"/></td>
-			<td><input type="text" name="obx_price_new[$index][ыщке]" value=""
+			<td><input type="text" name="obx_price_new[$index][sort]" value=""
 					   placeholder="<?=GetMessage("OBX_SETT_PRICE_F_SORT")?>"/></td>
 			<td>
 				<select name="obx_price_new[$index][currency]">

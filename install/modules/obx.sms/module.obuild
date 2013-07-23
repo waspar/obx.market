@@ -1,3 +1,11 @@
+##########################################
+## @product OBX:SmsMaster Bitrix Module ##
+## @authors                             ##
+##        Maksim S. Makarov aka pr0n1x  ##
+## @license Affero GPLv3                ##
+## @mail rootfavell@gmail.com           ##
+##########################################
+
 [RESOURCES]
 %INSTALL_FOLDER%/php_interface/obx.sms :: *.php :: %BX_ROOT%/php_interface/obx.sms/
 
@@ -7,9 +15,9 @@ obx.core
 [RAW_LANG_CHECK]
 {
 	[classes]
-		path: %MODULE_FOLDER%/classes
+		path: %SELF_FOLDER%/classes
 	[options]
-		path: %MODULE_FOLDER%/options.php
+		path: %SELF_FOLDER%/options.php
 	[install]
 		path: %INSTALL_FOLDER%/
 		exclude_path: %INSTALL_FOLDER%/modules/*

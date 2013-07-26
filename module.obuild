@@ -16,10 +16,6 @@
 	%INSTALL_FOLDER%/js/ :: obx.market :: %BX_ROOT%/js/
 	%INSTALL_FOLDER%/tools/ :: obx.market :: %BX_ROOT%/tools/
 
-[DEPENDENCIES]
-	obx.core
-	obx.sms
-
 [RAW_LANG_CHECK]
 {
 	[classes]

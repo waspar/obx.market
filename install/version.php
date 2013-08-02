@@ -10,7 +10,7 @@
  ***************************************/
 
 $arModuleInfo = array(
-	"VERSION" => "0.9.1",
-	"VERSION_DATE" => "2013-07-30",
+	"VERSION" => "0.9.2",
+	"VERSION_DATE" => "2013-08-02",
 );
 return $arModuleInfo;

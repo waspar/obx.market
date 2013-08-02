@@ -103,7 +103,7 @@ create table if not exists obx_orders (
 	ID int(11) not null auto_increment,
 	TIMESTAMP_X timestamp on update current_timestamp not null default current_timestamp,
 	DATE_CREATED timestamp not null,
-	USER_ID int(11) not null,
+	USER_ID int(11) NULL,
 	MODIFIED_BY int(11) not null default 0,
 	MANAGER_ID int(11) NULL,
 	STATUS_ID int(11) not null default 1,

@@ -183,7 +183,7 @@ SQL
 		$this->_arTableFieldsDefault = array(
 			'STATUS_ID' => '1',
 			'CURRENCY' => Currency::getDefault(),
-			'USER_ID' => $USER->GetID(),
+			//'USER_ID' => $USER->GetID(),
 			'MODIFIED_BY' => $USER->GetID(),
 		);
 
@@ -191,7 +191,8 @@ SQL
 			'ID' => self::FLD_T_INT | self::FLD_NOT_NULL,
 			'DATE_CREATED' => self::FLD_T_NO_CHECK,
 			'TIMESTAMP_X' => self::FLD_T_NO_CHECK,
-			'USER_ID' => self::FLD_T_USER_ID | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
+			//'USER_ID' => self::FLD_T_USER_ID | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
+			'USER_ID' => self::FLD_T_USER_ID | self::FLD_NOT_ZERO,
 			'STATUS_ID' => self::FLD_T_INT | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
 			//'CURRENCY' => self::FLD_T_CODE | self::FLD_NOT_NULL | self::FLD_DEFAULT | self::FLD_REQUIRED,
 			'DELIVERY_ID' => self::FLD_T_INT,
@@ -268,10 +269,10 @@ SQL
 	}
 
 	protected function _onBeforeAdd(&$arFields, &$arCheckResult) {
-		if( !array_key_exists('USER_ID', $arFields) || $arFields['USER_ID'] == 0 ) {
-			$this->addError(GetMessage('OBX_ORDER_LIST_ERROR_1'), 1);
-			return false;
-		}
+//		if( !array_key_exists('USER_ID', $arFields) || $arFields['USER_ID'] == 0 ) {
+//			$this->addError(GetMessage('OBX_ORDER_LIST_ERROR_1'), 1);
+//			return false;
+//		}
 		return true;
 	}
 

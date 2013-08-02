@@ -44,7 +44,8 @@ if (!CModule::IncludeModule('obx.market')) {
 		'TEXT' => GetMessage('OBX_MARKET_MODULE_NOT_INSTALLED'),
 		'CODE' => 1
 	);
-} else {
+}
+else {
 
 	if (!empty($_REQUEST["MAKE_ORDER"])) {
 
@@ -56,35 +57,37 @@ if (!CModule::IncludeModule('obx.market')) {
 		}
 		$CurrentBasket = Basket::getCurrent();
 
-		$NewOrder = Order::add(array("USER_ID" => $CurrentBasket->getFields("USER_ID")));
-		if ($NewOrder->getLastError()) {
-			$arError = $NewOrder->popLastError("ARRAY");
-		}
-
-		$phone = preg_replace('~[^\d]~', '', $_REQUEST["PHONE"]);
-
-		$arProps = array(
-			"PHONE" => $phone
-		);
-
-		$NewOrder->setProperties($arProps);
-		$newOrderID = $NewOrder->getID();
-
-		$OrderBasket = Basket::getByOrderID($newOrderID);
-
-		$OrderBasket->mergeBasket($CurrentBasket, true);
-		unset($CurrentBasket);
-
-		if ($OrderBasket->getLastError() == null) {
-			$arJSON['success'] = "Y";
-		} else {
+		$arAddOrderErrors = array();
+		$NewOrder = Order::add(array("USER_ID" => $CurrentBasket->getFields("USER_ID")), $arAddOrderErrors);
+		if ($NewOrder == null) {
 			$arJSON['success'] = "N";
-			$arJSON['messages'][] = $OrderBasket->getLastError();
+			foreach($arAddOrderErrors as $arAddOrderErrorItem) {
+				$arJSON['messages'][] = $arAddOrderErrorItem['TEXT'];
+			}
 		}
+		else {
+			$phone = preg_replace('~[^\d]~', '', $_REQUEST["PHONE"]);
 
-	};
+			$arProps = array(
+				"PHONE" => $phone
+			);
 
+			$NewOrder->setProperties($arProps);
+			$newOrderID = $NewOrder->getID();
 
+			$OrderBasket = Basket::getByOrderID($newOrderID);
+
+			$OrderBasket->mergeBasket($CurrentBasket, true);
+			unset($CurrentBasket);
+
+			if ($OrderBasket->getLastError() == null) {
+				$arJSON['success'] = "Y";
+			} else {
+				$arJSON['success'] = "N";
+				$arJSON['messages'][] = $OrderBasket->getLastError();
+			}
+		}
+	}
 }
 
 

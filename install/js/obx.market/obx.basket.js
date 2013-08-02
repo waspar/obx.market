@@ -78,8 +78,9 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		,toBasketButtons:		true // true - on, false - off
 		,toBasketClass:			'.addtobasket'
 		,toBasketAddedClass:	'added'
-		,toBasketHasValue:		'Уже в корзине'
-		,toBasketValue:			'Добавить в корзину'
+		,toBasketHasValue:		'Already in basket'
+		,toBasketValue:			'Add to basket'
+		,msgRemoveItem:			'Product "#NAME#" will be removed from basket. Are you sure?'
 		,toBasketContainer:		'#content'
 		,qtyInput:				'input[name=qty]'
 		,animate:{
@@ -843,7 +844,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 						// remove?
 						if(basket.items[id].qty==1){
-							if(confirm('Удалить товар "'+tmplItem.data.name+'" из корзины?')){
+							if( confirm(conf.msgRemoveItem.replace(/#NAME#/, tmplItem.data.name)) ) {
 								self.removeBasketItem(id);
 								return true;
 							}else return false;
@@ -911,7 +912,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					// calculation
 					if(curVal==0){ // zero
 						// remove?
-						if(confirm('Удалить товар "'+tmplItem.data.name+'" из корзины?')){
+						if( confirm(conf.msgRemoveItem.replace(/#NAME#/, tmplItem.data.name)) ) {
 							self.removeBasketItem(id);
 							return true;
 						}else{ // rollback

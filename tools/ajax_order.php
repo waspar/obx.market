@@ -11,7 +11,7 @@ use OBX\Market\OrderList;
 //Заголовки для предотвращения кеширования и указания типа данных JSON
 header('Cache-Control: no-cache, must-revalidate');
 
-header('Content-type: application/json');
+header('Content-type: application/json; charset: UTF-8');
 
 /*
  *************** ORDER FIELDS ***************
@@ -92,6 +92,9 @@ else {
 
 
 //print_r($arJSON);
+if(!defined('BX_UTF') || BX_UTF !== true) {
+	$arJSON = $APPLICATION->ConvertCharsetArray($arJSON, LANG_CHARSET, 'UTF-8');
+}
 echo json_encode($arJSON);
 
 require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_after.php');

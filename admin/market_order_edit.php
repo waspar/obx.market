@@ -164,6 +164,10 @@ if ($REQUEST_METHOD == "POST" // проверка метода вызова ст
 		$DB->Commit();
 	} else {
 		$DB->Rollback();
+		$arOrderErrorsPool = $Order->getErrors();
+		foreach($arOrderErrorsPool as $arOrderError) {
+			$arErrors[] = $arOrderError['TEXT'];
+		} unset($arOrderErrorsPool, $arOrderError);
 	}
 
 	if ($apply != '') {

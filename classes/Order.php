@@ -240,6 +240,10 @@ class Order extends CMessagePoolDecorator {
 			$this->_bFieldsChanged = true;
 			return true;
 		}
+		else {
+			$arError = $this->_OrderDBS->getLastError('ARRAY');
+			$this->addError($arError['TEXT'], $arError['CODE']);
+		}
 		return false;
 	}
 

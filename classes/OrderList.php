@@ -265,22 +265,25 @@ SQL
 	protected function _onStartAdd(&$arFields) {
 		$curTime = date('Y-m-d H:i:s');
 		$arFields['DATE_CREATED'] = $curTime;
-		return true;
+		$bSuccess = parent::_onStartAdd($arFields);
+		return $bSuccess;
 	}
 
-	protected function _onBeforeAdd(&$arFields, &$arCheckResult) {
+//	protected function _onBeforeAdd(&$arFields, &$arCheckResult) {
 //		if( !array_key_exists('USER_ID', $arFields) || $arFields['USER_ID'] == 0 ) {
 //			$this->addError(GetMessage('OBX_ORDER_LIST_ERROR_1'), 1);
 //			return false;
 //		}
-		return true;
-	}
+//
+//		return true;
+//	}
 
 	protected function _onStartUpdate(&$arFields) {
 		if (array_key_exists('DATE_CREATED', $arFields)) {
 			unset($arFields['DATE_CREATED']);
 		}
-		return true;
+		$bSuccess = parent::_onStartUpdate($arFields);
+		return $bSuccess;
 	}
 
 	protected function _onAfterDelete(&$arOrder) {

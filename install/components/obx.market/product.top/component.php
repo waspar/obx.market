@@ -93,6 +93,11 @@ if ($this->StartResultCache()) {
 		$arIBlockFilter['ID'][] = $iblockID;
 	}
 
+	if( empty($arIBlockFilter['ID']) ) {
+		ShowError(GetMessage('OBX_MARKET_CMP_PROD_TOP_FILTER_IB_NOT_SET'));
+		return false;
+	}
+
 	$dbIBlockList = CIBlock::GetList(array(), $arIBlockFilter);
 	$arIBlockList = array();
 	while( $arIBlock = $dbIBlockList->Fetch() ) {
@@ -123,15 +128,21 @@ if ($this->StartResultCache()) {
 	$arIBlockListIDIndex = Tools::getListIndex($arIBlockList, 'ID', true, true);
 	//$arIBlockListCodeIndex = Tools::getListIndex($arIBlockList, 'CODE', true, true);
 
-
+	$bFilterIsEmpty = true;
 	foreach($arIBlockListIDIndex as $iblockID => $arIBlock) {
 		if( !empty($arIBlock['FILTER_PROPERTY']) ) {
+			$bFilterIsEmpty = false;
 			$arProductFilter[] = array(
 				'ACTIVE' => 'Y',
 				'IBLOCK_ID' => $iblockID,
 				'!PROPERTY_'.$arIBlock['FILTER_PROPERTY']['CODE'] => false
 			);
 		}
+	}
+
+	if( $bFilterIsEmpty ) {
+		ShowError(GetMessage('OBX_MARKET_CMP_PROD_TOP_FILTER_IS_NOT_SET'));
+		return false;
 	}
 
 	$dbItems = CIBlockElement::GetList($arSort, $arProductFilter,

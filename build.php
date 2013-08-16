@@ -9,6 +9,5 @@
  ** @copyright 2013 DevTop                    **
  ***********************************************/
 
-require dirname(__FILE__) . "/../obx.core/classes/Build.php";
-$build = new OBX_Build("obx.market");
-$build->processCommandOptions();
+require dirname(__FILE__) . '/../obx.core/classes/Build.php';
+OBX_Build::processCommandOptions('obx.market');

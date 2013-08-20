@@ -5,7 +5,10 @@ if(!CModule::IncludeModule('iblock')){
     return false;
 }
 
-ExecuteModuleEventEx(GetModuleEvents('obx.market', 'onBeforeModuleInclude', true), array());
+$arEventList = GetModuleEvents('obx.market', 'onBeforeModuleInclude', true);
+foreach($arEventList as $arEvent) {
+	ExecuteModuleEventEx($arEvent, array());
+}
 
 if(!CModule::IncludeModule('obx.core')) {
 	$obxCorePath = $_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/obx.core/install/index.php';

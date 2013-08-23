@@ -78,9 +78,6 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		,toBasketButtons:		true // true - on, false - off
 		,toBasketClass:			'.addtobasket'
 		,toBasketAddedClass:	'added'
-		,toBasketHasValue:		'Already in basket'
-		,toBasketValue:			'Add to basket'
-		,msgRemoveItem:			'Product "#NAME#" will be removed from basket. Are you sure?'
 		,toBasketContainer:		'#content'
 		,qtyInput:				'input[name=qty]'
 		,animate:{
@@ -91,6 +88,12 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 		,ajaxUrl: ''
 		,scrollBasketWhenQty: 4
 		,mouseWheelSpeed: 20
+		,msg: {
+			 toBasketHasValue:		'Already in basket'
+			,toBasketValue:			'Add to basket'
+			,removeItem:			'Product "#NAME#" will be removed from basket. Are you sure?'
+			,unit: ''
+		}
 	};
 
 	/**
@@ -408,7 +411,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					// buttons
 					if(conf.toBasketButtons) {
 						var btn = jq.buttons.filter('[data-id='+id+']')
-						btn.addClass(conf.toBasketAddedClass).val(conf.toBasketHasValue);
+						btn.addClass(conf.toBasketAddedClass).val(conf.msg.toBasketHasValue);
 						btn.parent().addClass(conf.toBasketAddedClass);
 					}
 					// item render
@@ -515,7 +518,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					// buttons
 					if(conf.toBasketButtons) {
 						var btn = jq.buttons.filter('[data-id='+id+']');
-						btn.removeClass(conf.toBasketAddedClass).val(conf.toBasketValue);
+						btn.removeClass(conf.toBasketAddedClass).val(conf.msg.toBasketValue);
 						btn.parent().removeClass(conf.toBasketAddedClass);
 					}
 					// animate & remove
@@ -779,7 +782,8 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 			has : function (property){
 				if(this.data.hasOwnProperty(property)) return true;
 				else return false;
-			}
+			},
+			msg: conf.msg
 		};
 
 
@@ -844,7 +848,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 
 						// remove?
 						if(basket.items[id].qty==1){
-							if( confirm(conf.msgRemoveItem.replace(/#NAME#/, tmplItem.data.name)) ) {
+							if( confirm(conf.msg.removeItem.replace(/#NAME#/, tmplItem.data.name)) ) {
 								self.removeBasketItem(id);
 								return true;
 							}else return false;
@@ -912,7 +916,7 @@ if(typeof(jQuery) == 'undefined') jQuery = false;
 					// calculation
 					if(curVal==0){ // zero
 						// remove?
-						if( confirm(conf.msgRemoveItem.replace(/#NAME#/, tmplItem.data.name)) ) {
+						if( confirm(conf.msg.removeItem.replace(/#NAME#/, tmplItem.data.name)) ) {
 							self.removeBasketItem(id);
 							return true;
 						}else{ // rollback

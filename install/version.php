@@ -11,7 +11,7 @@
 
 $arModuleVersion = array(
 	"VERSION" => "1.0.1",
-	"VERSION_DATE" => "2013-08-20",
+	"VERSION_DATE" => "2013-08-23",
 );
 return $arModuleVersion;
 
@@ -25,4 +25,5 @@ return $arModuleVersion;
  *
  * [1.0.1]
  * * Исправлена ошибка в форме редактирования заказа в панели администрирования
+ * * В obx.basket.js все языковые сообщения вынесены в кофигурационный объект msg
  */

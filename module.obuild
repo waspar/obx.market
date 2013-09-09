@@ -36,3 +36,4 @@
 }
 
 [END]
+@include: %MODULES_BUILD%/%MODULE_ID%/release.obuild;

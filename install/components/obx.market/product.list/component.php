@@ -19,7 +19,7 @@ if (!CModule::IncludeModule("obx.market")) {
 	ShowError(GetMessage("OBX_MARKET_NOT_INSTALLED"));
 	return false;
 }
-if (!CModule::IncludeModule("iblock")) {
+if (!CModule::IncludeModule("iblock")	) {
 	ShowError(GetMessage("OBX_MARKET_NOT_INSTALLED"));
 	return false;
 }

@@ -117,7 +117,12 @@ if( ($arID = $lAdmin->GroupAction()) ) {
 /**
  * Выборка
  */
-$rsData = $OrderPropertyDBS->getList(array($by=>$order),$arFilter);
+$rsData = $OrderPropertyDBS->getList(
+	array($by=>$order),
+	$arFilter,
+	null, null,
+	array('ID', 'CODE', 'SORT', 'PROPERTY_TYPE', 'NAME', 'DESCRIPTION', 'IS_SYS')
+);
 $rsData = new CAdminResult($rsData, $tableID);
 
 $rsData->NavStart();
@@ -143,7 +148,6 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	//$row->AddEditField("NAME", '<input name="FIELDS[NAME]" value="'.$arRes['NAME'].'" />');
 
 	$row->AddViewField('CODE',$f_CODE);
-	$row->AddInputField('CODE', array('size'=>20));
 	$row->AddInputField('CODE', array('size'=>20));
 	//$row->AddEditField("CODE", '<input name="FIELDS[CODE]" value="'.$arRes['CODE'].'" />');
 
@@ -180,7 +184,7 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	$row->AddViewField('SORT',$f_SORT);
 	$row->AddInputField('SORT', array('size'=>20));
 
-	$row->AddViewField('SORT',$f_IS_SYS);
+	$row->AddViewField('IS_SYS', (($f_IS_SYS=='Y')?GetMessage('OBX_MARKET_YES'):GetMessage('OBX_MARKET_NO')));
 	
 	// Меню строки
 	$arActions = Array();

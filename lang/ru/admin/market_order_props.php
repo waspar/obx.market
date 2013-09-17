@@ -1,4 +1,6 @@
 <?php
+$MESS['OBX_MARKET_YES'] = 'Да';
+$MESS['OBX_MARKET_NO'] = 'Нет';
 $MESS['OBX_MARKET_ORDER_PROPS_LIST_TITLE'] = 'Свойства заказов';
 $MESS['OBX_MARKET_ORDER_PROPS_LIST_NAV'] = 'Список свойств заказа';
 $MESS['OBX_MARKET_ORDER_PROPS_LIST_ADD'] = 'Новое свойство';

@@ -8,66 +8,93 @@
  ** @mailto tashiro@yandex.ru         **
  ***************************************/
 
-/********* MENU ***********/
+/********* MENU Bitrix >= 12 ***********/
+#global_menu_obx_market.adm-main-menu-item  .adm-main-menu-item-icon {
+	background: url(obx.market/global_menu.png) center 10px no-repeat;
+}
+#global_menu_obx_market.adm-main-menu-item:hover  .adm-main-menu-item-icon {
+	background: url(obx.market/global_menu_active.png) center 10px no-repeat;
+}
+#global_menu_obx_market.adm-main-menu-item-active  .adm-main-menu-item-icon {
+	background: url(obx.market/global_menu_active.png) center 10px no-repeat;
+}
+
+#global_submenu_obx_market .obx_market_menu_icon_orders.adm-submenu-item-link-icon {
+	background: url(obx.market/icons-sprite-little.png) center 0px no-repeat;
+}
+#global_submenu_obx_market .obx_market_menu_icon_order_props.adm-submenu-item-link-icon {
+	background: url(obx.market/icons-sprite-little.png) center -26px no-repeat;
+}
+#global_submenu_obx_market .obx_market_menu_icon_order_status.adm-submenu-item-link-icon {
+	background: url(obx.market/icons-sprite-little.png) center -53px no-repeat;
+}
+#global_submenu_obx_market .obx_market_menu_icon_market_options.adm-submenu-item-link-icon {
+	background: url(obx.market/icons-sprite-little.png) center -182px no-repeat;
+}
+
+
+/********* MENU Bitrix < 12 ***********/
 #button_obx_market {
-	background: url(obx.market/big_menu_button.png) left center no-repeat;
+	background: url(obx.market/bx11/big_menu_button.png) left center no-repeat;
 }
 
 #obx_market_menu_icon_orders {
-	background: url(obx.market/menu_market_orders.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_orders.png) center center no-repeat;
 }
 #obx_market_page_icon_orders {
-	background: url(obx.market/page_market_orders.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_orders.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_order_props {
-	background: url(obx.market/menu_market_order_props.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_order_props.png) center center no-repeat;
 }
 #obx_market_page_icon_order_props {
-	background: url(obx.market/page_market_order_props.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_order_props.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_order_status {
-	background: url(obx.market/menu_market_order_status.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_order_status.png) center center no-repeat;
 }
 #obx_market_page_icon_order_status {
-	background: url(obx.market/page_market_order_status.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_order_status.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_market_options {
-	background: url(obx.market/menu_market_options.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_options.png) center center no-repeat;
 }
 #obx_market_page_icon_market_options {
-	background: url(obx.market/page_market_options.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_options.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_places {
-	background: url(obx.market/menu_market_places.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_places.png) center center no-repeat;
 }
 #obx_market_page_icon_places {
-	background: url(obx.market/page_market_places.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_places.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_statistics {
-	background: url(obx.market/menu_market_statistics.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_statistics.png) center center no-repeat;
 }
 #obx_market_page_icon_statistics {
-	background: url(obx.market/page_market_statistics.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_statistics.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_pay_systems {
-	background: url(obx.market/menu_market_pay_systems.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_pay_systems.png) center center no-repeat;
 }
 #obx_market_page_icon_pay_systems {
-	background: url(obx.market/page_market_pay_systems.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_pay_systems.png) center center no-repeat;
 }
 
 #obx_market_menu_icon_delivery_systems {
-	background: url(obx.market/menu_market_delivery_systems.png) center center no-repeat;
+	background: url(obx.market/bx11/menu_market_delivery_systems.png) center center no-repeat;
 }
 #obx_market_page_icon_delivery_systems {
-	background: url(obx.market/page_market_delivery_systems.png) center center no-repeat;
+	background: url(obx.market/bx11/page_market_delivery_systems.png) center center no-repeat;
 }
+/*** /MENU ***/
+
 
 .obx-order-status-icon {
 	display: block;
@@ -78,13 +105,13 @@
 
 /****** ORDERS LIST ******/
 .obx-order-is-active {
-	background: url(obx.market/item_is_active.gif) center center no-repeat;
+	background: url(obx.market/bx11/item_is_active.gif) center center no-repeat;
 }
 .obx-order-is-not-active {
-	background: url(obx.market/item_is_not_active.gif) center center no-repeat;
+	background: url(obx.market/bx11/item_is_not_active.gif) center center no-repeat;
 }
 .icon.obx-order-list-edit {
-	background: url(obx.market/item_edit.gif) center center no-repeat;
+	background: url(obx.market/bx11/item_edit.gif) center center no-repeat;
 }
 hr.min-items-column-width {
 	min-width: 250px;

@@ -159,6 +159,7 @@ class ECommerceIBlockDBS extends DBSimple
 			b_iblock AS b
 		LEFT JOIN obx_ecom_iblock AS cb ON (b.ID = cb.IBLOCK_ID)
 		ORDER BY
+			b.IBLOCK_TYPE_ID ASC,
 			b.SORT ASC,
 			b.ID ASC
 SQL;

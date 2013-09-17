@@ -232,16 +232,28 @@ class obx_market extends CModule {
 	public function UnInstallTasks() { $this->bSuccessUnInstallTasks = true; return $this->bSuccessUnInstallTasks; }
 
 	public function InstallDeps() {
-		if( is_file($this->installDir."/install_deps.php") ) {
-			require $this->installDir."/install_deps.php";
-			$arDepsList = $this->getDepsList();
-			foreach($arDepsList as $depModID => $depModClass) {
-				$depModInstallerFile = $this->bxModulesDir."/".$depModID."/install/index.php";
-				if( is_file($depModInstallerFile) ) {
+		$arDepsList = $this->getDepsList();
+		$this->bSuccessInstallDeps = true;
+		foreach($arDepsList as $depModID => $depModClass) {
+			$depModInstallerFile = $this->bxModulesDir."/".$depModID."/install/index.php";
+			if( !IsModuleInstalled($depModID) ) {
+				CopyDirFiles(
+					$_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/'.$this->MODULE_ID.'/install/modules/'.$depModID,
+					$_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/'.$depModID,
+					true, true
+					, false, 'update-'
+				);
+
+				if( !is_file($depModInstallerFile) ) {
+					$this->bSuccessInstallDeps = false;
+					$this->arErrors[] = 'Dependency installer not found ('.BX_ROOT.'/modules/'.$depModID.')';
+				}
+				else {
 					require_once $depModInstallerFile;
 					/** @var CModule $DepModInstaller */
-					$bSuccess = true;
 					$DepModInstaller = new $depModClass;
+					$bSuccess = true;
+					$bSuccess = $DepModInstaller->InstallFiles() && $bSuccess;
 					$bSuccess = $DepModInstaller->InstallDB() && $bSuccess;
 					$bSuccess = $DepModInstaller->InstallEvents() && $bSuccess;
 					$bSuccess = $DepModInstaller->InstallTasks() && $bSuccess;
@@ -252,22 +264,89 @@ class obx_market extends CModule {
 						if( !IsModuleInstalled($depModID) ) {
 							RegisterModule($depModID);
 						}
-						$this->bSuccessInstallDeps = true;
 					}
 					else {
 						if( method_exists($DepModInstaller, 'getErrors') ) {
 							$arInstallErrors = $DepModInstaller->getErrors();
 							foreach($arInstallErrors as $error) {
-								$this->arErrors[] = $error;
+								$this->arErrors[] = 'Install dependency error '.$depModID.': '.$error;
 							}
 						}
 						$this->bSuccessInstallDeps = false;
 					}
 				}
 			}
+			else {
+				if( !is_file($depModInstallerFile) ) {
+					$this->bSuccessInstallDeps = false;
+					$this->arErrors[] = 'Dependency installer not found ('.BX_ROOT.'/modules/'.$depModID.')';
+				}
+				else {
+					require_once $depModInstallerFile;
+					/** @var CModule $DepModInstaller */
+					$DepModInstaller = new $depModClass;
+
+					$depInstallModulePath = $_SERVER['DOCUMENT_ROOT'].BX_ROOT
+						.'/modules/'.$this->MODULE_ID
+						.'/install/modules/'.$depModID
+					;
+					$depInstallModuleFolder = BX_ROOT
+						.'/modules/'.$this->MODULE_ID
+						.'/install/modules/'.$depModID
+					;
+					if( !is_dir($depInstallModulePath) ) {
+						continue;
+					}
+					$depInstallDir = opendir($depInstallModulePath);
+					$arUpdates = array();
+					while($depInsFSEntry = readdir($depInstallDir)) {
+						if($depInsFSEntry == '.' || $depInsFSEntry == '..') continue;
+						if( strpos($depInsFSEntry, 'update-') !== false
+							&& is_dir($depInstallModulePath.'/'.$depInsFSEntry)
+						) {
+							$arUpdateVersion = self::readVersion($depInsFSEntry);
+							$arCurrentModuleVersion = self::readVersion($DepModInstaller->MODULE_VERSION);
+							if(
+								!empty($arUpdateVersion) && !empty($arCurrentModuleVersion)
+								&& $arUpdateVersion['RAW_VERSION'] > $arCurrentModuleVersion['RAW_VERSION']
+							) {
+								$arUpdates[] = $depInsFSEntry;
+							}
+						}
+					}
+					closedir($depInstallDir);
+					if( !empty($arUpdates) ) {
+						uasort($arUpdates, array($this, 'compareVersions'));
+						foreach($arUpdates as $updateFolder) {
+							$strErrors = '';
+							if(is_file($depInstallModulePath.'/'.$updateFolder.'/updater.dep.php')) {
+								$GLOBALS['__runAutoGenUpdater'] = true;
+								CUpdateSystem::AddMessage2Log('Run updater of Dependency '.$depModID);
+								CUpdateSystem::RunUpdaterScript(
+									$depInstallModulePath.'/'.$updateFolder.'/updater.dep.php',
+									$strErrors,
+									$depInstallModuleFolder.'/'.$updateFolder,
+									$depModID
+								);
+								unset($GLOBALS['__runAutoGenUpdater']);
+							}
+							else {
+								$strErrors .= 'Dependency updater-script not found('.$depInstallModuleFolder.'/'.$updateFolder.'/updater.dep.php'.')'."\n";
+							}
+							if(strlen($strErrors)>0) {
+								$logError = 'Update dependency error '.$depModID.': '."\n".$strErrors;
+								$this->arErrors[] = $logError;
+								CUpdateSystem::AddMessage2Log($logError);
+								$this->bSuccessInstallDeps = false;
+							}
+						}
+					}
+				}
+			}
 		}
 		return $this->bSuccessInstallDeps;
 	}
+
 	public function UnInstallDeps() {
 		$arDepsList = $this->getDepsList();
 		foreach($arDepsList as $depModID => $depModClass) {
@@ -304,15 +383,8 @@ class obx_market extends CModule {
 
 	protected function getDepsList() {
 		$arDepsList = array();
-		if( is_dir($this->installDir."/modules") ) {
-			if( ($dirSubModules = @opendir($this->installDir."/modules")) ) {
-				while( ($depModID = readdir($dirSubModules)) !== false ) {
-					if( $depModID == "." || $depModID == ".." ) {
-						continue;
-					}
-					$arDepsList[$depModID] = str_replace('.', '_', $depModID);
-				}
-			}
+		if( is_dir($this->installDir."/modules") && is_file($this->installDir.'/dependencies.php') ) {
+			$arDepsList = require $this->installDir.'/dependencies.php';
 		}
 		return $arDepsList;
 	}

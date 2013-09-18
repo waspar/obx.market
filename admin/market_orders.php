@@ -85,6 +85,10 @@ foreach($arOrderStatusListRaw as &$arOrderStatus) {
 	#tbl_obx_orders tr[ondblclick*="statusID=<?=$arOrderStatus['ID']?>"] td{
 		background: <?='#'.$arOrderStatus["COLOR"]?>;
 	}
+	#bx-admin-prefix .status-id-<?=$arOrderStatus['ID']?>.obx-market-status:after {
+		background: <?='#'.$arOrderStatus["COLOR"]?>;
+		box-shadow: 0px 0px 1px 2px <?='#'.$arOrderStatus["COLOR"]?>;
+	}
 	<?}?>
 <?}?>
 </style>
@@ -439,7 +443,7 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	// Меню строки
 	$arActions = Array();
 	$arActions[] = array(
-		'ICON' => 'obx-order-list-edit',
+		'ICON' => 'edit',
 		'TEXT' => GetMessage('OBX_ORDER_LIST_EDIT'),
 		'ACTION' => $lAdmin->ActionRedirect('obx_market_order_edit.php?ID='.$f_ID),
 		'DEFAULT' => 'Y',
@@ -449,7 +453,7 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	);
 	foreach($arOrderStatusList as &$arStatus) {
 		$arActions[] = array(
-			//'ICON' => 'status_completed',
+			'GLOBAL_ICON' => 'obx-market-status status-id-'.$arStatus['ID'],
 			'TEXT' => GetMessage('OBX_MARKET_ORDERS_F_STATUS').': ['.$arStatus['ID'].']&nbsp;'.$arStatus["NAME"],
 			'ACTION' => $lAdmin->ActionDoGroup($f_ID, 'setstatus_'.$arStatus['ID'])
 		);

@@ -450,7 +450,7 @@ while( $arRes = $rsData->NavNext(true, 'f_') ) {
 	foreach($arOrderStatusList as &$arStatus) {
 		$arActions[] = array(
 			//'ICON' => 'status_completed',
-			'TEXT' => 'Статус: ['.$arStatus['ID'].']&nbsp;'.$arStatus["NAME"],
+			'TEXT' => GetMessage('OBX_MARKET_ORDERS_F_STATUS').': ['.$arStatus['ID'].']&nbsp;'.$arStatus["NAME"],
 			'ACTION' => $lAdmin->ActionDoGroup($f_ID, 'setstatus_'.$arStatus['ID'])
 		);
 	}

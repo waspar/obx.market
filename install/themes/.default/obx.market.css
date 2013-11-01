@@ -10,7 +10,7 @@
 
 /********* MENU Bitrix >= 12 ***********/
 #global_menu_obx_market.adm-main-menu-item  .adm-main-menu-item-icon {
-	background-: url(obx.market/global_menu.png) center 10px no-repeat !important;
+	background: url(obx.market/global_menu.png) center 10px no-repeat !important;
 }
 #global_menu_obx_market.adm-main-menu-item:hover  .adm-main-menu-item-icon {
 	background: url(obx.market/global_menu.png) center -39px no-repeat !important;
